@@ -5,7 +5,7 @@ Rodrigo E. S. Borges
 
 # Introdução
 
-# transfRgov <img src='man/figures/logo.png' align="right" height="139" />
+# transfRgov <img src='man/figures/logodali.webp' align="right" height="139" />
 
 [![codecov](https://codecov.io/gh/distintivelab/transfRgov/graph/badge.svg?token=7B3AMAQYHS)](https://app.codecov.io/gh/distintivelab/transfRgov)
 
@@ -113,7 +113,7 @@ o pacote.
 
 Este pacote é distribuído sob a Licença GPL-3.
 
-\#Disclaimer - Nota de isenção de responsabilidade:
+# Disclaimer - Nota de isenção de responsabilidade:
 
 Este pacote não é uma ferramenta oficial do Ministério da Gestão ou de
 qualquer órgão do governo federal. Ele foi desenvolvido de forma
