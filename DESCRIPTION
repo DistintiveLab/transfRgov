@@ -1,0 +1,22 @@
+Package: transfRgov
+Type: Package
+Title: Aquisition and reading of Brazil Gov Fund Transfers - FAF
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Rodrigo", "Borges",
+      email = "rodrigo@borges.net.br",
+      role = c("aut", "cre")
+    )
+  )
+Description: Aquisition and reading of Brazil Gov Fund Transfers - FAF.
+    https://api.transferegov.gestao.gov.br/fundoafundo/.
+License: GPL
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Depends: 
+    R (>= 3.5)
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
