@@ -72,30 +72,53 @@ head(dados_relatorio)
 
 ## Endpoints Disponíveis
 
-    ler_programa: Retorna informações sobre os programas.
-    ler_programa_beneficiario: Retorna dados dos beneficiários dos programas.
-    ler_programa_gestao_agil: Retorna informações da gestão ágil dos programas.
-    ler_plano_acao: Retorna os dados dos planos de ação.
-    ler_plano_acao_dado_bancario: Retorna os dados bancários dos planos de ação.
-    ler_plano_acao_meta: Retorna as metas dos planos de ação.
-    ler_plano_acao_meta_acao: Retorna as ações associadas às metas dos planos de ação.
-    ler_plano_acao_destinacao_recursos: Retorna os dados de destinação de recursos dos planos de ação.
-    ler_plano_acao_analise: Retorna os dados das análises dos planos de ação.
-    ler_plano_acao_analise_responsavel: Retorna os responsáveis pelas análises dos planos de ação.
-    ler_plano_acao_historico: Retorna o histórico dos planos de ação.
-    ler_termo_adesao: Retorna os dados dos termos de adesão.
-    ler_termo_adesao_historico: Retorna o histórico dos termos de adesão.
-    ler_gestao_financeira_lancamentos: Retorna os lançamentos da gestão financeira.
-    ler_gestao_financeira_subtransacoes: Retorna as subtransações dos lançamentos de gestão financeira.
-    ler_gestao_financeira_categorias_despesa: Retorna as categorias de despesa da gestão financeira.
-    ler_empenho: Retorna os dados dos empenhos.
-    ler_relatorio_gestao: Retorna os relatórios de gestão.
-    ler_relatorio_gestao_acoes: Retorna as ações dos relatórios de gestão.
-    ler_relatorio_gestao_analise: Retorna as análises dos relatórios de gestão.
-    ler_relatorio_gestao_analise_responsavel: Retorna os responsáveis pelas análises dos relatórios de gestão.
-    ler_relatorio_gestao_acoes: Retorna as ações dos relatórios de gestão.
-    ler_relatorio_gestao_analise: Retorna as análises dos relatórios de gestão.
-    ler_relatorio_gestao_analise_responsavel: Retorna os responsáveis pelas análises dos relatórios de gestão.
+ - ler_programa: Retorna informações sobre os programas.
+
+ - ler_programa_beneficiario: Retorna dados dos beneficiários dos programas.
+
+ - ler_programa_gestao_agil: Retorna informações da gestão ágil dos programas.
+
+ - ler_plano_acao: Retorna os dados dos planos de ação.
+
+ - ler_plano_acao_dado_bancario: Retorna os dados bancários dos planos de ação.
+
+ - ler_plano_acao_meta: Retorna as metas dos planos de ação.
+
+ - ler_plano_acao_meta_acao: Retorna as ações associadas às metas dos planos de ação.
+
+ - ler_plano_acao_destinacao_recursos: Retorna os dados de destinação de recursos dos planos de ação.
+
+ - ler_plano_acao_analise: Retorna os dados das análises dos planos de ação.
+
+ - ler_plano_acao_analise_responsavel: Retorna os responsáveis pelas análises dos planos de ação.
+
+ - ler_plano_acao_historico: Retorna o histórico dos planos de ação.
+
+ - ler_termo_adesao: Retorna os dados dos termos de adesão.
+
+ - ler_termo_adesao_historico: Retorna o histórico dos termos de adesão.
+
+ - ler_gestao_financeira_lancamentos: Retorna os lançamentos da gestão financeira.
+
+ - ler_gestao_financeira_subtransacoes: Retorna as subtransações dos lançamentos de gestão financeira.
+
+ - ler_gestao_financeira_categorias_despesa: Retorna as categorias de despesa da gestão financeira.
+
+ - ler_empenho: Retorna os dados dos empenhos.
+
+ - ler_relatorio_gestao: Retorna os relatórios de gestão.
+
+ - ler_relatorio_gestao_acoes: Retorna as ações dos relatórios de gestão.
+
+ - ler_relatorio_gestao_analise: Retorna as análises dos relatórios de gestão.
+
+ - ler_relatorio_gestao_analise_responsavel: Retorna os responsáveis pelas análises dos relatórios de gestão.
+
+ - ler_relatorio_gestao_acoes: Retorna as ações dos relatórios de gestão.
+
+ - ler_relatorio_gestao_analise: Retorna as análises dos relatórios de gestão.
+
+ - ler_relatorio_gestao_analise_responsavel: Retorna os responsáveis pelas análises dos relatórios de gestão.
 
 # Dados de Resposta
 
