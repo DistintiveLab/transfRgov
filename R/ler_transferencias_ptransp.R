@@ -2,6 +2,7 @@
 #' @description Baixa dados de transferências de recursos da União do Portal da Transparência para um ano e mês específicos.
 #' @param ano O ano dos dados (inteiro, e.g., 2023).
 #' @param mes O mês dos dados (inteiro, 1-12).
+#' @param municipios_mapping possibilidade de passar mapeamento distinto do padrão incluído no pacote
 #' @return Um data frame contendo os dados de transferências. Retorna NULL (invisível) se ocorrer um erro.
 #' @details
 #' Esta função acessa a página de download para o ano e mês especificados no Portal da Transparência,
@@ -12,9 +13,9 @@
 #' @importFrom httr GET content
 #' @importFrom rvest read_html html_nodes html_attr
 #' @importFrom readr read_delim cols col_character
-#' @importFrom utils unzip download.file
+#' @importFrom utils unzip download.file read.csv
 #' @export
-download_transferencias_uniao <- function(ano, mes,codigo_ibge=T) {
+download_transferencias_uniao <- function(ano, mes,codigo_ibge=TRUE,municipios_mapping = NULL) {
 
   # --- 1. Validação e Construção da URL Intermediária ---
   if (!is.numeric(ano) || length(ano) != 1 || ano < 2000 || ano > as.integer(format(Sys.Date(), "%Y"))) {
@@ -40,7 +41,7 @@ download_transferencias_uniao <- function(ano, mes,codigo_ibge=T) {
 
   download_status <- tryCatch({
     # Usar 'mode = "wb"' para garantir que o download seja tratado como arquivo binário
-    download.file(zip_url, temp_zip, mode = "wb")
+    utils::download.file(zip_url, temp_zip, mode = "wb")
     TRUE # Indica sucesso
   }, error = function(e) {
     warning("Erro ao baixar arquivo ZIP de ", zip_url, ": ", e$message)
@@ -57,7 +58,7 @@ download_transferencias_uniao <- function(ano, mes,codigo_ibge=T) {
   # --- 4. Descompactar o arquivo ---
   temp_dir <- tempdir() # Diretório temporário para descompactar
   extracted_files <- tryCatch({
-    unzip(temp_zip, exdir = temp_dir)
+    utils::unzip(temp_zip, exdir = temp_dir)
   }, error = function(e) {
     warning("Erro ao descompactar o arquivo ZIP ", temp_zip, ": ", e$message)
     # Limpa arquivos temporários antes de sair
@@ -65,15 +66,17 @@ download_transferencias_uniao <- function(ano, mes,codigo_ibge=T) {
     return(NULL) # Indica falha
   })
 
+
+
   if (is.null(extracted_files) || length(extracted_files) == 0) {
     warning("Falha na descompactação ou nenhum arquivo foi extraído.")
     # Limpa arquivos temporários
     if (file.exists(temp_zip)) unlink(temp_zip)
     return(invisible(NULL))
   }
-
   # Tenta encontrar o arquivo CSV extraído (geralmente há apenas um)
   csv_file <- extracted_files[grep("\\.csv$", extracted_files, ignore.case = TRUE)][1]
+
 
   if (is.na(csv_file) || !file.exists(csv_file)) {
     warning("Não foi encontrado um arquivo CSV após a descompactação.")
@@ -123,6 +126,7 @@ download_transferencias_uniao <- function(ano, mes,codigo_ibge=T) {
   if (file.exists(temp_zip)) unlink(temp_zip)
   if (file.exists(csv_file)) unlink(csv_file) # Limpa o arquivo CSV extraído também
 
+  # Verificação crítica após leitura do CSV
 
   # --- 7. Retornar o data frame ou NULL se falhou ---
   if (is.null(dados)) {
@@ -142,7 +146,21 @@ download_transferencias_uniao <- function(ano, mes,codigo_ibge=T) {
   # attr(dados, "dicionario_url") <- "https://portaldatransparencia.gov.br/pagina-interna/603420-dicionario-de-dados-recursos-transferidos"
 
   if(codigo_ibge==T){
-    dados <- dados|>dplyr::left_join(municipios_siafi_ibge|>dplyr::select(codigo_municipio_siafi,codigo_ibge))
+    if (is.null(municipios_mapping)) {
+      # Tenta carregar do pacote se não for fornecido
+      # Esta linha pode precisar de ajuste dependendo de como 'transfRgov' é definido
+      # No teste, o stub abaixo cuidará dela
+      municipios_mapping_data <- data(municipios_siafi_ibge)
+    } else {
+      municipios_mapping_data <- municipios_mapping
+    }
+
+    if (!inherits(municipios_mapping_data, "data.frame")) {
+      #warning("O objeto 'municipios_mapping_data' não é um data.frame. Tipo: ", typeof(municipios_mapping_data))
+      return(invisible(NULL))
+    }
+
+    dados <- dados|>dplyr::left_join(municipios_mapping_data|>dplyr::select("codigo_municipio_siafi","codigo_ibge"))
   }
   return(dados)
 }

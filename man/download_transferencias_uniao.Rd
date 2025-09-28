@@ -4,12 +4,19 @@
 \alias{download_transferencias_uniao}
 \title{Baixar Dados de Transferências da União}
 \usage{
-download_transferencias_uniao(ano, mes, codigo_ibge = T)
+download_transferencias_uniao(
+  ano,
+  mes,
+  codigo_ibge = TRUE,
+  municipios_mapping = NULL
+)
 }
 \arguments{
 \item{ano}{O ano dos dados (inteiro, e.g., 2023).}
 
 \item{mes}{O mês dos dados (inteiro, 1-12).}
+
+\item{municipios_mapping}{possibilidade de passar mapeamento distinto do padrão incluído no pacote}
 }
 \value{
 Um data frame contendo os dados de transferências. Retorna NULL (invisível) se ocorrer um erro.

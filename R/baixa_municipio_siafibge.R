@@ -9,8 +9,8 @@
 #' É crucial que as colunas de código sejam lidas como texto para preservar zeros à esquerda
 #' antes de realizar joins.
 #' Requer o pacote 'readr' e 'utils'.
-#' @importFrom readr read_csv cols col_character
-#' @importFrom utils download.file
+#' @importFrom readr read_csv cols col_character col_number
+#' @importFrom utils download.file read.csv
 #' @export
 baixa_municipio_siafibge <- function() {
   mapping_url <- "https://www.tesourotransparente.gov.br/ckan/dataset/abb968cb-3710-4f85-89cf-875c91b9c7f6/resource/eebb3bc6-9eea-4496-8bcf-304f33155282/download/tabmun.csv"
