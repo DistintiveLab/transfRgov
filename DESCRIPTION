@@ -1,7 +1,7 @@
 Package: transfRgov
 Type: Package
 Title: Aquisition and reading of Brazil Gov Fund Transfers - FAF
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person(
       "Rodrigo", "Borges",
@@ -16,7 +16,11 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
 Depends: 
-    R (>= 3.5)
+    R (>= 4.1),
+    'httr', 
+    'postgrestR', 
+    'readr', 
+    'rvest'
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
