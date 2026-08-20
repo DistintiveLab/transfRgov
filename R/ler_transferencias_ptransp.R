@@ -150,11 +150,11 @@ download_transferencias_uniao <- function(ano, mes,codigo_ibge=TRUE,municipios_m
       # Tenta carregar do pacote se não for fornecido
       # Esta linha pode precisar de ajuste dependendo de como 'transfRgov' é definido
       # No teste, o stub abaixo cuidará dela
-      municipios_mapping_data <- data(municipios_siafi_ibge)
+      municipios_mapping_data <- data(municipios_siafi_ibge,overwrite = TRUE)
+
     } else {
       municipios_mapping_data <- municipios_mapping
     }
-
     if (!inherits(municipios_mapping_data, "data.frame")) {
       #warning("O objeto 'municipios_mapping_data' não é um data.frame. Tipo: ", typeof(municipios_mapping_data))
       return(invisible(NULL))
@@ -162,5 +162,9 @@ download_transferencias_uniao <- function(ano, mes,codigo_ibge=TRUE,municipios_m
 
     dados <- dados|>dplyr::left_join(municipios_mapping_data|>dplyr::select("codigo_municipio_siafi","codigo_ibge"))
   }
+
+
+
+
   return(dados)
 }
