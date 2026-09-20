@@ -1,0 +1,55 @@
+http_interactions:
+- request:
+    method: get
+    uri: https://api.transferegov.gestao.gov.br/fundoafundo/programa?limit=2&offset=0&select=id_programa&order=id_programa.asc
+    body:
+      encoding: ''
+      string: ''
+    headers: []
+  response:
+    status:
+      status_code: 200
+      message: OK
+    headers:
+      date: Sun, 20 Sep 2026 17:42:13 GMT
+      content-type: application/json; charset=utf-8
+      content-range: 0-1/*
+      content-location: /programa?limit=2&offset=0&order=id_programa.asc&select=id_programa
+      strict-transport-security: max-age=31536000; includeSubDomains
+      cf-cache-status: DYNAMIC
+      content-encoding: gzip
+      server: cloudflare
+      cf-ray: a3e2a01f390f5530-GRU
+    body:
+      encoding: ''
+      file: no
+      string: "[{\"id_programa\":1}, \n {\"id_programa\":2}]"
+  recorded_at: 2026-09-20 17:42:13 GMT
+  recorded_with: vcr/1.6.0, webmockr/2.0.0
+- request:
+    method: get
+    uri: https://api.transferegov.gestao.gov.br/fundoafundo/programa?limit=2&offset=2&select=id_programa&order=id_programa.asc
+    body:
+      encoding: ''
+      string: ''
+    headers: []
+  response:
+    status:
+      status_code: 200
+      message: OK
+    headers:
+      date: Sun, 20 Sep 2026 17:42:13 GMT
+      content-type: application/json; charset=utf-8
+      content-range: 2-3/*
+      content-location: /programa?limit=2&offset=2&order=id_programa.asc&select=id_programa
+      strict-transport-security: max-age=31536000; includeSubDomains
+      cf-cache-status: DYNAMIC
+      content-encoding: gzip
+      server: cloudflare
+      cf-ray: a3e2a0203c195530-GRU
+    body:
+      encoding: ''
+      file: no
+      string: "[{\"id_programa\":3}, \n {\"id_programa\":4}]"
+  recorded_at: 2026-09-20 17:42:13 GMT
+  recorded_with: vcr/1.6.0, webmockr/2.0.0

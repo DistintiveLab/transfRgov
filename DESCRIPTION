@@ -34,5 +34,7 @@ Imports:
     utils
 Suggests:
     mockery,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    vcr,
+    webmockr
 Config/testthat/edition: 3

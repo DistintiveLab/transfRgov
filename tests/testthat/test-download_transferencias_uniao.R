@@ -57,7 +57,6 @@ test_that("download_transferencias_uniao valida ano e mes corretamente", {
 })
 
 test_that("download_transferencias_uniao baixa e processa dados com IBGE (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("mockery")
 
   mockery::stub(download_transferencias_uniao, "download.file", mock_download_file())
@@ -80,7 +79,6 @@ test_that("download_transferencias_uniao baixa e processa dados com IBGE (mocked
 })
 
 test_that("download_transferencias_uniao baixa e processa dados SEM IBGE (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("mockery")
 
   mockery::stub(download_transferencias_uniao, "download.file", mock_download_file())
@@ -98,7 +96,6 @@ test_that("download_transferencias_uniao baixa e processa dados SEM IBGE (mocked
 })
 
 test_that("download_transferencias_uniao nao aplica o mapeamento sem a coluna SIAFI", {
-  skip_on_cran()
   skip_if_not_installed("mockery")
 
   mockery::stub(download_transferencias_uniao, "download.file", mock_download_file())
@@ -127,7 +124,6 @@ test_that("download_transferencias_uniao nao aplica o mapeamento sem a coluna SI
 })
 
 test_that("download_transferencias_uniao retorna NULL em falha de download (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("mockery")
 
   mockery::stub(
@@ -146,7 +142,6 @@ test_that("download_transferencias_uniao retorna NULL em falha de download (mock
 })
 
 test_that("download_transferencias_uniao retorna NULL em falha de descompactacao (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("mockery")
 
   mockery::stub(download_transferencias_uniao, "download.file", mock_download_file())
@@ -166,7 +161,6 @@ test_that("download_transferencias_uniao retorna NULL em falha de descompactacao
 })
 
 test_that("download_transferencias_uniao retorna NULL se CSV nao for encontrado (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("mockery")
 
   mockery::stub(download_transferencias_uniao, "download.file", mock_download_file())
@@ -188,7 +182,6 @@ test_that("download_transferencias_uniao retorna NULL se CSV nao for encontrado 
 })
 
 test_that("download_transferencias_uniao retorna NULL em falha de leitura do CSV (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("mockery")
 
   mockery::stub(download_transferencias_uniao, "download.file", mock_download_file())

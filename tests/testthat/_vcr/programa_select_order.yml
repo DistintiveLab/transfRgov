@@ -1,0 +1,33 @@
+http_interactions:
+- request:
+    method: get
+    uri: https://api.transferegov.gestao.gov.br/fundoafundo/programa?limit=3&offset=0&select=id_programa,ano_programa,nome_programa&order=ano_programa.desc
+    body:
+      encoding: ''
+      string: ''
+    headers: []
+  response:
+    status:
+      status_code: 200
+      message: OK
+    headers:
+      date: Sun, 20 Sep 2026 17:42:13 GMT
+      content-type: application/json; charset=utf-8
+      content-range: 0-2/*
+      content-location: /programa?limit=3&offset=0&order=ano_programa.desc&select=id_programa%2Cano_programa%2Cnome_programa
+      strict-transport-security: max-age=31536000; includeSubDomains
+      cf-cache-status: DYNAMIC
+      content-encoding: gzip
+      server: cloudflare
+      cf-ray: a3e2a020ff1d5530-GRU
+    body:
+      encoding: ''
+      file: no
+      string: "[{\"id_programa\":125,\"ano_programa\":2026,\"nome_programa\":\"Redução
+        das Mortes Violentas Intencionais, do Enfrentamento ao Crime Organizado e
+        da Proteção Patrimonial por meio de Ações de Prevenção de Criminalidade e
+        Fomento à Defesa Social - 2026           \"}, \n {\"id_programa\":126,\"ano_programa\":2026,\"nome_programa\":\"Enfrentamento
+        da Violência Contra a Mulher - 2026\"}, \n {\"id_programa\":127,\"ano_programa\":2026,\"nome_programa\":\"Melhoria
+        da Qualidade de Vida dos Profissionais de Segurança Pública - 2026\"}]"
+  recorded_at: 2026-09-20 17:42:13 GMT
+  recorded_with: vcr/1.6.0, webmockr/2.0.0

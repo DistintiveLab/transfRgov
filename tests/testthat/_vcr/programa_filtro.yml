@@ -1,0 +1,28 @@
+http_interactions:
+- request:
+    method: get
+    uri: https://api.transferegov.gestao.gov.br/fundoafundo/programa?id_programa=eq.1&limit=2&offset=0&select=id_programa
+    body:
+      encoding: ''
+      string: ''
+    headers: []
+  response:
+    status:
+      status_code: 200
+      message: OK
+    headers:
+      date: Sun, 20 Sep 2026 17:42:14 GMT
+      content-type: application/json; charset=utf-8
+      content-range: 0-0/*
+      content-location: /programa?id_programa=eq.1&limit=2&offset=0&select=id_programa
+      strict-transport-security: max-age=31536000; includeSubDomains
+      cf-cache-status: DYNAMIC
+      content-encoding: gzip
+      server: cloudflare
+      cf-ray: a3e2a0226c725530-GRU
+    body:
+      encoding: ''
+      file: no
+      string: '[{"id_programa":1}]'
+  recorded_at: 2026-09-20 17:42:14 GMT
+  recorded_with: vcr/1.6.0, webmockr/2.0.0

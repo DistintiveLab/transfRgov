@@ -20,6 +20,12 @@ está ancorado em medições feitas diretamente na API e em auditoria do código
 | Endpoints do `metafaftab` com leitor | 21 de 21 |
 | Tabelas `empenho_especial` e `programa_especial` | HTTP 404 — os leitores `ler_empenho_especial()` e `ler_programa_especial()` apontam para tabelas inexistentes |
 | Bases irmãs no mesmo host | `parcerias`, `emendas`, `convenios`, `transferencias`, `propostas` respondem 404 |
+| Especificação OpenAPI na raiz da API | 21 caminhos, exatamente os do `metafaftab`; nenhum contém "espec" |
+| `programa.modalidade_programa` | valor único `FUNDO_A_FUNDO` em 129 de 129 linhas — não discrimina "especial" |
+| `empenho.tipo_empenho` | `1` em 4.246 linhas, `3` em 2 linhas — único discriminador raro encontrado |
+| `empenho.situacao_empenho` | valor único `6` em 4.248 linhas — não discrimina |
+| Parâmetros de `ler_empenho_especial()` ausentes da tabela `empenho` | `id_empenho_especial`, `id_programa` |
+| Parâmetros de `ler_programa_especial()` ausentes da tabela `programa` | `id_proponente`, `data_inicio`, `data_fim`, `esfera`, `orgao_executor` |
 
 ## Fase 1 — Correções de correção em `pg_get` (concluída)
 
@@ -86,14 +92,18 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
     `AGENTS.md`, inclusive o motivo de um `grep` ingênuo por `table = "`
     encontrar apenas 17 endpoints.
 13. **Outros provedores**, já que a API do TransfereGov não expõe bases irmãs
-    (todas respondem 404):
+    (todas respondem 404). **Provedor escolhido: CGU / dados abertos.** A
+    implementação ainda não começou; ela acrescenta leitor novo, ajuste da
+    `Description:` do `DESCRIPTION`, testes e documentação, e por isso entra como
+    entrega própria.
     - **Portal da Transparência**: hoje só `renuncias-valor`
       (`R/ler_renuncias_ptransp.R:34`). Candidatos: despesas, favorecidos,
       contratos, servidores.
     - **Tesouro Transparente / CKAN**: hoje só `tabmun.csv`
       (`R/baixa_municipio_siafibge.R:16`); o CKAN publica outros conjuntos.
-    - **CGU / dados abertos**: `download_transferencias_uniao()` cobre os ZIPs
-      mensais; avaliar séries anteriores a 2019.
+    - **CGU / dados abertos** (escolhido): `download_transferencias_uniao()` cobre
+      os ZIPs mensais; avaliar séries anteriores a 2019 e os demais conjuntos do
+      portal de dados abertos da CGU.
 
 ## Fase 4 — Testes
 
@@ -136,8 +146,63 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       testes novos verificam apenas o contrato de transporte (que o leitor monta
       `/<tabela>?...`), de modo que passam hoje e continuam corretos se o nome da
       tabela for corrigido depois. Aguarda decisão do mantenedor.
-15. **`vcr` ou `httptest` com cassettes gravadas**, o que permitiria exercitar
-    no CRAN os testes HTTP hoje marcados com `skip_on_cran()`.
+      Investigação de 2026-09-20 (somente leitura, nenhum leitor alterado):
+      a especificação OpenAPI servida na raiz da API lista exatamente os 21
+      caminhos do `metafaftab` e nenhum contém "espec", o que confirma que as duas
+      tabelas não existem sob nenhuma grafia testada (`empenho_especial`,
+      `empenhos_especiais`, `programa_especial`, `programas_especiais` — todas
+      404). Nenhuma coluna discrimina "especial": `programa.modalidade_programa` é
+      `FUNDO_A_FUNDO` em 129 de 129 linhas, e `empenho.situacao_empenho` tem valor
+      único `6` em 4.248 linhas; o único candidato raro é `empenho.tipo_empenho == 3`,
+      presente em 2 linhas. Além disso, vários parâmetros dos dois leitores não
+      existem como colunas: em `empenho` faltam `id_empenho_especial` e
+      `id_programa` (a ligação com planos de ação é por `id_plano_acao`); em
+      `programa` faltam `id_proponente`, `data_inicio`, `data_fim`, `esfera` e
+      `orgao_executor`. Ou seja, uma correção não é troca de nome de tabela.
+15. **(concluída) `vcr` com cassettes gravadas.** O objetivo literal era permitir
+    que o CRAN exercitasse testes HTTP hoje marcados com `skip_on_cran()`. A
+    leitura do código mostrou que as 19 ocorrências de `skip_on_cran()` já estavam
+    **offline** (12 com `httr2::with_mocked_responses()`, 7 com `mockery::stub()`),
+    de modo que converter aqueles blocos para cassettes não acrescentaria nada. A
+    entrega ficou então dividida em duas partes: testes novos de comportamento real
+    contra a API no ar, gravados como cassettes, e a remoção das 19 chamadas
+    redundantes de `skip_on_cran()`.
+
+    - **Ferramenta: `vcr` 1.6.0, não `httptest`.** O `vcr` importa `httr2` e
+      `webmockr` diretamente; o `httptest` não está instalado. `Suggests:` passou a
+      listar `vcr` e `webmockr`.
+    - `tests/testthat/helper-vcr.R` (novo) faz `library(vcr)` e configura
+      `vcr::vcr_configure(dir = vcr::vcr_test_path("testthat", "_vcr"), record = "once")`,
+      protegido por `requireNamespace()`. O `library(vcr)` é **obrigatório**, não
+      estilo: o `webmockr` só grava quando `"package:vcr" %in% search()`, então
+      chamar `vcr::use_cassette()` sem anexar o pacote faz a requisição ir à rede,
+      gravar zero interações e apagar a cassette vazia em silêncio.
+    - `tests/testthat/test-cassettes.R` (novo) tem 6 blocos `test_that` e 12
+      asserções. Cada bloco é protegido por `skip_if_not_installed("vcr")`,
+      `skip_if_not_installed("httr2")` e `vcr::skip_if_vcr_off()`. Cobre paginação
+      (duas páginas, `limit=2`), `select` com `order`, ordenação ascendente,
+      resultado vazio, filtro por `id_programa` e `order` inválido (HTTP 400
+      `httr2_http_400`, gravado com o corpo de erro do PostgreSQL).
+    - As 6 cassettes ficam em `tests/testthat/_vcr/`. `vcr::vcr_test_path()`
+      resolve a partir de `tests/`, então o primeiro argumento precisa ser
+      `"testthat"` para cair na convenção do pacote. Elas **viajam no tarball**:
+      nenhuma regra foi acrescentada ao `.Rbuildignore`, que é a prática padrão do
+      `vcr` e o que permite o CRAN reexecutar os testes.
+    - Todas as cassettes usam `limite` pequeno (2 ou 3) para que a página gravada
+      seja curta e o laço de `pg_get()` (`if (linhas < limite || linhas == 0) break`)
+      encerre na reprodução offline.
+    - A paginação se ancora em `order=id_programa.asc`, que devolve
+      deterministicamente `1,2,3,…`.
+    - **As 19 chamadas de `skip_on_cran()` foram removidas** (`test-pg_get.R` 12,
+      `test-download_transferencias_uniao.R` 7). Elas não protegiam nada: todos
+      aqueles blocos já são offline. Mantê-las só escondia do CRAN a cobertura de
+      transporte, `select`/`order`, paginação, corpo vazio e caminhos de falha.
+    - Suíte: 397 asserções, `FAIL 0 | WARN 0 | SKIP 0`. Os cinco gates passaram,
+      inclusive `check --as-cran` com `Status: OK` e 0 erros, 0 avisos e 0 notas.
+      O único NOTA do modo `incoming` continua sendo o de submissão nova
+      (e-mail do mantenedor e nomes próprios), idêntico ao da linha de base.
+    - A reprodução é offline e estável: os 6 arquivos YAML mantêm o mesmo
+      `md5sum` antes e depois de rodar a suíte, ou seja, nada é regravado.
 16. **Cobertura ausente:** `consultar_renuncias_fiscais()` e
     `baixa_municipio_siafibge()` não têm nenhum teste.
 
@@ -175,16 +240,24 @@ promovê-la a `\url{}` reintroduz o aviso de verificação de URLs do CRAN.
 
 Também exige decisão, e por isso ainda não foi corrigido, o defeito descrito no
 item 14: `ler_empenho_especial()` e `ler_programa_especial()` consultam as
-tabelas `empenho_especial` e `programa_especial`, que respondem 404. Corrigir
-exige escolher entre apontar para outra tabela, tratar "especial" como valor de
-filtro de `empenho`/`programa` (hipótese mais provável) ou retirar as duas
-funções — nenhuma dessas alternativas deve ser tomada sem aval do mantenedor.
+tabelas `empenho_especial` e `programa_especial`, que respondem 404. A
+investigação de 2026-09-20 mostrou que essas tabelas não existem em nenhuma
+grafia, que a especificação OpenAPI só publica os 21 endpoints do `metafaftab` e
+que nenhum campo separa registros "especiais" de forma limpa (o melhor candidato
+é `empenho.tipo_empenho == 3`, com 2 linhas em 4.248). Além disso, parte dos
+parâmetros das duas funções não corresponde a nenhuma coluna real. As
+alternativas são: (a) reapontar para `empenho`/`programa` com um filtro de
+"especial" e retirar os parâmetros inexistentes, o que muda assinatura e exige
+versão 0.x.0; (b) descontinuar ou remover as duas funções; (c) mantê-las
+documentadas como defeituosas. Nenhuma dessas alternativas deve ser tomada sem
+aval do mantenedor.
 
 ## Ordem sugerida de versões
 
 - **0.2.0** — Fase 1 (itens 1 a 5) e Fase 2 (itens 6 a 10). Sem quebra de
-  assinatura; lançamento de correção. Já concluídos e ainda não lançados, o
-  item 12 (documentação) e o item 14 (testes) viajam junto, pois nenhum dos dois
-  altera assinatura de função.
-- **0.3.0** — Fase 3 (item 13) e Fase 4 (itens 15 e 16).
+  assinatura; lançamento de correção. Já concluídos e ainda não lançados, viajam
+  junto o item 12 (documentação), o item 14 (testes) e o item 15 (cassettes do
+  `vcr`), pois nenhum dos três altera assinatura de função.
+- **0.3.0** — Fase 3 (item 13, provedor CGU) e Fase 4 (item 16). Se a correção do
+  defeito 404 for a alternativa (a), com mudança de assinatura, ela entra aqui.
 - **0.4.0** — Fases 5 e 6.

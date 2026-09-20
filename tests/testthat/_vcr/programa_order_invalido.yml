@@ -1,0 +1,26 @@
+http_interactions:
+- request:
+    method: get
+    uri: https://api.transferegov.gestao.gov.br/fundoafundo/programa?limit=1000&offset=0&order=naoexiste.asc
+    body:
+      encoding: ''
+      string: ''
+    headers: []
+  response:
+    status:
+      status_code: 400
+      message: Bad Request
+    headers:
+      date: Sun, 20 Sep 2026 17:42:14 GMT
+      content-type: application/json; charset=utf-8
+      strict-transport-security: max-age=31536000; includeSubDomains
+      cf-cache-status: DYNAMIC
+      server: cloudflare
+      cf-ray: a3e2a022de0d5530-GRU
+    body:
+      encoding: ''
+      file: no
+      string: '{"code":"42703","details":null,"hint":null,"message":"column programa.naoexiste
+        does not exist"}'
+  recorded_at: 2026-09-20 17:42:14 GMT
+  recorded_with: vcr/1.6.0, webmockr/2.0.0

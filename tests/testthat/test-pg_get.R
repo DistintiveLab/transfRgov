@@ -197,7 +197,6 @@ test_that("pg_user_agent identifica o pacote", {
 })
 
 test_that("pg_get monta a URL, le o conteudo e converte a resposta (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
@@ -218,7 +217,6 @@ test_that("pg_get monta a URL, le o conteudo e converte a resposta (mocked)", {
 })
 
 test_that("pg_get envia User-Agent, tempo limite e repeticoes na requisicao", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
@@ -237,7 +235,6 @@ test_that("pg_get envia User-Agent, tempo limite e repeticoes na requisicao", {
 })
 
 test_that("pg_get nao engole falha transitoria (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
 
   # As respostas simuladas curto-circuitam o laco de repeticoes do proprio
@@ -260,7 +257,6 @@ test_that("pg_get nao engole falha transitoria (mocked)", {
 })
 
 test_that("pg_get nao repete erros HTTP definitivos (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
 
   chamadas <- 0L
@@ -280,7 +276,6 @@ test_that("pg_get nao repete erros HTTP definitivos (mocked)", {
 })
 
 test_that("pg_get percorre todas as paginas ate a ultima incompleta (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
@@ -305,7 +300,6 @@ test_that("pg_get percorre todas as paginas ate a ultima incompleta (mocked)", {
 })
 
 test_that("pg_get repassa select e order em todas as paginas (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
@@ -336,7 +330,6 @@ test_that("pg_get repassa select e order em todas as paginas (mocked)", {
 })
 
 test_that("pg_get nao pagina quando paginar = FALSE (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
@@ -354,7 +347,6 @@ test_that("pg_get nao pagina quando paginar = FALSE (mocked)", {
 })
 
 test_that("pg_get trunca e avisa quando atinge max_linhas (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
@@ -373,7 +365,6 @@ test_that("pg_get trunca e avisa quando atinge max_linhas (mocked)", {
 })
 
 test_that("pg_get devolve data.frame vazio quando nao ha linhas (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
@@ -388,7 +379,6 @@ test_that("pg_get devolve data.frame vazio quando nao ha linhas (mocked)", {
 })
 
 test_that("pg_get trata corpo vazio como data.frame vazio (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
@@ -408,7 +398,6 @@ test_that("pg_get trata corpo vazio como data.frame vazio (mocked)", {
 })
 
 test_that("pg_get aceita respostas HTTP 206 (Prefer: count=exact)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
@@ -426,7 +415,6 @@ test_that("pg_get aceita respostas HTTP 206 (Prefer: count=exact)", {
 })
 
 test_that("pg_get avisa e devolve a resposta quando o tipo nao e suportado (mocked)", {
-  skip_on_cran()
   skip_if_not_installed("httr2")
 
   httr2::local_mocked_responses(function(req) {

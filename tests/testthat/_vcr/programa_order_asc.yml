@@ -1,0 +1,28 @@
+http_interactions:
+- request:
+    method: get
+    uri: https://api.transferegov.gestao.gov.br/fundoafundo/programa?limit=3&offset=0&select=ano_programa&order=ano_programa.asc
+    body:
+      encoding: ''
+      string: ''
+    headers: []
+  response:
+    status:
+      status_code: 200
+      message: OK
+    headers:
+      date: Sun, 20 Sep 2026 17:42:14 GMT
+      content-type: application/json; charset=utf-8
+      content-range: 0-2/*
+      content-location: /programa?limit=3&offset=0&order=ano_programa.asc&select=ano_programa
+      strict-transport-security: max-age=31536000; includeSubDomains
+      cf-cache-status: DYNAMIC
+      content-encoding: gzip
+      server: cloudflare
+      cf-ray: a3e2a02179115530-GRU
+    body:
+      encoding: ''
+      file: no
+      string: "[{\"ano_programa\":2019}, \n {\"ano_programa\":2019}, \n {\"ano_programa\":2020}]"
+  recorded_at: 2026-09-20 17:42:14 GMT
+  recorded_with: vcr/1.6.0, webmockr/2.0.0
