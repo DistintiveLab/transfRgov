@@ -10,3 +10,5 @@
 ^data/.*\.(zip|csv|xlsx|xls|ods|txt)$
 ^data/.*\.old$
 ^README\.html$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
