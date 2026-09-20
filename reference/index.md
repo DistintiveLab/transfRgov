@@ -108,3 +108,5 @@ Descrição dos endpoints da API e dos campos aceitos como filtro.
 
 - [`metafaftab`](https://distintivelab.github.io/transfRgov/reference/metafaftab.md)
   : Parâmetros aceitos por cada endpoint da API Fundo a Fundo
+- [`campos_metafaftab()`](https://distintivelab.github.io/transfRgov/reference/campos_metafaftab.md)
+  : Listar os campos aceitos por cada endpoint da API Fundo a Fundo
