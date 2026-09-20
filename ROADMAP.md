@@ -555,9 +555,56 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       `OK: 26 Rd \arguments sections exactly match formals`, `check --as-cran`
       com `Status: OK` e o modo `_R_CHECK_CRAN_INCOMING_ = "true"` mantendo
       `Status: 1 NOTE` com as mesmas nove palavras da linha de base.
-20. **Tornar o `metafaftab` mais útil**: hoje é uma lista crua de caminhos para
-    parâmetros; um acessor que liste endpoints e campos legíveis melhora a
-    descoberta.
+20. **(concluída) Tornar o `metafaftab` mais útil**: hoje é uma lista crua de
+    caminhos para parâmetros; um acessor que liste endpoints e campos legíveis
+    melhora a descoberta.
+
+    **Implementação — entrega de 2026-09-20.**
+    - **O acessor é `campos_metafaftab()`**, em `R/campos_metafaftab.R`, e entrou
+      no grupo "Metadados" do `_pkgdown.yml`, logo depois do `metafaftab`. Com
+      `endpoint = NULL` (o padrão) devolve um `data.frame` de três colunas —
+      `endpoint`, `campo` e `controle` — cobrindo os 21 endpoints; com um
+      `endpoint` informado, devolve só o vetor de campos daquele endpoint, na
+      ordem em que aparecem no conjunto de dados. O caminho pode ser escrito com
+      ou sem a barra inicial (`"programa"` e `"/programa"`).
+    - **A classificação dos parâmetros de controle não era a suposta.** A leitura
+      inicial reconhecia quatro nomes (`select`, `order`, `limit`, `offset`) e
+      chegava a 260 campos. Uma sondagem direta sobre `data/metafaftab.rda`
+      mostrou **sete controles por endpoint**: os seis fixos `order`, `range`,
+      `rangeUnit`, `offset`, `limit` e `preferCount`, presentes nos 21 endpoints,
+      mais um `select` de cada endpoint. São **147 linhas de controle** das 425
+      totais, sobrando **278 campos verdadeiros**, que correspondem a **255 nomes
+      únicos** porque alguns campos se repetem entre endpoints
+      (`id_plano_acao` aparece em 9).
+    - **O `select` não é uniforme, e por isso a classificação não pode ser um
+      `%in%` global**: 19 endpoints expõem `select` puro, `/plano_acao` expõe
+      `select_plano_acao` e `/relatorio_gestao_analise` expõe
+      `select_relatorio_gestao_analise`. A coluna `controle` sai de uma chave
+      composta `endpoint|campo`, e a função interna `controles_postgrest()`
+      (marcada `@noRd`, no padrão dos auxiliares de `R/utils-pg_get.R`) monta a
+      lista de cada endpoint.
+    - **Alternativa rejeitada**: regravar `data/metafaftab.rda` em uma estrutura
+      mais rica. Isso mudaria um objeto documentado, o `@format` e os testes, o
+      que é mais do que "acrescentar um acessor"; o `metafaftab` seguiu intacto.
+    - **Nenhuma dependência nova.** O retorno é `data.frame` da base e o teste é
+      `testthat` puro, então `DESCRIPTION` não mudou. O nome ficou de fora do
+      prefixo `ler_`/`get_` de propósito, para não entrar na lista de 23 leitores
+      que `test-leitores.R` confere.
+    - **Um `NOTE` novo apareceu e foi fechado.** O primeiro `check --as-cran`
+      acusou `campos_metafaftab: no visible binding for global variable
+      'metafaftab'`, porque o conjunto de dados era lido pelo nome nu dentro da
+      função. A correção segue o precedente já existente em
+      `R/ler_transferencias_ptransp.R`:
+      `get("metafaftab", envir = asNamespace("transfRgov"))`. Depois disso o
+      gate 5 voltou a `Status: OK`.
+    - **Verificação**: os cinco gates. `devtools::document()` sem diferença,
+      `devtools::test()` com `FAIL 0 | WARN 0 | SKIP 0 | PASS 566` (eram 476; o
+      arquivo novo — sete blocos `test_that` — acrescenta 90 expectativas), gate
+      ASCII com 0 ofensas em 31 arquivos `R`, auditoria dos `\arguments` com
+      `OK: 27 Rd \arguments sections exactly match formals`, e
+      `devtools::check(args = "--as-cran")` com `Status: OK`, com o modo
+      `_R_CHECK_CRAN_INCOMING_ = "true"` mantendo `Status: 1 NOTE` e as mesmas
+      nove palavras da linha de base.
 
 ## Fase 6 — Infraestrutura e limpeza
 

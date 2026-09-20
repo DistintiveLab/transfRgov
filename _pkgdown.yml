@@ -85,3 +85,4 @@ reference:
   desc: "Descrição dos endpoints da API e dos campos aceitos como filtro."
   contents:
   - metafaftab
+  - campos_metafaftab
