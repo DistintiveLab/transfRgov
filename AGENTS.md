@@ -57,15 +57,23 @@ Pattern (see `R/ler_programas.R`, `R/ler_empenho.R`):
 
 1. Every API column becomes a parameter, all defaulting to `NULL`, named exactly after the API field (`id_plano_acao`, `ano_empenho`, ...).
 2. Non-NULL params are appended to a `filters` character vector as `paste0("campo=eq.", valor)` (PostgREST `eq` filter syntax).
-3. Single call at the end: `pg_get(table = "<endpoint>", filter = filters)` (some functions pass the domain via a `url` variable, others rely on the default).
+3. Single call at the end: `pg_get(table = "<endpoint>", filter = filters, select = select, order = order)`, where `select` and `order` are extra `NULL`-defaulted parameters forwarded verbatim (some functions pass the domain via a `url` variable, others rely on the default).
 
-All parameters are optional. There is no pagination handling inside these functions.
+All parameters are optional. The readers leave pagination and the URL envelope to `pg_get()`.
 
-The HTTP layer lives in `R/utils-pg_get.R` (`pg_build_url`, `pg_parse_response`, `pg_get`, all `@noRd`). It replaced the former dependency on the non-CRAN `postgrestR` package and adds `httr::stop_for_status()`, so HTTP errors raise instead of returning wrong data. `pg_get()` defaults to `https://api.transferegov.gestao.gov.br/fundoafundo`.
+The HTTP layer lives in `R/utils-pg_get.R` (`pg_encode_filter`, `pg_encode_lista`, `pg_build_url`, `pg_parse_response`, `pg_warning`, `pg_user_agent`, `pg_get`, all `@noRd`). It replaced the former dependency on the non-CRAN `postgrestR` package. Requests are built with **httr2**: `httr2::req_perform()` raises on HTTP errors (no `stop_for_status()` needed), `httr2::req_retry()` repeats only network failures and the 429/503 statuses up to `tentativas` (default 3), `httr2::req_timeout()` enforces `tempo_limite` (default 30 s), and `httr2::req_user_agent()` identifies the package (`pg_user_agent()`, built from `utils::packageVersion()`). `pg_get()` follows `offset` until the last page, and `select`/`order` are passed through on every page. Warnings go through `pg_warning()`, which builds base-R condition classes `transfRgov_unsupported_type` and `transfRgov_partial_result` (no `rlang`). Defaults to `https://api.transferegov.gestao.gov.br/fundoafundo`.
+
+Note that `httr2::resp_body_string()` aborts on an empty body and `jsonlite::fromJSON("")` aborts with `premature EOF`; `pg_get()` and `pg_parse_response()` guard both cases because the API returns an empty body for a query with no rows.
 
 **Naming is inconsistent within this family**: most readers use the `ler_` prefix, but five exported functions use `get_` (`get_plano_acao`, `get_plano_acao_dado_bancario`, `get_plano_acao_historico`, `get_plano_acao_destinacao_recursos`, `get_termo_adesao`) with the identical `eq.`-filter implementation. Don't "normalize" one into the other without asking the maintainer.
 
 The `metafaftab` packaged dataset is a list of API endpoint paths → parameter names, scraped from the API's own OpenAPI spec (`httr::GET("https://api.transferegov.gestao.gov.br/fundoafundo/")` in `data-raw/metafaftab.R`). It can tell you the valid field names for filters.
+
+### Endpoint coverage
+
+All **21** `metafaftab` endpoints already have a reader — check this list before implementing a new one. The `table` values in use: `programa`, `programa_beneficiario`, `programa_gestao_agil`, `plano_acao`, `plano_acao_dado_bancario`, `plano_acao_meta`, `plano_acao_meta_acao`, `plano_acao_destinacao_recursos`, `plano_acao_analise`, `plano_acao_analise_responsavel`, `plano_acao_historico`, `termo_adesao`, `termo_adesao_historico`, `gestao_financeira_lancamentos`, `gestao_financeira_subtransacoes`, `gestao_financeira_categorias_despesa`, `empenho`, `relatorio_gestao`, `relatorio_gestao_acoes`, `relatorio_gestao_analise`, `relatorio_gestao_analise_responsavel`.
+
+Four of the `relatorio_gestao*` readers assign `table <- "..."` on its own line before the call, so grepping for `table = "` finds only 17 distinct endpoints — that is not a missing reader. The Fundo a Fundo API exposes no sibling bases: `parcerias`, `emendas`, `convenios`, `transferencias` and `propostas` all return 404.
 
 ### 2. Downloader/scraper functions (Portal da Transparência / Tesouro)
 
@@ -89,15 +97,16 @@ The `metafaftab` packaged dataset is a list of API endpoint paths → parameter 
 
 ## Testing
 
-- Two test files: `tests/testthat/test-download_transferencias_uniao.R` (8 `test_that` blocks: `ano`/`mes` validation, mocked happy paths with and without the IBGE join, and 4 mocked failure paths — download, unzip, missing CSV, read failure — each asserting `NULL`) and `tests/testthat/test-pg_get.R` (pure-function tests for `pg_build_url`/`pg_parse_response` plus stubbed `pg_get`). Testthat edition 3 via `Config/testthat/edition`.
-- Style: `mockery::stub(func, "name", function(...) ...)`. Pass a **plain function**, never `mockery::mock(...)`: the returned closure has only `...` formals and does not reliably reproduce the wrapped function's return value. A mocked binding is installed into a child environment of the target function, so it only intercepts **bare, unqualified** calls — stub call sites as `pg_get(...)`, not `transfRgov:::pg_get(...)`, or the stub is bypassed. For the same reason `R/ler_transferencias_ptransp.R` calls `download.file`, `unzip`, `read_delim` and `read.csv` unqualified.
+- Two test files: `tests/testthat/test-download_transferencias_uniao.R` (8 `test_that` blocks: `ano`/`mes` validation, mocked happy paths with and without the IBGE join, and 4 mocked failure paths — download, unzip, missing CSV, read failure — each asserting `NULL`) and `tests/testthat/test-pg_get.R` (25 `test_that` blocks: pure-function tests for `pg_encode_filter`/`pg_encode_lista`/`pg_build_url`/`pg_parse_response`/`pg_warning`/`pg_user_agent`, plus mocked `pg_get` paths). Testthat edition 3 via `Config/testthat/edition`.
+- Style: in `test-download_transferencias_uniao.R`, `mockery::stub(func, "name", function(...) ...)`. Pass a **plain function**, never `mockery::mock(...)`: the returned closure has only `...` formals and does not reliably reproduce the wrapped function's return value. A mocked binding is installed into a child environment of the target function, so it only intercepts **bare, unqualified** calls — stub call sites as `pg_get(...)`, not `transfRgov:::pg_get(...)`, or the stub is bypassed. For the same reason `R/ler_transferencias_ptransp.R` calls `download.file`, `unzip`, `read_delim` and `read.csv` unqualified.
+- `tests/testthat/test-pg_get.R` mocks HTTP with `httr2::local_mocked_responses()` and builds synthetic answers with `httr2::response(status, url =, headers =, body = charToRaw(...))` (`httr:::response()` cannot produce a usable synthetic answer). **A mocked response short-circuits the retry loop inside `httr2::req_perform()`**, so retry behaviour cannot be exercised with mocks — assert the policy instead (`req$policies$retry_max_tries`). Always bound a mock so it eventually returns a short page; an unbounded mock hangs `pg_get()` forever.
 - Download stubs must actually create the zip/CSV files in `tempdir()` because the target checks `file.exists()`.
 - Tests verify argument validation errors (`expect_error` with a pt-BR message substring) — the `stop()` text is "O parâmetro 'ano' deve ser um inteiro válido representando o ano." and tests match the prefix "O parâmetro 'ano' deve ser um inteiro válido", so keep that prefix stable if you change `stop()` texts.
-- Network-dependent tests carry `skip_on_cran()`; the suite must stay hermetic (44 assertions, 0 failures) because `R CMD check` runs it on machines without internet access.
+- `skip_on_cran()` guards every mocked block in `test-pg_get.R` and every network-dependent block; the mocked `pg_get` tests are the only coverage of the reader transport. The suite must stay hermetic (108 passing expectations, 0 failures) because `R CMD check` runs it on machines without internet access.
 
 ## Gotchas / non-obvious
 
-1. **Dependencies**: DESCRIPTION declares `Depends: R (>= 4.1)`, `Imports: httr, janitor, jsonlite, readr, utils`, `Suggests: mockery, testthat (>= 3.0.0)`. Source files use `::` qualification for every non-base call, and all imports are declared. `tibble`, `data.table`, `tidyr`, `glue`, `archive`, `readxl`, `geobr`, `stringi`, `lubridate` and `ggplot2` are used only in `data-raw/` analysis scripts and are intentionally not declared.
+1. **Dependencies**: DESCRIPTION declares `Depends: R (>= 4.1)`, `Imports: httr, httr2, janitor, jsonlite, readr, utils`, `Suggests: mockery, testthat (>= 3.0.0)`. `httr` is still needed by `consultar_renuncias_fiscais()`; do not drop it. Source files use `::` qualification for every non-base call, and all imports are declared. `tibble`, `data.table`, `tidyr`, `glue`, `archive`, `readxl`, `geobr`, `stringi`, `lubridate` and `ggplot2` are used only in `data-raw/` analysis scripts and are intentionally not declared.
 2. **License**: `DESCRIPTION` and README both say MIT.
 3. **URL spelling**: `fundoafundo`, not `fundafundo`.
 4. **Leading zeros**: SIAFI codes must stay character; any numeric coercion breaks joins. `codigo_ibge` is numeric by design (leading zeros aren't significant for IBGE codes but SIAFI are).
