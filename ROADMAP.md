@@ -416,7 +416,89 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       `checking files in 'vignettes' ... OK` e
       `checking re-building of vignette outputs ... OK`. O HTML gerado pelo
       render foi apagado; só o `.Rmd` entra no commit.
-18. **`_pkgdown.yml` com publicação no GitHub Pages**.
+18. **(concluída) `_pkgdown.yml` com publicação no GitHub Pages**.
+
+    **Implementação — entrega de 2026-09-20.**
+    - **`_pkgdown.yml` escrito à mão**, não gerado por
+      `usethis::use_pkgdown_github_pages()`: o `usethis` 3.1.0 instalado aqui não
+      traz os modelos de workflow do GitHub (`system.file("templates", "github",
+      package = "usethis")` devolve vazio) e o ajudante ainda mexe em
+      configuração do repositório como efeito colateral. O arquivo define
+      `url: https://distintivelab.github.io/transfRgov/`, `lang: pt`,
+      `template: bootstrap: 5` e uma `navbar` com o rótulo `Início`.
+    - **O índice de referência tem nove grupos temáticos** em português
+      (transferências mensais, despesas e renúncias, programas, empenhos, planos
+      de ação, termos de adesão, relatórios de gestão, gestão financeira e
+      metadados) e cobre os 27 objetos exportados mais os dois conjuntos de dados
+      (`municipios_siafi_ibge` e `metafaftab`). A conferência é o próprio
+      `build_site()`, que fecha com `✔ Reference metadata ok`: qualquer entrada
+      de `contents:` que não resolvesse viraria aviso ali.
+    - **A vignette do item 17 entra no site sozinha**: não foi preciso bloco
+      `articles:` porque o `pkgdown` descobre `vignettes/`; o artigo saiu em
+      `docs/articles/transfRgov.html` e o `build_site()` fecha com
+      `✔ Articles metadata ok`.
+    - **`DESCRIPTION` ganhou a URL publicada**: a linha `URL:` passou a ter duas
+      entradas, o repositório e `https://distintivelab.github.io/transfRgov`. Sem
+      isso o `build_site()` acusava `✖ URLs not ok / In DESCRIPTION, URL is
+      missing package url`; agora o `✔ URLs ok` fecha a verificação. O campo
+      `Description:` não foi refluído de propósito, porque o `NOTE` de ortografia
+      do CRAN cita posições `linha:coluna` dentro dele.
+    - **O defeito que motivou o trabalho de verdade: o `pkgdown` publica todo
+      `*.md` da raiz.** O `pkgdown:::package_mds()` varre `*.md` da raiz e de
+      `.github/` e exclui apenas uma lista fixa em código (`README`, `LICENSE`,
+      `LICENCE`, `NEWS`, `404`, `issue_template`, `pull_request_template`,
+      `cran-comments`). O `.Rbuildignore` **não é consultado em ponto nenhum** do
+      `pkgdown`, então `AGENTS.md` e `ROADMAP.md` saíram como `docs/AGENTS.html` e
+      `docs/ROADMAP.html` e entraram no índice de busca (o relato público
+      `gcol33/tulpa#402` mostra que o arquivo de instruções para agentes passa a
+      ser o primeiro item do `search.json`). Não existe opção de configuração: o
+      pedido `r-lib/pkgdown#2959` está aberto e o `#2971`, que propõe um
+      `.pkgdownignore`, não foi mesclado.
+    - **A correção é mover os dois arquivos para fora da raiz durante o build e
+      devolvê-los depois**, com asserção de que as páginas não saíram. Localmente
+      foi um comando só (`mv AGENTS.md ROADMAP.md` para `/tmp`, `build_site()`,
+      `mv` de volta) e no CI o workflow usa `$RUNNER_TEMP` mais um passo que falha
+      se `docs/AGENTS.html`, `docs/ROADMAP.html` ou `docs/cran-comments.html`
+      existirem. Depois da reconstrução limpa,
+      `ls docs/AGENTS.html docs/ROADMAP.html` não encontra nada e
+      `grep -c "AGENTS\|ROADMAP" docs/search.json docs/sitemap.xml` devolve zero.
+    - **O workflow `.github/workflows/pkgdown.yaml` foi derivado do exemplo
+      canônico do `r-lib/actions` v2** e se afasta dele em exatamente dois
+      pontos: o emoji do nome do passo de publicação foi removido (regra do
+      projeto) e os dois passos de esconder e verificar os documentos de
+      desenvolvimento foram acrescentados. A publicação usa
+      `JamesIves/github-pages-deploy-action` fixada por SHA, no ramo `gh-pages`.
+    - **A publicação segue a opção (a)**: Actions publicando no ramo `gh-pages`.
+      O ramo ainda não existe (nasce no primeiro disparo do workflow) e o Pages
+      ainda não está habilitado no repositório. Falta também ampliar o escopo do
+      `gh` para `workflow`, porque o token atual (`admin:public_key`, `gist`,
+      `read:org`, `repo`) não permite enviar arquivo dentro de
+      `.github/workflows/`. Resolver esse escopo destrava de quebra o item 21.
+    - **Build local limpo**: `pkgdown::build_site()` com `EXIT:0` e as cinco
+      linhas do relatório final em `✔` (URLs, favicons, metadados de open graph,
+      metadados de artigos e metadados de referência). O `docs/` gerado tem 81
+      arquivos e cerca de 3,9 MB e continua fora do controle de versão, pela
+      entrada `docs/` no `.gitignore` e `^docs$` no `.Rbuildignore`.
+    - **`pkgdown/` (conjunto de favicons) entra no repositório**: é o original
+      reproduzível dos ícones do site e já está excluído do build por
+      `^pkgdown$` no `.Rbuildignore`, como recomenda a própria ajuda de
+      `build_favicons()`.
+    - **Dois `NOTE`s novos de `R CMD check` apareceram na primeira rodada e foram
+      fechados**: o diretório `.github` e o `_pkgdown.yml` não eram conhecidos
+      pelo `R CMD check` (mensagens "hidden files and directories" e
+      "Non-standard file/directory found at top level"). Ambos entraram no
+      `.Rbuildignore` (`^\.github$` e `^_pkgdown\.yml$`), que é justamente o que
+      `usethis::use_pkgdown()` faz.
+    - **Verificação**: os cinco gates. `devtools::document()` sem diferença,
+      `devtools::test()` com `FAIL 0 | WARN 0 | SKIP 0 | PASS 476` (inalterado),
+      gate ASCII com 0 ofensas em 30 arquivos `R`, auditoria dos `\arguments`
+      com 26 de 26, e `devtools::check(args = "--as-cran")` de volta a
+      `Status: OK`, com o modo `_R_CHECK_CRAN_INCOMING_ = "true"` mantendo
+      `Status: 1 NOTE` e as mesmas nove palavras nos mesmos `linha:coluna` da
+      linha de base.
+    - **`AGENTS.md` foi corrigido**: a frase que dizia não haver configuração de
+      CI deixou de valer quando o workflow entrou, e a organização do código
+      ganhou o item do `_pkgdown.yml`.
 19. **`\dontrun{}` para `\donttest{}`** nos exemplos que dependem de rede,
     conforme preferência do CRAN.
 20. **Tornar o `metafaftab` mais útil**: hoje é uma lista crua de caminhos para
@@ -426,7 +508,8 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
 ## Fase 6 — Infraestrutura e limpeza
 
 21. **Integração contínua**: criar `.github/workflows/R-CMD-check.yaml`
-    (`.github/` não existe) rodando `devtools::check(args = "--as-cran")`.
+    rodando `devtools::check(args = "--as-cran")`. O diretório `.github/` já
+    existe desde o item 18, que colocou ali o workflow de publicação do site.
 22. **`lintr` e `styler`**, hoje sem nenhuma configuração.
 23. **Lastro local**: `data/` guarda cerca de 176 MB que não são dados do pacote
     e há um `201901_Transferencias.csv` de cerca de 46 MB na raiz. Ambos já estão

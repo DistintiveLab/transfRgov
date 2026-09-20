@@ -8,13 +8,14 @@ Everything user-facing (docs, comments, messages, column names) is written in **
 
 ## Commands
 
-This is a roxygen2 package; there is no Makefile, no CI config, and no lintr config.
+This is a roxygen2 package; there is no Makefile and no lintr config. The only CI is the site workflow (`.github/workflows/pkgdown.yaml`, roadmap item 18), which builds the pkgdown site and deploys it to the `gh-pages` branch; pushing a file inside `.github/workflows/` requires the `workflow` scope on the `gh` token.
 
 ```r
 devtools::load_all()              # load package code
 devtools::document()              # regenerate NAMESPACE + man/*.Rd from roxygen blocks
 devtools::test()                  # run tests/testthat
 devtools::check()                 # R CMD check equivalent
+pkgdown::build_site()             # rebuild docs/; hide AGENTS.md/ROADMAP.md first (see the _pkgdown.yml bullet)
 ```
 
 Tests use **mockery** (`mockery::stub`) to stub network calls; `mockery` and `httr` are declared in DESCRIPTION (Suggests/Imports). Stubs must be **plain `function(...)` objects**, never `mockery::mock()` wrappers: a mocked binding only intercepts bare (unqualified) calls inside the target function, so stub call sites with `pg_get(...)`, not `transfRgov:::pg_get(...)`.
@@ -28,6 +29,7 @@ Tests use **mockery** (`mockery::stub`) to stub network calls; `mockery` and `ht
 - `data/` — packaged datasets (`municipios_siafi_ibge.rda`, `metafaftab.rda`) plus raw downloaded CSV/XLS/ODS files used for analysis (not part of the built package data).
 - `tests/testthat/` — seven test files (`test-download_transferencias_uniao.R`, `test-pg_get.R`, `test-leitores.R`, `test-cassettes.R`, `test-download_despesas_ptransp.R`, `test-renuncias_e_siafibge.R`) plus two helpers (`helper-httr2.R`, `helper-vcr.R`), which hold the helpers the testthat edition 3 loader auto-sources for every test file.
 - `vignettes/` — one vignette, `transfRgov.Rmd` ("Baixar, tratar e consolidar transferências por município e função"), built by `knitr` via `VignetteBuilder: knitr`. Every chunk that would reach the network is `eval = FALSE` (CRAN has no network and the CGU file host throttles bursts); the executable chunks run against a synthetic data frame carrying the exact runtime column names and real categorical values, so `R CMD check` builds and re-builds the vignette offline with no API key. `data.table`, `dplyr` and `tidyr` are declared in `Suggests:` because of it. `rmarkdown::render()` drops a `transfRgov.html` next to the `.Rmd` — delete it, never commit it.
+- `_pkgdown.yml` — site configuration at the repo root, published at `https://distintivelab.github.io/transfRgov/`. It sets `url:`, `lang: pt`, Bootstrap 5, a pt-BR navbar and a `reference:` index of nine Portuguese groups covering the 27 exports plus the two packaged datasets; there is no `articles:` stanza because the item-17 article is discovered automatically. `docs/` is the build output: gitignored, and excluded from the tarball by `^docs$`. `pkgdown/` holds the favicon set — a source asset, committed, and excluded from the tarball by `^pkgdown$`. **pkgdown renders every top-level `*.md` except a hard-coded list and honours no `.Rbuildignore`**, so a plain `pkgdown::build_site()` publishes `AGENTS.md` and `ROADMAP.md` as `docs/AGENTS.html` and `docs/ROADMAP.html` and indexes them in `search.json`. No configuration option prevents this (`r-lib/pkgdown#2959` open, `.pkgdownignore` in `#2971` unmerged); the adopted workaround is to move both files out of the package root for the duration of the build and restore them afterwards. The CI workflow does exactly that with `$RUNNER_TEMP` and then asserts that neither page exists. Always re-check `ls docs/AGENTS.html docs/ROADMAP.html` after a local rebuild.
 - `cache/` — downloaded intermediate data (siconv zips, renuncias), not tracked by build. `cache/renuncias/` also contains LibreOffice lock files (`.~lock.*.xlsx#`) — leave them alone.
 - Repo root: `.RData` (~150 MB) and `.Rhistory` are RStudio session artifacts (gitignored) — never rely on or commit them. Loose CSVs at root (e.g. `201901_Transferencias.csv`) are untracked clutter.
 

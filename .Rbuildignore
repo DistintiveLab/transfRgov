@@ -10,6 +10,10 @@
 ^data/.*\.(zip|csv|xlsx|xls|ods|txt)$
 ^data/.*\.old$
 ^README\.html$
+^docs$
+^pkgdown$
 ^ROADMAP\.md$
 ^cran-comments\.md$
+^_pkgdown\.yml$
+^\.github$
 ^CRAN-SUBMISSION$

@@ -19,7 +19,8 @@ Description: Downloads, reads and organizes data on federal fund transfers
     daily expenditure archives with their beneficiary detail and the tax
     waiver records published as open data.
 License: MIT + file LICENSE
-URL: https://github.com/DistintiveLab/transfRgov
+URL: https://github.com/DistintiveLab/transfRgov,
+    https://distintivelab.github.io/transfRgov
 BugReports: https://github.com/DistintiveLab/transfRgov/issues
 Encoding: UTF-8
 LazyData: true

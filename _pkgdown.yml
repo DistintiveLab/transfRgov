@@ -1,0 +1,87 @@
+url: https://distintivelab.github.io/transfRgov/
+
+lang: pt
+
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [search, github]
+  components:
+    intro:
+      text: "Início"
+      href: index.html
+
+reference:
+- title: "Transferências mensais para municípios"
+  desc: >
+    Baixa os arquivos mensais de transferências da União publicados pelo
+    Portal da Transparência e associa cada código SIAFI de município ao
+    código IBGE correspondente.
+  contents:
+  - download_transferencias_uniao
+  - municipios_siafi_ibge
+
+- title: "Despesas e renúncias fiscais"
+  desc: >
+    Arquivos diários de despesas com o detalhamento dos beneficiários,
+    consulta de renúncias fiscais e a tabela de correspondência entre
+    códigos SIAFI e IBGE do Tesouro Transparente.
+  contents:
+  - download_despesas_ptransp
+  - consultar_renuncias_fiscais
+  - baixa_municipio_siafibge
+
+- title: "Programas"
+  desc: "Programas federais, seus beneficiários e as modalidades especiais."
+  contents:
+  - ler_programas
+  - ler_programa_beneficiario
+  - ler_programa_gestao_agil
+  - ler_programa_especial
+
+- title: "Empenhos"
+  desc: "Empenhos registrados nos planos de ação."
+  contents:
+  - ler_empenho
+  - ler_empenho_especial
+
+- title: "Planos de ação"
+  desc: "Planos de ação, seus dados bancários, destinação de recursos, histórico, análises e metas."
+  contents:
+  - get_plano_acao
+  - get_plano_acao_dado_bancario
+  - get_plano_acao_destinacao_recursos
+  - get_plano_acao_historico
+  - ler_plano_acao_analise
+  - ler_plano_acao_analise_responsavel
+  - ler_plano_acao_meta
+  - ler_plano_acao_meta_acao
+
+- title: "Termos de adesão"
+  desc: "Termos de adesão e seu histórico."
+  contents:
+  - get_termo_adesao
+  - ler_termo_adesao_historico
+
+- title: "Relatórios de gestão"
+  desc: "Relatórios de gestão, ações, análises e responsáveis."
+  contents:
+  - ler_relatorio_gestao
+  - ler_relatorio_gestao_acoes
+  - ler_relatorio_gestao_analise
+  - ler_relatorio_gestao_analise_responsavel
+
+- title: "Gestão financeira"
+  desc: "Categorias de despesa, lançamentos e subtransações da gestão financeira."
+  contents:
+  - ler_gestao_financeira_categorias_despesa
+  - ler_gestao_financeira_lancamentos
+  - ler_gestao_financeira_subtransacoes
+
+- title: "Metadados"
+  desc: "Descrição dos endpoints da API e dos campos aceitos como filtro."
+  contents:
+  - metafaftab
