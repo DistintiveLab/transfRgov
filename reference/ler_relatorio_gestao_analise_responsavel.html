@@ -91,11 +91,15 @@ são retornadas.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span>  <span class="co"># Exemplo: ler responsáveis vinculados a uma análise</span></span></span>
 <span class="r-in"><span>  <span class="va">responsaveis</span> <span class="op">&lt;-</span> <span class="fu">ler_relatorio_gestao_analise_responsavel</span><span class="op">(</span>relatorio_gestao_analise_fk <span class="op">=</span> <span class="fl">12345</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">responsaveis</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   relatorio_gestao_analise_fk nome_responsavel_analise_relatorio_gestao_analise</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                       12345                             RAFAELA SILVA DA CRUZ</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   cargo_responsavel_analise_relatorio_gestao_analise</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                    TÉCNICA SUPORTE</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -88,9 +88,10 @@ formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar registros do programa_gestao_agil para um programa específico
   agil <- ler_programa_gestao_agil(id_programa = 1234)
   head(agil)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

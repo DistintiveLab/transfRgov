@@ -194,9 +194,10 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar subtransações para um lançamento de gestão financeira específico
   subtransacoes <- ler_gestao_financeira_subtransacoes(id_lancamento_gestao_financeira = 1234)
   head(subtransacoes)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

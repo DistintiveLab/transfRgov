@@ -82,9 +82,10 @@ formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar metas de plano de ação para um plano específico
   meta <- ler_plano_acao_meta(id_plano_acao = 1234)
   head(meta)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

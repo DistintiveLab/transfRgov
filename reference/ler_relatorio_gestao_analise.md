@@ -75,9 +75,19 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: ler análises vinculadas a um relatório de gestão
   analises <- ler_relatorio_gestao_analise(id_relatorio_gestao = 12345)
   head(analises)
-} # }
+#>   id_relatorio_gestao_analise tipo_analise_relatorio_gestao_analise
+#> 1                        4486                      RELATORIO_GESTAO
+#>   resultado_analise_relatorio_gestao_analise
+#> 1                               COM_RESSALVA
+#>                                                                                                                                                                                                                                                                                                                                                                                                                 parecer_analise_relatorio_gestao_analise
+#> 1 Relatório de Gestão Parcial aprovado com ressalva, considerando os requisitos da Portaria MinC nº 119, de 28 de março de 2024, e do Comunicado GTPNAB/MinC nº 1, de 1º de agosto de 2024. No entanto, solicitamos que no próximo Relatório de Gestão seja incluído o arquivo ou link disponível referente à publicação do PAAR na ÍNTEGRA para acesso à sociedade. (Publicação no Diário Oficial, site da Secretaria de Cultura ou outro meio público)
+#>   origem_analise_relatorio_gestao_analise data_analise_relatorio_gestao_analise
+#> 1                              REPASSADOR                            2024-10-22
+#>   versao_analise_relatorio_gestao_analise id_relatorio_gestao
+#> 1                                       0               12345
+# }
 ```

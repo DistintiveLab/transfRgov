@@ -54,9 +54,13 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar os responsáveis pela análise de um plano de ação específico
   resp <- ler_plano_acao_analise_responsavel(plano_acao_analise_fk = 1234)
   head(resp)
-} # }
+#>   plano_acao_analise_fk nome_responsavel_analise_plano_acao
+#> 1                  1234              BERNARDO GUERRA DUARTE
+#>   cargo_responsavel_analise_plano_acao
+#> 1                                     
+# }
 ```

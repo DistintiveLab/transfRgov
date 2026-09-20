@@ -64,9 +64,15 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar o histórico de um plano de ação específico
   historico <- get_plano_acao_historico(id_plano_acao = 1234)
   head(historico)
-} # }
+#>   id_historico_plano_acao situacao_historico_plano_acao
+#> 1                    1510                 EM_ELABORACAO
+#> 2                  162921                 EM_ELABORACAO
+#>   data_historico_plano_acao versao_historico_plano_acao id_plano_acao
+#> 1                2020-08-21                           0          1234
+#> 2                2026-06-03                           0          1234
+# }
 ```

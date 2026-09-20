@@ -100,9 +100,23 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: ler relatórios de gestão vinculados a um plano de ação
   relatorios <- ler_relatorio_gestao(id_plano_acao = 12345)
   head(relatorios)
-} # }
+#>   id_relatorio_gestao data_relatorio_gestao data_e_hora_relatorio_gestao
+#> 1               20058            2025-07-25          2025-07-25 16:08:48
+#>   tipo_relatorio_gestao situacao_relatorio_gestao
+#> 1                 FINAL         EM_COMPLEMENTACAO
+#>   valor_executado_relatorio_gestao valor_pendente_relatorio_gestao
+#> 1                         33367.99                               0
+#>                                                                                 resultados_alcancados_metas_relatorio_gestao
+#> 1 Foi executado 66,31% do total do recurso repassado ao município, em janeiro de 2025, foi devolvido o valor de R$22.643,25.
+#>         descritivo_relatorio_gestao contrapartida_relatorio_gestao
+#> 1 Houve a devolução de R$22.643,25.                               
+#>   endereco_eletronico_publicidade_acoes_relatorio_gestao
+#> 1 https://imprensaoficialmunicipal.com.br/santa_mercedes
+#>   declaracao_conformidade_relatorio_gestao id_plano_acao
+#> 1                                     TRUE         12345
+# }
 ```

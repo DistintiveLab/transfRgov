@@ -88,9 +88,10 @@ formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar beneficiários do programa com id 1234 e UF "SP"
   beneficiarios <- ler_programa_beneficiario(id_programa = 1234, uf_beneficiario_programa = "SP")
   head(beneficiarios)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

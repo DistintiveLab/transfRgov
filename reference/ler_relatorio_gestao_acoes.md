@@ -60,9 +60,29 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: ler ações vinculadas a um relatório de gestão
   acoes <- ler_relatorio_gestao_acoes(id_relatorio_gestao = 12345)
   head(acoes)
-} # }
+#>   id_acao_relatorio_gestao
+#> 1                    27594
+#> 2                    27595
+#> 3                    27596
+#> 4                    27597
+#>   percentual_execucao_fisica_acao_relatorio_gestao_acao
+#> 1                                                  0,00
+#> 2                                                  0,00
+#> 3                                                  0,00
+#> 4                                                  0,00
+#>   observacoes_justificativas_relatorio_gestao_acao id_relatorio_gestao
+#> 1                                               NA               12345
+#> 2                                               NA               12345
+#> 3                                               NA               12345
+#> 4                                               NA               12345
+#>   id_acao_meta_plano_acao
+#> 1                   72177
+#> 2                   72176
+#> 3                   72174
+#> 4                   72175
+# }
 ```

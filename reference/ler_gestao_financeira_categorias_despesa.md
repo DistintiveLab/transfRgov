@@ -74,12 +74,13 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar categorias de despesa para um programa ágil específico
   categorias <- ler_gestao_financeira_categorias_despesa(
     codigo_programa_agil = "001",
     nome_programa_agil = "Programa Exemplo"
   )
   head(categorias)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

@@ -141,11 +141,25 @@ são retornadas.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span>  <span class="co"># Exemplo: ler relatórios de gestão vinculados a um plano de ação</span></span></span>
 <span class="r-in"><span>  <span class="va">relatorios</span> <span class="op">&lt;-</span> <span class="fu">ler_relatorio_gestao</span><span class="op">(</span>id_plano_acao <span class="op">=</span> <span class="fl">12345</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">relatorios</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   id_relatorio_gestao data_relatorio_gestao data_e_hora_relatorio_gestao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               20058            2025-07-25          2025-07-25 16:08:48</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   tipo_relatorio_gestao situacao_relatorio_gestao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 FINAL         EM_COMPLEMENTACAO</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   valor_executado_relatorio_gestao valor_pendente_relatorio_gestao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                         33367.99                               0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                 resultados_alcancados_metas_relatorio_gestao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Foi executado 66,31% do total do recurso repassado ao município, em janeiro de 2025, foi devolvido o valor de R$22.643,25.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         descritivo_relatorio_gestao contrapartida_relatorio_gestao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Houve a devolução de R$22.643,25.                               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   endereco_eletronico_publicidade_acoes_relatorio_gestao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 https://imprensaoficialmunicipal.com.br/santa_mercedes</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   declaracao_conformidade_relatorio_gestao id_plano_acao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                     TRUE         12345</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

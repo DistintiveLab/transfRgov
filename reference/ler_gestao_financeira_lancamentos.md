@@ -198,11 +198,12 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar lançamentos de gestão financeira para um determinado ente solicitante
   lancamentos <- ler_gestao_financeira_lancamentos(
     cnpj_ente_solicitante_gestao_financeira = "12.345.678/0001-99"
   )
   head(lancamentos)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

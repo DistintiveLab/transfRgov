@@ -217,7 +217,7 @@ Para cada parâmetro informado, é criada uma condição no formato
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar programas do ano 2020, modalidade "Ordinário",
   # e com data de início dos planos de ação para beneficiários específicos a partir de "2020-01-01"
   prog <- ler_programas(
@@ -226,5 +226,6 @@ if (FALSE) { # \dontrun{
     data_inicio_recebimento_planos_acao_beneficiarios_especificos = "2020-01-01"
   )
   head(prog)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

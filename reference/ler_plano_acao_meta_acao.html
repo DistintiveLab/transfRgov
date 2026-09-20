@@ -119,11 +119,19 @@ são retornadas.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span>  <span class="co"># Exemplo: consultar ações de meta para uma meta de plano de ação específica</span></span></span>
 <span class="r-in"><span>  <span class="va">acao_meta</span> <span class="op">&lt;-</span> <span class="fu">ler_plano_acao_meta_acao</span><span class="op">(</span>id_meta_plano_acao <span class="op">=</span> <span class="fl">5678</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">acao_meta</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   id_acao_meta_plano_acao numero_acao_meta_plano_acao nome_acao_meta_plano_acao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    9075                        A1.1   Subsídio de R$ 3.000,00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                                                                                                                                                                                                                                                         descricao_acao_meta_plano_acao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Concessão de subsídio mensal para a manutenção dos de cerca de 47 espaços artísticos e culturais, microempresas e pequenas empresas culturais, cooperativas, instituições e organizações culturais comunitárias, existentes no Município, com o valor único de R$ 3.000,00, para cada, pelo período de três meses, somando o total de R$ 423.000,00.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   valor_acao_meta_plano_acao versao_acao_meta_plano_acao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                     423000                           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sequencial_acao_meta_plano_acao id_meta_plano_acao</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                               1               5678</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

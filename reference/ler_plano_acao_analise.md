@@ -79,9 +79,10 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar análises de plano de ação para um plano específico
   analise <- ler_plano_acao_analise(id_plano_acao = 1234)
   head(analise)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

@@ -69,9 +69,10 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar destinacões de recursos para um determinado plano de ação
   dest_recursos <- get_plano_acao_destinacao_recursos(id_plano_acao = 1234)
   head(dest_recursos)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

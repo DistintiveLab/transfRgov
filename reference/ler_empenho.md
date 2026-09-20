@@ -188,9 +188,10 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: ler empenhos do ano de 2020 para um determinado plano de ação
   empenhos <- ler_empenho(ano_empenho = 2020, id_plano_acao = 1234)
   head(empenhos)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

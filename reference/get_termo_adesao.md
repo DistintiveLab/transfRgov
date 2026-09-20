@@ -88,9 +88,10 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar termos de adesão para um plano de ação específico
   termo <- get_termo_adesao(id_plano_acao = 1234)
   head(termo)
-} # }
+#> data frame with 0 columns and 0 rows
+# }
 ```

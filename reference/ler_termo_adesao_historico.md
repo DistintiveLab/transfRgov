@@ -59,9 +59,17 @@ data.frame).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
   # Exemplo: consultar o histórico de um termo de adesão específico
   historico <- ler_termo_adesao_historico(id_termo_adesao = 1234)
   head(historico)
-} # }
+#>   id_historico_termo_adesao situacao_historico_termo_adesao
+#> 1                      2993                   EM ELABORACAO
+#> 2                      2994                         ENVIADO
+#> 3                      5807                        ASSINADO
+#>   data_historico_termo_adesao id_termo_adesao
+#> 1                  2020-09-14            1234
+#> 2                  2020-09-14            1234
+#> 3                  2020-09-23            1234
+# }
 ```
