@@ -169,7 +169,7 @@ para especificar a tabela a ser consultada. Os filtros são aplicados por meio d
 no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar planos de ação para um programa específico
   plano <- get_plano_acao(id_programa = 1234)
   head(plano)

@@ -118,7 +118,7 @@ interna \code{pg_get}. Em vez de incorporar o endpoint na URL, utiliza-se o par�
 argumento \code{filter} e devem estar no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: ler empenhos do ano de 2020 para um determinado plano de ação
   empenhos <- ler_empenho(ano_empenho = 2020, id_plano_acao = 1234)
   head(empenhos)

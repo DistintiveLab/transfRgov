@@ -50,7 +50,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: consultar programas do ano 2020, modalidade "Ordinário",
 #'   # e com data de início dos planos de ação para beneficiários específicos a partir de "2020-01-01"
 #'   prog <- ler_programas(

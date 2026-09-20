@@ -21,7 +21,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: consultar o histórico de um plano de ação específico
 #'   historico <- get_plano_acao_historico(id_plano_acao = 1234)
 #'   head(historico)

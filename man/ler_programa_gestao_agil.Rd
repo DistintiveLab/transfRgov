@@ -58,7 +58,7 @@ Os filtros são aplicados por meio do argumento \code{filter} da função \code{
 é criada uma condição no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar registros do programa_gestao_agil para um programa específico
   agil <- ler_programa_gestao_agil(id_programa = 1234)
   head(agil)

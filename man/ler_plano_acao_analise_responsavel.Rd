@@ -38,7 +38,7 @@ Os filtros são aplicados por meio do argumento \code{filter} e devem estar no f
 Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar os responsáveis pela análise de um plano de ação específico
   resp <- ler_plano_acao_analise_responsavel(plano_acao_analise_fk = 1234)
   head(resp)

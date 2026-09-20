@@ -125,7 +125,7 @@ Os filtros são aplicados por meio do argumento \code{filter} e devem estar no f
 Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar lançamentos de gestão financeira para um determinado ente solicitante
   lancamentos <- ler_gestao_financeira_lancamentos(
     cnpj_ente_solicitante_gestao_financeira = "12.345.678/0001-99"

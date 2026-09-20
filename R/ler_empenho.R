@@ -45,7 +45,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: ler empenhos do ano de 2020 para um determinado plano de ação
 #'   empenhos <- ler_empenho(ano_empenho = 2020, id_plano_acao = 1234)
 #'   head(empenhos)

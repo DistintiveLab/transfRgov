@@ -519,8 +519,42 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
     - **`AGENTS.md` foi corrigido**: a frase que dizia não haver configuração de
       CI deixou de valer quando o workflow entrou, e a organização do código
       ganhou o item do `_pkgdown.yml`.
-19. **`\dontrun{}` para `\donttest{}`** nos exemplos que dependem de rede,
-    conforme preferência do CRAN.
+19. **(concluída) `\dontrun{}` para `\donttest{}` nos exemplos que dependem de
+    rede**, conforme preferência do CRAN.
+
+    **Implementação — entrega de 2026-09-20.**
+    - **A premissa do item estava errada em um ponto decisivo**:
+      `R CMD check --as-cran` **liga o `--run-donttest`**. A lista de bandeiras de
+      `R CMD check --help` mostra `--run-donttest` como opção separada, e daí se
+      concluiu que ela não roda por omissão; a primeira rodada da troca integral
+      provou o contrário, com `checking examples with --run-donttest ... ERROR`.
+      A troca **não** é inócua: ela passa a executar os exemplos de rede dentro do
+      gate 5, e portanto dentro do `check` que o CRAN roda.
+    - **A troca foi feita em 21 arquivos, não nos 24**: os três que sobraram não
+      podem rodar de jeito nenhum e por isso mantêm `\dontrun{}`, que é
+      exatamente o marcador prescrito para esse caso. São
+      `R/ler_empenho_especial.R` e `R/ler_programas_especiais.R`, que chamam as
+      tabelas do defeito 404 adiado pela decisão (d), e
+      `R/ler_renuncias_ptransp.R` (define `consultar_renuncias_fiscais()`), cujo
+      exemplo depende de `PORTAL_TRANSPARENCIA_API_KEY`, uma credencial que nunca
+      existiu neste ambiente. Contagem final: **21 `\donttest{}` e
+      3 `\dontrun{}`** em `R/`.
+    - **A primeira rodada integral devolveu `Status: 1 ERROR`** e identificou o
+      caso: `ler_empenho_especial()` responde HTTP 404, o mesmo defeito já
+      registrado. Depois de devolver os três arquivos a `\dontrun{}`, o gate
+      voltou a `Status: OK` com `checking examples with --run-donttest ... OK` em
+      21,7 s: **os 21 exemplos rodaram de verdade contra a API pública e
+      passaram**.
+    - **Os dois `@examples` sem guard não foram tocados**: `R/metafaftab.R` e
+      `R/municipios_siafi_ibge.R` usam só dados embarcados e já rodam no `check`.
+    - **`devtools::document()` regenerou 21 `.Rd`** e o `NAMESPACE` ficou
+      intocado, porque guard de exemplo não mexe em export.
+    - **Verificação**: `devtools::document()` sem diferença, `devtools::test()`
+      com `FAIL 0 | WARN 0 | SKIP 0 | PASS 476` (inalterado), gate ASCII com
+      0 ofensas em 30 arquivos `R`, auditoria dos `\arguments` com
+      `OK: 26 Rd \arguments sections exactly match formals`, `check --as-cran`
+      com `Status: OK` e o modo `_R_CHECK_CRAN_INCOMING_ = "true"` mantendo
+      `Status: 1 NOTE` com as mesmas nove palavras da linha de base.
 20. **Tornar o `metafaftab` mais útil**: hoje é uma lista crua de caminhos para
     parâmetros; um acessor que liste endpoints e campos legíveis melhora a
     descoberta.

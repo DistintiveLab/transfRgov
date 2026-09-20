@@ -48,7 +48,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: consultar lançamentos de gestão financeira para um determinado ente solicitante
 #'   lancamentos <- ler_gestao_financeira_lancamentos(
 #'     cnpj_ente_solicitante_gestao_financeira = "12.345.678/0001-99"

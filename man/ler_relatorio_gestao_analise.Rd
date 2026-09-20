@@ -52,7 +52,7 @@ Os filtros são aplicados por meio do argumento \code{filter} e devem estar no f
 "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: ler análises vinculadas a um relatório de gestão
   analises <- ler_relatorio_gestao_analise(id_relatorio_gestao = 12345)
   head(analises)

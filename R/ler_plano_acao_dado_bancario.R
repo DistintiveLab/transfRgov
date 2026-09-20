@@ -29,7 +29,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: consultar dados bancários para um plano de ação específico
 #'   dados_bancarios <- get_plano_acao_dado_bancario(id_plano_acao = 1234)
 #'   head(dados_bancarios)

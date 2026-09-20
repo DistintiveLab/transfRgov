@@ -20,7 +20,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: consultar o histórico de um termo de adesão específico
 #'   historico <- ler_termo_adesao_historico(id_termo_adesao = 1234)
 #'   head(historico)

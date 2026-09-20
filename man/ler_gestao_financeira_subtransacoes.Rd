@@ -121,7 +121,7 @@ utilizando a função interna \code{pg_get}. Em vez de inserir o endpoint na URL
 por meio do argumento \code{filter} e devem estar no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar subtransações para um lançamento de gestão financeira específico
   subtransacoes <- ler_gestao_financeira_subtransacoes(id_lancamento_gestao_financeira = 1234)
   head(subtransacoes)

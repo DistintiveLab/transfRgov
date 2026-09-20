@@ -47,7 +47,7 @@ são aplicados por meio do argumento \code{filter} e devem estar no formato "nom
 parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar destinacões de recursos para um determinado plano de ação
   dest_recursos <- get_plano_acao_destinacao_recursos(id_plano_acao = 1234)
   head(dest_recursos)

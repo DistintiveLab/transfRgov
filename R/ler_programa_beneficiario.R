@@ -26,7 +26,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: consultar beneficiários do programa com id 1234 e UF "SP"
 #'   beneficiarios <- ler_programa_beneficiario(id_programa = 1234, uf_beneficiario_programa = "SP")
 #'   head(beneficiarios)

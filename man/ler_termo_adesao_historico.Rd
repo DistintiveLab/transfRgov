@@ -41,7 +41,7 @@ Os filtros são aplicados por meio do argumento \code{filter} e devem estar no f
 Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar o histórico de um termo de adesão específico
   historico <- ler_termo_adesao_historico(id_termo_adesao = 1234)
   head(historico)

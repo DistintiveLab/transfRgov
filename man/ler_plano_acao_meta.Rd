@@ -55,7 +55,7 @@ Os filtros são aplicados por meio do argumento \code{filter} da função \code{
 é criada uma condição no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar metas de plano de ação para um plano específico
   meta <- ler_plano_acao_meta(id_plano_acao = 1234)
   head(meta)

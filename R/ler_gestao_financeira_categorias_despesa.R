@@ -23,7 +23,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: consultar categorias de despesa para um programa ágil específico
 #'   categorias <- ler_gestao_financeira_categorias_despesa(
 #'     codigo_programa_agil = "001",

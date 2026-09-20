@@ -58,7 +58,7 @@ Os filtros são aplicados por meio do parâmetro \code{filter} da função \code
 uma condição no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar beneficiários do programa com id 1234 e UF "SP"
   beneficiarios <- ler_programa_beneficiario(id_programa = 1234, uf_beneficiario_programa = "SP")
   head(beneficiarios)

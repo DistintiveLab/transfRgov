@@ -26,7 +26,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: consultar registros do programa_gestao_agil para um programa específico
 #'   agil <- ler_programa_gestao_agil(id_programa = 1234)
 #'   head(agil)

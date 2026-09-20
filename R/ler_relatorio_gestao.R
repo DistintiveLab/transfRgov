@@ -28,7 +28,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente um data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: ler relatórios de gestão vinculados a um plano de ação
 #'   relatorios <- ler_relatorio_gestao(id_plano_acao = 12345)
 #'   head(relatorios)

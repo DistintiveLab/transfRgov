@@ -132,7 +132,7 @@ Os filtros são aplicados via o parâmetro \code{filter} da função \code{pg_ge
 informado, é criada uma condição no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar programas do ano 2020, modalidade "Ordinário",
   # e com data de início dos planos de ação para beneficiários específicos a partir de "2020-01-01"
   prog <- ler_programas(

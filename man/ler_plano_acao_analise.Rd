@@ -53,7 +53,7 @@ são aplicados por meio do argumento \code{filter} e devem estar no formato "nom
 Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar análises de plano de ação para um plano específico
   analise <- ler_plano_acao_analise(id_plano_acao = 1234)
   head(analise)

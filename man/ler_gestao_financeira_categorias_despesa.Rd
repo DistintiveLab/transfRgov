@@ -50,7 +50,7 @@ Os filtros são aplicados por meio do argumento \code{filter} e devem estar no f
 Todos os parâmetros são opcionais.
 }
 \examples{
-\dontrun{
+\donttest{
   # Exemplo: consultar categorias de despesa para um programa ágil específico
   categorias <- ler_gestao_financeira_categorias_despesa(
     codigo_programa_agil = "001",

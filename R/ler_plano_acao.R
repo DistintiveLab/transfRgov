@@ -62,7 +62,7 @@
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   # Exemplo: consultar planos de ação para um programa específico
 #'   plano <- get_plano_acao(id_programa = 1234)
 #'   head(plano)
