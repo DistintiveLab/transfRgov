@@ -296,8 +296,58 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       (e-mail do mantenedor e nomes próprios), idêntico ao da linha de base.
     - A reprodução é offline e estável: os 6 arquivos YAML mantêm o mesmo
       `md5sum` antes e depois de rodar a suíte, ou seja, nada é regravado.
-16. **Cobertura ausente:** `consultar_renuncias_fiscais()` e
+16. **(concluída) Cobertura ausente:** `consultar_renuncias_fiscais()` e
     `baixa_municipio_siafibge()` não têm nenhum teste.
+
+    **Implementação — entrega de 2026-09-20.** Os dois leitores passaram a ser
+    cobertos inteiramente offline por um único arquivo novo,
+    `tests/testthat/test-renuncias_e_siafibge.R` (10 blocos `test_that`, 38
+    asserções). O total da suíte foi de **438 para 476 asserções**, com
+    `FAIL 0 | WARN 0 | SKIP 0`. Nenhuma linha de `R/`, `NAMESPACE`, `man/` ou
+    `DESCRIPTION` mudou.
+
+    - **Duas estratégias, por um motivo mecânico.** `consultar_renuncias_fiscais()`
+      chama `httr::GET` qualificado, então `mockery::stub()` não consegue
+      interceptá-lo; a cobertura vem de `webmockr` 2.0.0. Já
+      `baixa_municipio_siafibge()` chama `download.file` e `read.csv` sem
+      qualificação, então `mockery` funciona para ela. Os dois pacotes já estavam
+      em `Suggests:` e nenhuma dependência nova foi acrescentada.
+    - **A receita de `webmockr` que casa com query string.** Um stub criado sem
+      `wi_th()` **não casa** com requisição que carrega query string: a chamada
+      aborta com `Real HTTP connections are disabled. Unregistered request:`. A
+      forma que funciona registra a URL **sem** query string e desambigua pelos
+      parâmetros:
+      `webmockr::stub_request("get", url) |> webmockr::wi_th(query = list(pagina = 1)) |> webmockr::to_return(status = 200, body = ..., headers = ...)`.
+    - **O primeiro stub registrado vence**, então `webmockr::stub_registry_clear()`
+      é obrigatório no início de cada bloco que registra stub; sem ele, os stubs
+      de um bloco anterior sequestram as chamadas do seguinte.
+    - **`allow_net_connect` já é `FALSE` por padrão** no `webmockr` 2.0.0, e
+      `webmockr_configure_reset()` não desabilita o stubbing. Nenhum teardown de
+      rede é necessário; basta `on.exit(webmockr::disable(quiet = TRUE), add = TRUE)`
+      para desligar o `webmockr` ao fim do bloco.
+    - **`webmockr::last_request()$url` é uma lista de comprimento 1**, não uma
+      string: é preciso `unlist()` (ou `as.character()`) antes de qualquer `grepl()`,
+      e `cat()` direto sobre ela falha. Já `$headers[["chave-api-dados"]]` é escalar
+      `character`, o que permite asserir o cabeçalho de autenticação.
+    - **A ausência de chave separa este leitor do padrão dos `download_*`.**
+      `consultar_renuncias_fiscais()` faz `stop()` duro quando
+      `chave_api == ""`, enquanto os `download_*` devolvem `warning()` +
+      `invisible(NULL)`. Dois blocos cobrem isso: um para o texto do erro e outro
+      para o nome da variável de ambiente (`PORTAL_TRANSPARENCIA_API_KEY`).
+    - **HTTP 404 vira `http_error`.** `httr::stop_for_status()` levanta
+      `http_404`/`http_400`/`http_error`, então o caminho de erro é asseverado com
+      `expect_error(..., class = "http_error")` sobre um stub de status 404.
+    - **Delimitador do `read_csv2` é `;`**, com `col_names` fixos (não há linha de
+      cabeçalho na fixture) e `codigo_ibge` numérico por `col_number()`. O gatilho
+      confiável da falha do `readr` é um **caminho inexistente**, não um arquivo
+      vazio (arquivo vazio devolve `0 × 2` sem erro); com a falha forçada, o
+      fallback `read.csv` Latin1 é exercitado por stub.
+    - **O `readr::read_csv2` qualificado não foi desqualificado** (opção A): a
+      mudança de fonte evita tocar `R/`, `NAMESPACE` e `man/`, e a falha do `readr`
+      é provocada naturalmente pelo stub de download que não cria o arquivo.
+    - **Cassette `vcr` não era opção** para o endpoint de renúncias: não existe
+      chave de API neste ambiente e o portal responde erro sem ela, então a via
+      offline determinística é o `webmockr`.
 
 ## Fase 5 — Documentação e usabilidade
 
