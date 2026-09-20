@@ -1,12 +1,17 @@
+#' Mapeamento entre códigos de município SIAFI e IBGE
+#'
 #' @name municipios_siafi_ibge
 #' @aliases municipios_siafi_ibge
 #' @docType data
 #' @title IBGE e SIAFI Lista de IDs
 #'
 #' @description
-#' %%  ~~ A concise (1-5 lines) description of the dataset. ~~
+#' Tabela de correspondência entre os códigos de município utilizados pelo
+#' SIAFI e os códigos de município do IBGE, com o nome do município, a unidade
+#' da federação e o CNPJ da prefeitura. Os dados são extraídos do arquivo
+#' \code{tabmun.csv} publicado pelo Tesouro Transparente.
 #'
-#' @usage data("municipios_siafi_ibge")
+#' @usage municipios_siafi_ibge
 #'
 #' @format
 #'  A data frame with 5589 observations on the following 5 variables.
@@ -19,17 +24,22 @@
 #'  }
 #'
 #' @details
-#' %%  ~~ Harmonization for IBGE ~~
+#' O código SIAFI é mantido como texto para preservar os zeros à esquerda, que
+#' são significativos. As junções entre os dados do Portal da Transparência e
+#' este mapeamento devem sempre ser feitas pela coluna
+#' \code{codigo_municipio_siafi}, e não pela coluna \code{cnpj}.
 #'
 #' @source
-#' %%  ~~ reference to a publication or URL from which the data were obtained ~~
+#' Tesouro Transparente, arquivo \code{tabmun.csv}:
+#' \url{https://www.tesourotransparente.gov.br/}
 #'
 #' @references
-#' %%  ~~ possibly secondary sources and usages ~~
+#' Portal da Transparência do Governo Federal:
+#' \url{https://portaldatransparencia.gov.br/}
 #'
 #' @examples
-#' data(municipios_siafi_ibge)
-#' ## maybe str(municipios_siafi_ibge) ; plot(municipios_siafi_ibge) ...
+#' str(municipios_siafi_ibge)
+#' head(municipios_siafi_ibge)
 #'
 #' @keywords datasets
 #' @keywords ibge

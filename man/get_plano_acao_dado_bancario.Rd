@@ -20,33 +20,42 @@ get_plano_acao_dado_bancario(
   id_plano_acao = NULL
 )
 }
+\arguments{
+\item{id_plano_acao_dado_bancario}{Identificador do dado bancário do plano de ação (numérico).}
+
+\item{id_agencia_conta}{Identificador da agência/conta (numérico).}
+
+\item{codigo_banco_plano_acao_dado_bancario}{Código do banco (texto).}
+
+\item{nome_banco_plano_acao_dado_bancario}{Nome do banco (texto).}
+
+\item{numero_agencia_plano_acao_dado_bancario}{Número da agência (texto ou numérico).}
+
+\item{dv_agencia_plano_acao_dado_bancario}{Dígito verificador da agência (texto).}
+
+\item{numero_conta_plano_acao_dado_bancario}{Número da conta (texto ou numérico).}
+
+\item{dv_conta_plano_acao_dado_bancario}{Dígito verificador da conta (texto).}
+
+\item{situacao_conta_plano_acao_dado_bancario}{Situação da conta (texto).}
+
+\item{data_abertura_conta_plano_acao_dado_bancario}{Data de abertura da conta (formato YYYY-MM-DD).}
+
+\item{nome_programa_agil_conta_plano_acao_dado_bancario}{Nome do programa ágil associado à conta (texto).}
+
+\item{saldo_final_conta_plano_acao_dado_bancario}{Saldo final da conta (numérico).}
+
+\item{id_plano_acao}{Identificador do plano de ação ao qual o dado bancário está vinculado (numérico).}
+}
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 }
 \description{
 Esta função acessa os dados do endpoint **plano_acao_dado_bancario** da API FundoaFundo (TransfereGov)
-utilizando a função \code{pg.get} do pacote postgrestR. Em vez de inserir o endpoint na URL, utiliza-se
+utilizando a função interna \code{pg_get}. Em vez de inserir o endpoint na URL, utiliza-se
 o parâmetro \code{table = "plano_acao_dado_bancario"} para especificar a tabela a ser consultada. Os filtros
 são aplicados por meio do argumento \code{filter} e devem estar no formato "nome_parametro=eq.valor".
 Todos os parâmetros são opcionais.
-}
-\details{
-Parâmetros disponíveis:
-\describe{
-  \item{\code{id_plano_acao_dado_bancario}}{Identificador do dado bancário do plano de ação (numérico).}
-  \item{\code{id_agencia_conta}}{Identificador da agência/conta (numérico).}
-  \item{\code{codigo_banco_plano_acao_dado_bancario}}{Código do banco (texto).}
-  \item{\code{nome_banco_plano_acao_dado_bancario}}{Nome do banco (texto).}
-  \item{\code{numero_agencia_plano_acao_dado_bancario}}{Número da agência (texto ou numérico).}
-  \item{\code{dv_agencia_plano_acao_dado_bancario}}{Dígito verificador da agência (texto).}
-  \item{\code{numero_conta_plano_acao_dado_bancario}}{Número da conta (texto ou numérico).}
-  \item{\code{dv_conta_plano_acao_dado_bancario}}{Dígito verificador da conta (texto).}
-  \item{\code{situacao_conta_plano_acao_dado_bancario}}{Situação da conta (texto).}
-  \item{\code{data_abertura_conta_plano_acao_dado_bancario}}{Data de abertura da conta (formato YYYY-MM-DD).}
-  \item{\code{nome_programa_agil_conta_plano_acao_dado_bancario}}{Nome do programa ágil associado à conta (texto).}
-  \item{\code{saldo_final_conta_plano_acao_dado_bancario}}{Saldo final da conta (numérico).}
-  \item{\code{id_plano_acao}}{Identificador do plano de ação ao qual o dado bancário está vinculado (numérico).}
-}
 }
 \examples{
 \dontrun{

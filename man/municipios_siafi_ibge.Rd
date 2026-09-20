@@ -15,24 +15,35 @@ A data frame with 5589 observations on the following 5 variables.
  }
 }
 \source{
-%%  ~~ reference to a publication or URL from which the data were obtained ~~
+Tesouro Transparente, arquivo \code{tabmun.csv}:
+\url{https://www.tesourotransparente.gov.br/}
 }
 \usage{
-data("municipios_siafi_ibge")
+municipios_siafi_ibge
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of the dataset. ~~
+Tabela de correspondência entre os códigos de município utilizados pelo
+SIAFI e os códigos de município do IBGE, com o nome do município, a unidade
+da federação e o CNPJ da prefeitura. Os dados são extraídos do arquivo
+\code{tabmun.csv} publicado pelo Tesouro Transparente.
 }
 \details{
-%%  ~~ Harmonization for IBGE ~~
+Mapeamento entre códigos de município SIAFI e IBGE
+
+
+O código SIAFI é mantido como texto para preservar os zeros à esquerda, que
+são significativos. As junções entre os dados do Portal da Transparência e
+este mapeamento devem sempre ser feitas pela coluna
+\code{codigo_municipio_siafi}, e não pela coluna \code{cnpj}.
 }
 \examples{
-data(municipios_siafi_ibge)
-## maybe str(municipios_siafi_ibge) ; plot(municipios_siafi_ibge) ...
+str(municipios_siafi_ibge)
+head(municipios_siafi_ibge)
 
 }
 \references{
-%%  ~~ possibly secondary sources and usages ~~
+Portal da Transparência do Governo Federal:
+\url{https://portaldatransparencia.gov.br/}
 }
 \keyword{cnpj}
 \keyword{datasets}

@@ -1,7 +1,7 @@
 
 #' @title Ler dados de Empenho Especial da API TransfereGov
 #' @description Esta função acessa os dados do endpoint **empenho_especial** da API FundoaFundo
-#' (TransfereGov) utilizando a função \code{pg.get} do pacote postgrestR.
+#' (TransfereGov) utilizando a função interna \code{pg_get}.
 #' Os filtros são aplicados por meio do argumento \code{filter} e devem estar no formato
 #' "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 #'
@@ -30,7 +30,6 @@
 #'   head(empenhos_de_programa)
 #' }
 #'
-#' @importFrom postgrestR pg.get
 #' @export
 ler_empenho_especial <- function(id_empenho_especial = NULL,
                                  numero_empenho = NULL,
@@ -70,5 +69,5 @@ ler_empenho_especial <- function(id_empenho_especial = NULL,
   if (!is.null(objeto_empenho))
     filters <- c(filters, paste0("objeto_empenho=eq.", objeto_empenho))
 
-  pg.get(table = table, filter = filters)
+  pg_get(table = table, filter = filters)
 }

@@ -11,16 +11,13 @@ Everything user-facing (docs, comments, messages, column names) is written in **
 This is a roxygen2 package; there is no Makefile, no CI config, and no lintr config.
 
 ```r
-# Install the one non-CRAN dependency first (required for ler_* functions)
-devtools::install_github("clesiemo3/postgrestR")
-
 devtools::load_all()              # load package code
 devtools::document()              # regenerate NAMESPACE + man/*.Rd from roxygen blocks
 devtools::test()                  # run tests/testthat
 devtools::check()                 # R CMD check equivalent
 ```
 
-Tests use **mockery** (`mockery::stub`) to stub network calls; `mockery` is NOT declared in DESCRIPTION `Suggests` (only `testthat`), so `devtools::test()` fails on a clean install until `install.packages("mockery")` is run (the test file also `library()`s `dplyr`, `janitor`, `readr`, `tibble` directly — all must be installed).
+Tests use **mockery** (`mockery::stub`) to stub network calls; `mockery` and `httr` are declared in DESCRIPTION (Suggests/Imports). Stubs must be **plain `function(...)` objects**, never `mockery::mock()` wrappers: a mocked binding only intercepts bare (unqualified) calls inside the target function, so stub call sites with `pg_get(...)`, not `transfRgov:::pg_get(...)`.
 
 ## Code organization
 
@@ -52,7 +49,7 @@ The exported function does not always live in the file you'd expect — search b
 
 ## Architecture / two function families
 
-### 1. `ler_*` / `get_*` — TransfereGov API (via postgrestR)
+### 1. `ler_*` / `get_*` — TransfereGov API (via internal `pg_get`)
 
 Access the Fundo a Fundo API: `https://api.transferegov.gestao.gov.br/fundoafundo` — **note the spelling "fundoafundo"** (a code comment warns against "fundafundo"; README prose also writes "FundoaFundo"; do not "fix" it).
 
@@ -60,17 +57,19 @@ Pattern (see `R/ler_programas.R`, `R/ler_empenho.R`):
 
 1. Every API column becomes a parameter, all defaulting to `NULL`, named exactly after the API field (`id_plano_acao`, `ano_empenho`, ...).
 2. Non-NULL params are appended to a `filters` character vector as `paste0("campo=eq.", valor)` (PostgREST `eq` filter syntax).
-3. Single call at the end: `pg.get(url, table = "<endpoint>", filter = filters)` (some functions pass the URL via a `url` variable, others inline; `table` is the endpoint name).
+3. Single call at the end: `pg_get(table = "<endpoint>", filter = filters)` (some functions pass the domain via a `url` variable, others rely on the default).
 
-All parameters are optional. There is no pagination handling inside these functions — `pg.get` is expected to handle it.
+All parameters are optional. There is no pagination handling inside these functions.
+
+The HTTP layer lives in `R/utils-pg_get.R` (`pg_build_url`, `pg_parse_response`, `pg_get`, all `@noRd`). It replaced the former dependency on the non-CRAN `postgrestR` package and adds `httr::stop_for_status()`, so HTTP errors raise instead of returning wrong data. `pg_get()` defaults to `https://api.transferegov.gestao.gov.br/fundoafundo`.
 
 **Naming is inconsistent within this family**: most readers use the `ler_` prefix, but five exported functions use `get_` (`get_plano_acao`, `get_plano_acao_dado_bancario`, `get_plano_acao_historico`, `get_plano_acao_destinacao_recursos`, `get_termo_adesao`) with the identical `eq.`-filter implementation. Don't "normalize" one into the other without asking the maintainer.
 
-The `metafaftab` packaged dataset is a list of API endpoint paths → parameter names, scraped from the API's own OpenAPI spec (`postgrestR::pg.get(domain = "https://api.transferegov.gestao.gov.br/fundoafundo/")` in `data-raw/metafaftab.R`). It can tell you the valid field names for filters.
+The `metafaftab` packaged dataset is a list of API endpoint paths → parameter names, scraped from the API's own OpenAPI spec (`httr::GET("https://api.transferegov.gestao.gov.br/fundoafundo/")` in `data-raw/metafaftab.R`). It can tell you the valid field names for filters.
 
 ### 2. Downloader/scraper functions (Portal da Transparência / Tesouro)
 
-- `download_transferencias_uniao(ano, mes, codigo_ibge = TRUE, municipios_mapping = NULL)` — builds URL `https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/transferencias/{YYYYMM}_Transferencias.zip`, downloads to a tempfile, unzips, reads the CSV with `readr::read_delim(delim = ";", locale(encoding = "ISO-8859-1", decimal_mark = ","))`, cleans names with `janitor::clean_names()`, and optionally left-joins the SIAFI→IBGE mapping. Returns `invisible(NULL)` (with `warning`) on any failure — **never throws** for download/parse errors. Uses `utils::download.file` (not httr) and `utils::unzip`. Emits `message()` progress lines on the happy path.
+- `download_transferencias_uniao(ano, mes, codigo_ibge = TRUE, municipios_mapping = NULL)` — builds URL `https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/transferencias/{YYYYMM}_Transferencias.zip`, downloads to a tempfile, unzips, reads the CSV with `read_delim(delim = ";", locale(encoding = "ISO-8859-1", decimal_mark = ","))`, cleans names with `janitor::clean_names()`, and optionally left-joins the SIAFI→IBGE mapping. Returns `invisible(NULL)` (with `warning`) on any failure — **never throws** for download/parse errors. Uses `download.file` (not httr) and `unzip`, both imported from `utils` and called unqualified so tests can stub them. Emits `message()` progress lines on the happy path.
 - `baixa_municipio_siafibge()` — downloads `tabmun.csv` from Tesouro Transparente CKAN. Reads codes as character to preserve leading zeros; `codigo_ibge` as numeric. `read_csv2` fallback chain: UTF-8 → Latin1 via base `read.csv`. Note: it names the second column `id`, while the packaged dataset version (from `data-raw/municipios_siafi_ibge.R`) names it `cnpj` — joins rely on `codigo_municipio_siafi`, not that column.
 - `consultar_renuncias_fiscais(pagina, uf, codigo_ibge, cnpj, chave_api)` — Portal da Transparência REST API (`/renuncias-valor`), requires API key from env var `PORTAL_TRANSPARENCIA_API_KEY` (hard `stop()` if missing; also throws `httr::stop_for_status` on HTTP errors). Headers: `chave-api-dados`. Parses with `jsonlite::fromJSON`. Uses `\()` (R 4.1+ lambda) syntax. Returns empty `data.frame()` with `warning()` when the query returns nothing.
 
@@ -90,18 +89,19 @@ The `metafaftab` packaged dataset is a list of API endpoint paths → parameter 
 
 ## Testing
 
-- Only one test file exists: `tests/testthat/test-download_transferencias_uniao.R` (testthat edition 3 via `Config/testthat/edition`). It contains 6 `test_that` blocks: argument validation, mocked happy paths (with and without IBGE join), and 4 mocked failure paths (download, unzip, missing CSV, read failure) all asserting `NULL`.
-- Style: `mockery::stub(func, "name", mock(...))` to replace `download.file`, `unzip`, `read_delim` inside the target function; `utils::`-qualified calls are stubbed by bare name. Stubs use `cycle = TRUE` and the `mock()` functions must actually create the zip/csv files in `tempdir()` because the target checks `file.exists()`. Tests verify argument validation errors (`expect_error` with pt-BR message substring) — the current `stop()` text is "O parâmetro 'ano' deve ser um inteiro válido representando o ano." and tests match the prefix "O parâmetro 'ano' deve ser um inteiro válido", so keep that prefix stable if you change `stop()` texts.
-- The test file contains stale placeholder comments ("Cole a sua função AQUI") and top-level `library()` calls — harmless, leave them.
-- The git history (`git log`) shows the current main commit is "unit test" — the package is early-stage, so patterns are still settling.
+- Two test files: `tests/testthat/test-download_transferencias_uniao.R` (8 `test_that` blocks: `ano`/`mes` validation, mocked happy paths with and without the IBGE join, and 4 mocked failure paths — download, unzip, missing CSV, read failure — each asserting `NULL`) and `tests/testthat/test-pg_get.R` (pure-function tests for `pg_build_url`/`pg_parse_response` plus stubbed `pg_get`). Testthat edition 3 via `Config/testthat/edition`.
+- Style: `mockery::stub(func, "name", function(...) ...)`. Pass a **plain function**, never `mockery::mock(...)`: the returned closure has only `...` formals and does not reliably reproduce the wrapped function's return value. A mocked binding is installed into a child environment of the target function, so it only intercepts **bare, unqualified** calls — stub call sites as `pg_get(...)`, not `transfRgov:::pg_get(...)`, or the stub is bypassed. For the same reason `R/ler_transferencias_ptransp.R` calls `download.file`, `unzip`, `read_delim` and `read.csv` unqualified.
+- Download stubs must actually create the zip/CSV files in `tempdir()` because the target checks `file.exists()`.
+- Tests verify argument validation errors (`expect_error` with a pt-BR message substring) — the `stop()` text is "O parâmetro 'ano' deve ser um inteiro válido representando o ano." and tests match the prefix "O parâmetro 'ano' deve ser um inteiro válido", so keep that prefix stable if you change `stop()` texts.
+- Network-dependent tests carry `skip_on_cran()`; the suite must stay hermetic (44 assertions, 0 failures) because `R CMD check` runs it on machines without internet access.
 
 ## Gotchas / non-obvious
 
-1. **Undeclared dependencies**: `dplyr::`, `janitor::`, and `jsonlite::` are used in `R/` but are missing from DESCRIPTION (which lists only `httr, postgrestR, readr, rvest` in `Depends`, plus `R (>= 4.1)`). If you add code using them, keep using `::` qualification or add them to DESCRIPTION/NAMESPACE. `mockery` and `tibble` are likewise undeclared but required by tests; `data.table`, `tidyr`, `glue`, `archive`, `readxl`, `geobr`, `stringi`, `lubridate`, `ggplot2` are used only in `data-raw/` analysis scripts.
-2. **License mismatch**: `DESCRIPTION` says `MIT + file LICENSE`, README says GPL-3. Don't "correct" one without asking the maintainer.
+1. **Dependencies**: DESCRIPTION declares `Depends: R (>= 4.1)`, `Imports: httr, janitor, jsonlite, readr, utils`, `Suggests: mockery, testthat (>= 3.0.0)`. Source files use `::` qualification for every non-base call, and all imports are declared. `tibble`, `data.table`, `tidyr`, `glue`, `archive`, `readxl`, `geobr`, `stringi`, `lubridate` and `ggplot2` are used only in `data-raw/` analysis scripts and are intentionally not declared.
+2. **License**: `DESCRIPTION` and README both say MIT.
 3. **URL spelling**: `fundoafundo`, not `fundafundo`.
 4. **Leading zeros**: SIAFI codes must stay character; any numeric coercion breaks joins. `codigo_ibge` is numeric by design (leading zeros aren't significant for IBGE codes but SIAFI are).
 5. **Accented filenames** in repo (`data/transferências_para_municípios.csv`) and pt-BR encoding — be careful with non-ASCII handling when scripting around the repo. The renúncias files are also accent-inconsistent: URLs use `{ano}_RenunciasFiscais.zip` but extracted CSVs are named `{ano}_RenúnciasFiscais.csv` (the analysis script reconciles with `gsub("_Renun","_Renún", ...)`).
-6. `.Rbuildignore` excludes `data-raw/` and `LICENSE.md`; `cache/` and loose CSVs at repo root are untracked clutter, not part of the package. `man/hello.Rd` is a stale skeleton doc (no `hello` function exists); `data/` holds several untracked raw files (`estimativa_dou_2025.ods/.xls`, UUID-named `.xlsx`, `link_baixada_transferencia.txt`, `transf_mun_ptransp.zip`) that are inputs/outputs of analysis, not package data.
+6. `.Rbuildignore` excludes `data-raw/`, `LICENSE.md`, `AGENTS.md`, `README.Rmd`, `README.html`, `cache/`, `.crush/`, and every raw download under `data/` (`*.zip|csv|xlsx|xls|ods|txt|old`). `cache/` and loose CSVs at repo root are untracked clutter, not part of the package. `data/` holds several untracked raw files (`estimativa_dou_2025.ods/.xls`, UUID-named `.xlsx`, `link_baixada_transferencia.txt`, `transf_mun_ptransp.zip`) that are inputs/outputs of analysis, not package data.
 7. Failures in download functions return `invisible(NULL)` + `warning()`, never `stop()`; validation errors (bad `ano`/`mes`) do `stop()`. Match this split in new code. Note the exception: `consultar_renuncias_fiscais` does `stop()` for missing API key and HTTP errors — it's a REST API call, not a file download.
-8. `data(municipios_siafi_ibge, overwrite = TRUE)` inside a function is fragile (silently returns a string naming the dataset on newer R); prefer passing `municipios_mapping` explicitly.
+8. Never call `data(municipios_siafi_ibge)` inside a function to load the built-in mapping: on newer R it can return the *name* of the dataset rather than the data frame, silently skipping the IBGE join. `R/ler_transferencias_ptransp.R` uses `get("municipios_siafi_ibge", envir = asNamespace("transfRgov"))`; callers that need control should pass `municipios_mapping` explicitly.

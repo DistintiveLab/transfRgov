@@ -16,30 +16,36 @@ ler_programa_beneficiario(
   id_programa = NULL
 )
 }
+\arguments{
+\item{id_beneficiario_programa}{Identificador do beneficiário do programa (numérico).}
+
+\item{cnpj_beneficiario_programa}{CNPJ do beneficiário do programa (texto).}
+
+\item{nome_beneficiario_programa}{Nome do beneficiário do programa (texto).}
+
+\item{valor_beneficiario_programa}{Valor atribuído ao beneficiário do programa (numérico).}
+
+\item{numero_emenda_beneficiario_programa}{Número da emenda do beneficiário do programa (texto ou numérico).}
+
+\item{nome_parlamentar_beneficiario_programa}{Nome do parlamentar associado ao beneficiário (texto).}
+
+\item{tipo_beneficiario_programa}{Tipo de beneficiário do programa (texto).}
+
+\item{uf_beneficiario_programa}{Unidade Federativa do beneficiário do programa (texto).}
+
+\item{id_programa}{Identificador do programa ao qual o beneficiário está vinculado (numérico).}
+}
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 }
 \description{
 Esta função acessa os dados referentes ao endpoint de beneficiários de programas na API FundoaFundo (TransfereGov),
-utilizando a função \code{pg.get} do pacote postgrestR. Em vez de inserir o endpoint na URL, utiliza-se o parâmetro
+utilizando a função interna \code{pg_get}. Em vez de inserir o endpoint na URL, utiliza-se o parâmetro
 \code{table = 'programa_beneficiario'} para especificar a tabela a ser consultada.
 }
 \details{
-Os filtros são aplicados por meio do parâmetro \code{filter} da \code{pg.get}. Para cada parâmetro informado, é criada
+Os filtros são aplicados por meio do parâmetro \code{filter} da função \code{pg_get}. Para cada parâmetro informado, é criada
 uma condição no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
-
-Parâmetros disponíveis:
-\describe{
-  \item{\code{id_beneficiario_programa}}{Identificador do beneficiário do programa (numérico).}
-  \item{\code{cnpj_beneficiario_programa}}{CNPJ do beneficiário do programa (texto).}
-  \item{\code{nome_beneficiario_programa}}{Nome do beneficiário do programa (texto).}
-  \item{\code{valor_beneficiario_programa}}{Valor atribuído ao beneficiário do programa (numérico).}
-  \item{\code{numero_emenda_beneficiario_programa}}{Número da emenda do beneficiário do programa (texto ou numérico).}
-  \item{\code{nome_parlamentar_beneficiario_programa}}{Nome do parlamentar associado ao beneficiário (texto).}
-  \item{\code{tipo_beneficiario_programa}}{Tipo de beneficiário do programa (texto).}
-  \item{\code{uf_beneficiario_programa}}{Unidade Federativa do beneficiário do programa (texto).}
-  \item{\code{id_programa}}{Identificador do programa ao qual o beneficiário está vinculado (numérico).}
-}
 }
 \examples{
 \dontrun{

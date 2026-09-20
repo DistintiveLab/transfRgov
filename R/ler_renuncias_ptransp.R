@@ -12,9 +12,9 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # Para usar esta função, você precisa de uma chave de API válida
-#'   # e tê-la configurado em seu ambiente.
-#'   dados_renuncia <- consultar_renuncias_fiscais(ano = 202301)
+#'   # Para usar esta função, você precisa de uma chave de API válida,
+#'   # configurada na variável de ambiente 'PORTAL_TRANSPARENCIA_API_KEY'.
+#'   dados_renuncia <- consultar_renuncias_fiscais(pagina = 1, uf = "SP")
 #'   print(dados_renuncia)
 #' }
 #'
@@ -27,7 +27,7 @@ consultar_renuncias_fiscais <- \(pagina = 1,
 
   # Validação da chave da API
   if (chave_api == "") {
-    stop("A chave da API não foi encontrada. Por favor, configure a variável de ambiente 'PORTAL_TRANSPARENCIA_API_KEY' ou forneça a chave diretamente no parâmetro 'chave_api'.")
+    stop("A chave da API n\u00e3o foi encontrada. Por favor, configure a vari\u00e1vel de ambiente 'PORTAL_TRANSPARENCIA_API_KEY' ou forne\u00e7a a chave diretamente no par\u00e2metro 'chave_api'.")
   }
 
   # URL base da API
@@ -57,7 +57,7 @@ consultar_renuncias_fiscais <- \(pagina = 1,
   )
 
   # Verificando o status da resposta HTTP
-  httr::stop_for_status(resposta, "consultar a API do Portal da Transparência")
+  httr::stop_for_status(resposta, "consultar a API do Portal da Transpar\u00eancia")
 
   # Processando o conteúdo da resposta
   conteudo <- httr::content(resposta, "text", encoding = "UTF-8")
@@ -65,7 +65,7 @@ consultar_renuncias_fiscais <- \(pagina = 1,
 
   # Verificando se a consulta retornou dados
   if (length(dados) == 0) {
-    warning("A consulta não retornou dados para os parâmetros fornecidos.")
+    warning("A consulta n\u00e3o retornou dados para os par\u00e2metros fornecidos.")
     return(data.frame())
   }
 

@@ -1,24 +1,21 @@
 #' Obter dados do endpoint programa_beneficiario
 #'
 #' Esta função acessa os dados referentes ao endpoint de beneficiários de programas na API FundoaFundo (TransfereGov),
-#' utilizando a função \code{pg.get} do pacote postgrestR. Em vez de inserir o endpoint na URL, utiliza-se o parâmetro
+#' utilizando a função interna \code{pg_get}. Em vez de inserir o endpoint na URL, utiliza-se o parâmetro
 #' \code{table = 'programa_beneficiario'} para especificar a tabela a ser consultada.
 #'
-#' Os filtros são aplicados por meio do parâmetro \code{filter} da \code{pg.get}. Para cada parâmetro informado, é criada
+#' Os filtros são aplicados por meio do parâmetro \code{filter} da função \code{pg_get}. Para cada parâmetro informado, é criada
 #' uma condição no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 #'
-#' Parâmetros disponíveis:
-#' \describe{
-#'   \item{\code{id_beneficiario_programa}}{Identificador do beneficiário do programa (numérico).}
-#'   \item{\code{cnpj_beneficiario_programa}}{CNPJ do beneficiário do programa (texto).}
-#'   \item{\code{nome_beneficiario_programa}}{Nome do beneficiário do programa (texto).}
-#'   \item{\code{valor_beneficiario_programa}}{Valor atribuído ao beneficiário do programa (numérico).}
-#'   \item{\code{numero_emenda_beneficiario_programa}}{Número da emenda do beneficiário do programa (texto ou numérico).}
-#'   \item{\code{nome_parlamentar_beneficiario_programa}}{Nome do parlamentar associado ao beneficiário (texto).}
-#'   \item{\code{tipo_beneficiario_programa}}{Tipo de beneficiário do programa (texto).}
-#'   \item{\code{uf_beneficiario_programa}}{Unidade Federativa do beneficiário do programa (texto).}
-#'   \item{\code{id_programa}}{Identificador do programa ao qual o beneficiário está vinculado (numérico).}
-#' }
+#' @param id_beneficiario_programa Identificador do beneficiário do programa (numérico).
+#' @param cnpj_beneficiario_programa CNPJ do beneficiário do programa (texto).
+#' @param nome_beneficiario_programa Nome do beneficiário do programa (texto).
+#' @param valor_beneficiario_programa Valor atribuído ao beneficiário do programa (numérico).
+#' @param numero_emenda_beneficiario_programa Número da emenda do beneficiário do programa (texto ou numérico).
+#' @param nome_parlamentar_beneficiario_programa Nome do parlamentar associado ao beneficiário (texto).
+#' @param tipo_beneficiario_programa Tipo de beneficiário do programa (texto).
+#' @param uf_beneficiario_programa Unidade Federativa do beneficiário do programa (texto).
+#' @param id_programa Identificador do programa ao qual o beneficiário está vinculado (numérico).
 #'
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
@@ -62,6 +59,6 @@ ler_programa_beneficiario <- function(id_beneficiario_programa = NULL,
   if (!is.null(id_programa))
     filters <- c(filters, paste0("id_programa=eq.", id_programa))
 
-  # Chama a função pg.get passando o parâmetro table e o vetor de filtros
-  pg.get(table = "programa_beneficiario", filter = filters)
+  # Chama a função pg_get passando o parâmetro table e o vetor de filtros
+  pg_get(table = "programa_beneficiario", filter = filters)
 }

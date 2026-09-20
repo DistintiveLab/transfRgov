@@ -2,7 +2,7 @@
 % Please edit documentation in R/ler_relatorio_gestao_analise_responsavel.R
 \name{ler_relatorio_gestao_analise_responsavel}
 \alias{ler_relatorio_gestao_analise_responsavel}
-\title{Ler dados do endpoint relatorio_gestao_analise_responsavel}
+\title{Ler dados de Responsáveis pela Análise do Relatório de Gestão da API TransfereGov}
 \usage{
 ler_relatorio_gestao_analise_responsavel(
   relatorio_gestao_analise_fk = NULL,
@@ -10,6 +10,27 @@ ler_relatorio_gestao_analise_responsavel(
   cargo_responsavel_analise_relatorio_gestao_analise = NULL
 )
 }
+\arguments{
+\item{relatorio_gestao_analise_fk}{Identificador da análise do relatório de gestão à qual o responsável está vinculado (numérico).}
+
+\item{nome_responsavel_analise_relatorio_gestao_analise}{Nome do responsável pela análise do relatório de gestão (texto).}
+
+\item{cargo_responsavel_analise_relatorio_gestao_analise}{Cargo do responsável pela análise do relatório de gestão (texto).}
+}
+\value{
+Um objeto contendo os dados retornados pela API (geralmente um data.frame).
+}
 \description{
-Ler dados do endpoint relatorio_gestao_analise_responsavel
+Esta função acessa os dados do endpoint **relatorio_gestao_analise_responsavel**
+da API FundoaFundo (TransfereGov) utilizando a função interna \code{pg_get}.
+Os filtros são aplicados por meio do argumento \code{filter} e devem estar no formato
+"nome_parametro=eq.valor". Todos os parâmetros são opcionais.
+}
+\examples{
+\dontrun{
+  # Exemplo: ler responsáveis vinculados a uma análise
+  responsaveis <- ler_relatorio_gestao_analise_responsavel(relatorio_gestao_analise_fk = 12345)
+  head(responsaveis)
+}
+
 }

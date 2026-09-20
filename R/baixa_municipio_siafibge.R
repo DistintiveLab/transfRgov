@@ -64,11 +64,11 @@ baixa_municipio_siafibge <- function() {
   if (file.exists(temp_csv)) unlink(temp_csv)
 
   if (is.null(mapping_data)) {
-    warning("Falha final ao processar os dados de mapeamento de municípios.")
+    warning("Falha final ao processar os dados de mapeamento de munic\u00edpios.")
     return(invisible(NULL))
   }
 
-  message("Dados de mapeamento de municípios baixados e lidos com sucesso. ",
+  message("Dados de mapeamento de munic\u00edpios baixados e lidos com sucesso. ",
           nrow(mapping_data), " linhas, ", ncol(mapping_data), " colunas.")
 
   # Consulte a estrutura do arquivo baixado para saber os nomes exatos das colunas de código

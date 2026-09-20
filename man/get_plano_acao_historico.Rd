@@ -12,25 +12,26 @@ get_plano_acao_historico(
   id_plano_acao = NULL
 )
 }
+\arguments{
+\item{id_historico_plano_acao}{Identificador do histórico do plano de ação (numérico).}
+
+\item{situacao_historico_plano_acao}{Situação do histórico do plano de ação (texto).}
+
+\item{data_historico_plano_acao}{Data do histórico do plano de ação (formato YYYY-MM-DD).}
+
+\item{versao_historico_plano_acao}{Versão do histórico do plano de ação (texto ou numérico).}
+
+\item{id_plano_acao}{Identificador do plano de ação ao qual o histórico está vinculado (numérico).}
+}
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 }
 \description{
 Esta função acessa os dados do endpoint **plano_acao_historico** da API FundoaFundo (TransfereGov)
-utilizando a função \code{pg.get} do pacote postgrestR. Em vez de incorporar o endpoint na URL, utiliza-se
+utilizando a função interna \code{pg_get}. Em vez de incorporar o endpoint na URL, utiliza-se
 o parâmetro \code{table = "plano_acao_historico"} para especificar a tabela a ser consultada. Os filtros
 são aplicados por meio do argumento \code{filter} e devem estar no formato "nome_parametro=eq.valor".
 Todos os parâmetros são opcionais.
-}
-\details{
-Parâmetros disponíveis:
-\describe{
-  \item{\code{id_historico_plano_acao}}{Identificador do histórico do plano de ação (numérico).}
-  \item{\code{situacao_historico_plano_acao}}{Situação do histórico do plano de ação (texto).}
-  \item{\code{data_historico_plano_acao}}{Data do histórico do plano de ação (formato YYYY-MM-DD).}
-  \item{\code{versao_historico_plano_acao}}{Versão do histórico do plano de ação (texto ou numérico).}
-  \item{\code{id_plano_acao}}{Identificador do plano de ação ao qual o histórico está vinculado (numérico).}
-}
 }
 \examples{
 \dontrun{

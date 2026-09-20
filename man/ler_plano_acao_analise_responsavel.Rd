@@ -10,23 +10,22 @@ ler_plano_acao_analise_responsavel(
   cargo_responsavel_analise_plano_acao = NULL
 )
 }
+\arguments{
+\item{plano_acao_analise_fk}{Chave estrangeira que referencia a análise do plano de ação (numérico).}
+
+\item{nome_responsavel_analise_plano_acao}{Nome do responsável pela análise do plano de ação (texto).}
+
+\item{cargo_responsavel_analise_plano_acao}{Cargo do responsável pela análise do plano de ação (texto).}
+}
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 }
 \description{
 Esta função acessa os dados do endpoint **plano_acao_analise_responsavel** da API FundoaFundo (TransfereGov)
-utilizando a função \code{pg.get} do pacote postgrestR. Em vez de incorporar o endpoint na URL, utiliza-se
+utilizando a função interna \code{pg_get}. Em vez de incorporar o endpoint na URL, utiliza-se
 o parâmetro \code{table = "plano_acao_analise_responsavel"} para especificar a tabela a ser consultada.
 Os filtros são aplicados por meio do argumento \code{filter} e devem estar no formato "nome_parametro=eq.valor".
 Todos os parâmetros são opcionais.
-}
-\details{
-Parâmetros disponíveis:
-\describe{
-  \item{\code{plano_acao_analise_fk}}{Chave estrangeira que referencia a análise do plano de ação (numérico).}
-  \item{\code{nome_responsavel_analise_plano_acao}}{Nome do responsável pela análise do plano de ação (texto).}
-  \item{\code{cargo_responsavel_analise_plano_acao}}{Cargo do responsável pela análise do plano de ação (texto).}
-}
 }
 \examples{
 \dontrun{

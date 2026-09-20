@@ -16,6 +16,9 @@ download_transferencias_uniao(
 
 \item{mes}{O mês dos dados (inteiro, 1-12).}
 
+\item{codigo_ibge}{Lógico. Se \code{TRUE} (o padrão), acrescenta a coluna
+\code{codigo_ibge} aos dados, por meio do mapeamento SIAFI-IBGE.}
+
 \item{municipios_mapping}{possibilidade de passar mapeamento distinto do padrão incluído no pacote}
 }
 \value{
@@ -25,9 +28,11 @@ Um data frame contendo os dados de transferências. Retorna NULL (invisível) se
 Baixa dados de transferências de recursos da União do Portal da Transparência para um ano e mês específicos.
 }
 \details{
-Esta função acessa a página de download para o ano e mês especificados no Portal da Transparência,
-identifica o link do arquivo ZIP de "Recursos transferidos", baixa, descompacta e lê o arquivo CSV.
+Esta função monta a URL do arquivo ZIP de "Recursos transferidos" do Portal da
+Transparência referente ao ano e mês informados, baixa o arquivo, descompacta
+e lê o CSV resultante.
 O dicionário de dados pode ser consultado em \url{https://portaldatransparencia.gov.br/pagina-interna/603420-dicionario-de-dados-recursos-transferidos}.
-A função lida com arquivos temporários e tenta ler o CSV considerando a codificação e separadores comuns no Portal.
-Requer os pacotes 'httr', 'rvest', 'readr' e 'utils'.
+A função lida com arquivos temporários e tenta ler o CSV considerando a
+codificação e os separadores comuns no Portal.
+Requer os pacotes 'readr', 'janitor' e 'utils'.
 }

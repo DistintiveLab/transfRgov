@@ -41,54 +41,85 @@ ler_programas(
   nome_gestao_agil_programa = NULL
 )
 }
+\arguments{
+\item{id_programa}{Identificador do programa (numérico).}
+
+\item{ano_programa}{Ano de referência do programa (numérico).}
+
+\item{modalidade_programa}{Modalidade ou categoria do programa (texto).}
+
+\item{codigo_programa}{Código do programa (texto).}
+
+\item{nome_programa}{Nome do programa (texto).}
+
+\item{id_unidade_gestora_programa}{Identificador da unidade gestora do programa (numérico).}
+
+\item{nome_institucional_programa}{Nome institucional do programa (texto).}
+
+\item{permite_transferencia_sem_fundo_programa}{Indica se o programa permite transferência sem fundo (booleano ou texto).}
+
+\item{objetivo_programa}{Objetivo do programa (texto).}
+
+\item{descricao_programa}{Descrição do programa (texto).}
+
+\item{situacao_programa}{Situação do programa (texto).}
+
+\item{valor_global_programa}{Valor global do programa (numérico).}
+
+\item{quantidade_parcelas_programa}{Quantidade de parcelas do programa (numérico).}
+
+\item{id_orgao_superior_programa}{Identificador do órgão superior do programa (numérico).}
+
+\item{sigla_orgao_superior_programa}{Sigla do órgão superior (texto).}
+
+\item{cnpj_orgao_superior_programa}{CNPJ do órgão superior (texto).}
+
+\item{nome_orgao_superior_programa}{Nome do órgão superior (texto).}
+
+\item{id_fundo_programa}{Identificador do fundo do programa (numérico).}
+
+\item{cnpj_fundo_programa}{CNPJ do fundo (texto).}
+
+\item{nome_fundo_programa}{Nome do fundo (texto).}
+
+\item{uf_fundo_programa}{Unidade Federativa do fundo (texto).}
+
+\item{municipio_fundo_programa}{Município do fundo (texto).}
+
+\item{codigo_ibge_fundo_programa}{Código IBGE do fundo (texto ou numérico).}
+
+\item{grupo_natureza_despesa_programa}{Grupo de natureza de despesa do programa (texto).}
+
+\item{codigo_descricao_orcamentaria_programa}{Código ou descrição orçamentária do programa (texto).}
+
+\item{descricao_acao_orcamentaria_programa}{Descrição da ação orçamentária (texto).}
+
+\item{valor_acao_orcamentaria_programa}{Valor da ação orçamentária (numérico).}
+
+\item{data_inicio_recebimento_planos_acao_beneficiarios_especificos}{Data de início do recebimento de planos de ação para beneficiários específicos (formato YYYY-MM-DD).}
+
+\item{data_fim_recebimento_planos_acao_beneficiarios_especificos}{Data de fim do recebimento de planos de ação para beneficiários específicos (formato YYYY-MM-DD).}
+
+\item{data_inicio_recebimento_planos_acao_beneficiarios_emendas}{Data de início do recebimento de planos de ação para beneficiários de emendas (formato YYYY-MM-DD).}
+
+\item{data_fim_recebimento_planos_acao_beneficiarios_emendas}{Data de fim do recebimento de planos de ação para beneficiários de emendas (formato YYYY-MM-DD).}
+
+\item{data_inicio_recebimento_planos_acao_beneficiarios_voluntarios}{Data de início do recebimento de planos de ação para beneficiários voluntários (formato YYYY-MM-DD).}
+
+\item{data_fim_recebimento_planos_acao_beneficiarios_voluntarios}{Data de fim do recebimento de planos de ação para beneficiários voluntários (formato YYYY-MM-DD).}
+
+\item{nome_gestao_agil_programa}{Nome da gestão ágil do programa (texto).}
+}
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 }
 \description{
 Esta função acessa o endpoint `/programa` da API FundoaFundo (TransfereGov) e retorna os
-dados filtrados de programas, utilizando a função \code{pg.get} do pacote postgrestR.
+dados filtrados de programas, utilizando a função interna \code{pg_get}.
 }
 \details{
-Os filtros são aplicados via o parâmetro \code{filter} da \code{pg.get}. Para cada parâmetro
+Os filtros são aplicados via o parâmetro \code{filter} da função \code{pg_get}. Para cada parâmetro
 informado, é criada uma condição no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
-
-Parâmetros disponíveis:
-\describe{
-  \item{\code{id_programa}}{Identificador do programa (numérico).}
-  \item{\code{ano_programa}}{Ano de referência do programa (numérico).}
-  \item{\code{modalidade_programa}}{Modalidade ou categoria do programa (texto).}
-  \item{\code{codigo_programa}}{Código do programa (texto).}
-  \item{\code{nome_programa}}{Nome do programa (texto).}
-  \item{\code{id_unidade_gestora_programa}}{Identificador da unidade gestora do programa (numérico).}
-  \item{\code{nome_institucional_programa}}{Nome institucional do programa (texto).}
-  \item{\code{permite_transferencia_sem_fundo_programa}}{Indica se o programa permite transferência sem fundo (booleano ou texto).}
-  \item{\code{objetivo_programa}}{Objetivo do programa (texto).}
-  \item{\code{descricao_programa}}{Descrição do programa (texto).}
-  \item{\code{situacao_programa}}{Situação do programa (texto).}
-  \item{\code{valor_global_programa}}{Valor global do programa (numérico).}
-  \item{\code{quantidade_parcelas_programa}}{Quantidade de parcelas do programa (numérico).}
-  \item{\code{id_orgao_superior_programa}}{Identificador do órgão superior do programa (numérico).}
-  \item{\code{sigla_orgao_superior_programa}}{Sigla do órgão superior (texto).}
-  \item{\code{cnpj_orgao_superior_programa}}{CNPJ do órgão superior (texto).}
-  \item{\code{nome_orgao_superior_programa}}{Nome do órgão superior (texto).}
-  \item{\code{id_fundo_programa}}{Identificador do fundo do programa (numérico).}
-  \item{\code{cnpj_fundo_programa}}{CNPJ do fundo (texto).}
-  \item{\code{nome_fundo_programa}}{Nome do fundo (texto).}
-  \item{\code{uf_fundo_programa}}{Unidade Federativa do fundo (texto).}
-  \item{\code{municipio_fundo_programa}}{Município do fundo (texto).}
-  \item{\code{codigo_ibge_fundo_programa}}{Código IBGE do fundo (texto ou numérico).}
-  \item{\code{grupo_natureza_despesa_programa}}{Grupo de natureza de despesa do programa (texto).}
-  \item{\code{codigo_descricao_orcamentaria_programa}}{Código ou descrição orçamentária do programa (texto).}
-  \item{\code{descricao_acao_orcamentaria_programa}}{Descrição da ação orçamentária (texto).}
-  \item{\code{valor_acao_orcamentaria_programa}}{Valor da ação orçamentária (numérico).}
-  \item{\code{data_inicio_recebimento_planos_acao_beneficiarios_especificos}}{Data de início do recebimento de planos de ação para beneficiários específicos (formato YYYY-MM-DD).}
-  \item{\code{data_fim_recebimento_planos_acao_beneficiarios_especificos}}{Data de fim do recebimento de planos de ação para beneficiários específicos (formato YYYY-MM-DD).}
-  \item{\code{data_inicio_recebimento_planos_acao_beneficiarios_emendas}}{Data de início do recebimento de planos de ação para beneficiários de emendas (formato YYYY-MM-DD).}
-  \item{\code{data_fim_recebimento_planos_acao_beneficiarios_emendas}}{Data de fim do recebimento de planos de ação para beneficiários de emendas (formato YYYY-MM-DD).}
-  \item{\code{data_inicio_recebimento_planos_acao_beneficiarios_voluntarios}}{Data de início do recebimento de planos de ação para beneficiários voluntários (formato YYYY-MM-DD).}
-  \item{\code{data_fim_recebimento_planos_acao_beneficiarios_voluntarios}}{Data de fim do recebimento de planos de ação para beneficiários voluntários (formato YYYY-MM-DD).}
-  \item{\code{nome_gestao_agil_programa}}{Nome da gestão ágil do programa (texto).}
-}
 }
 \examples{
 \dontrun{

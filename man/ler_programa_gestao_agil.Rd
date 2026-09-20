@@ -16,30 +16,36 @@ ler_programa_gestao_agil(
   id_programa = NULL
 )
 }
+\arguments{
+\item{id_programa_agil}{Identificador do programa ágil (numérico).}
+
+\item{id_programa_agil_bb}{Identificador do programa ágil BB (numérico).}
+
+\item{nome_programa_agil}{Nome do programa ágil (texto).}
+
+\item{codigo_programa_agil}{Código do programa ágil (texto).}
+
+\item{codigo_siorg_orgao_programa_agil}{Código SIORG do órgão do programa ágil (texto).}
+
+\item{sigla_orgao_programa_agil}{Sigla do órgão do programa ágil (texto).}
+
+\item{cnpj_orgao_programa_agil}{CNPJ do órgão do programa ágil (texto).}
+
+\item{nome_orgao_programa_agil}{Nome do órgão do programa ágil (texto).}
+
+\item{id_programa}{Identificador do programa ao qual o registro está vinculado (numérico).}
+}
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 }
 \description{
 Esta função acessa os dados do endpoint **programa_gestao_agil** da API FundoaFundo (TransfereGov)
-utilizando a função \code{pg.get} do pacote postgrestR. Em vez de incorporar o endpoint na URL, utiliza-se
+utilizando a função interna \code{pg_get}. Em vez de incorporar o endpoint na URL, utiliza-se
 o parâmetro \code{table = "programa_gestao_agil"} para especificar a tabela a ser consultada.
 }
 \details{
-Os filtros são aplicados por meio do argumento \code{filter} da \code{pg.get}. Para cada parâmetro informado,
+Os filtros são aplicados por meio do argumento \code{filter} da função \code{pg_get}. Para cada parâmetro informado,
 é criada uma condição no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
-
-Parâmetros disponíveis:
-\describe{
-  \item{\code{id_programa_agil}}{Identificador do programa ágil (numérico).}
-  \item{\code{id_programa_agil_bb}}{Identificador do programa ágil BB (numérico).}
-  \item{\code{nome_programa_agil}}{Nome do programa ágil (texto).}
-  \item{\code{codigo_programa_agil}}{Código do programa ágil (texto).}
-  \item{\code{codigo_siorg_orgao_programa_agil}}{Código SIORG do órgão do programa ágil (texto).}
-  \item{\code{sigla_orgao_programa_agil}}{Sigla do órgão do programa ágil (texto).}
-  \item{\code{cnpj_orgao_programa_agil}}{CNPJ do órgão do programa ágil (texto).}
-  \item{\code{nome_orgao_programa_agil}}{Nome do órgão do programa ágil (texto).}
-  \item{\code{id_programa}}{Identificador do programa ao qual o registro está vinculado (numérico).}
-}
 }
 \examples{
 \dontrun{

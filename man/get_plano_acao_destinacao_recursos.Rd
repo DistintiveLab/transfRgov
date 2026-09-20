@@ -13,26 +13,28 @@ get_plano_acao_destinacao_recursos(
   id_plano_acao = NULL
 )
 }
+\arguments{
+\item{id_destinacao_recursos_plano_acao}{Identificador da destinacão de recursos do plano de ação (numérico).}
+
+\item{codigo_natureza_despesa_destinacao_recursos_plano_acao}{Código da natureza de despesa (texto ou numérico).}
+
+\item{descricao_natureza_despesa_destinacao_recursos_plano_acao}{Descrição da natureza de despesa (texto).}
+
+\item{tipo_despesa_destinacao_recursos_plano_acao}{Tipo de despesa da destinacão de recursos (texto).}
+
+\item{valor_destinacao_recursos_plano_acao}{Valor destinado (numérico).}
+
+\item{id_plano_acao}{Identificador do plano de ação ao qual a destinacão de recursos está vinculada (numérico).}
+}
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 }
 \description{
 Esta função acessa os dados do endpoint **plano_acao_destinacao_recursos** da API FundoaFundo (TransfereGov)
-utilizando a função \code{pg.get} do pacote postgrestR. Em vez de incorporar o endpoint na URL, utiliza-se
+utilizando a função interna \code{pg_get}. Em vez de incorporar o endpoint na URL, utiliza-se
 o parâmetro \code{table = "plano_acao_destinacao_recursos"} para especificar a tabela a ser consultada. Os filtros
 são aplicados por meio do argumento \code{filter} e devem estar no formato "nome_parametro=eq.valor". Todos os
 parâmetros são opcionais.
-}
-\details{
-Parâmetros disponíveis:
-\describe{
-  \item{\code{id_destinacao_recursos_plano_acao}}{Identificador da destinacão de recursos do plano de ação (numérico).}
-  \item{\code{codigo_natureza_despesa_destinacao_recursos_plano_acao}}{Código da natureza de despesa (texto ou numérico).}
-  \item{\code{descricao_natureza_despesa_destinacao_recursos_plano_acao}}{Descrição da natureza de despesa (texto).}
-  \item{\code{tipo_despesa_destinacao_recursos_plano_acao}}{Tipo de despesa da destinacão de recursos (texto).}
-  \item{\code{valor_destinacao_recursos_plano_acao}}{Valor destinado (numérico).}
-  \item{\code{id_plano_acao}}{Identificador do plano de ação ao qual a destinacão de recursos está vinculada (numérico).}
-}
 }
 \examples{
 \dontrun{

@@ -2,3 +2,16 @@
 .Rhistory
 .RData
 .Ruserdata
+.Rcheck
+*.tar.gz
+cache/
+.crush/
+201901_Transferencias.csv
+data/*.zip
+data/*.csv
+data/*.xlsx
+data/*.xls
+data/*.ods
+data/*.txt
+data/*.old
+README.html

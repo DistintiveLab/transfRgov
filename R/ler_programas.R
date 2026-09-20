@@ -1,48 +1,45 @@
 #' Obter dados do endpoint /programa
 #'
 #' Esta função acessa o endpoint `/programa` da API FundoaFundo (TransfereGov) e retorna os
-#' dados filtrados de programas, utilizando a função \code{pg.get} do pacote postgrestR.
+#' dados filtrados de programas, utilizando a função interna \code{pg_get}.
 #'
-#' Os filtros são aplicados via o parâmetro \code{filter} da \code{pg.get}. Para cada parâmetro
+#' Os filtros são aplicados via o parâmetro \code{filter} da função \code{pg_get}. Para cada parâmetro
 #' informado, é criada uma condição no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 #'
-#' Parâmetros disponíveis:
-#' \describe{
-#'   \item{\code{id_programa}}{Identificador do programa (numérico).}
-#'   \item{\code{ano_programa}}{Ano de referência do programa (numérico).}
-#'   \item{\code{modalidade_programa}}{Modalidade ou categoria do programa (texto).}
-#'   \item{\code{codigo_programa}}{Código do programa (texto).}
-#'   \item{\code{nome_programa}}{Nome do programa (texto).}
-#'   \item{\code{id_unidade_gestora_programa}}{Identificador da unidade gestora do programa (numérico).}
-#'   \item{\code{nome_institucional_programa}}{Nome institucional do programa (texto).}
-#'   \item{\code{permite_transferencia_sem_fundo_programa}}{Indica se o programa permite transferência sem fundo (booleano ou texto).}
-#'   \item{\code{objetivo_programa}}{Objetivo do programa (texto).}
-#'   \item{\code{descricao_programa}}{Descrição do programa (texto).}
-#'   \item{\code{situacao_programa}}{Situação do programa (texto).}
-#'   \item{\code{valor_global_programa}}{Valor global do programa (numérico).}
-#'   \item{\code{quantidade_parcelas_programa}}{Quantidade de parcelas do programa (numérico).}
-#'   \item{\code{id_orgao_superior_programa}}{Identificador do órgão superior do programa (numérico).}
-#'   \item{\code{sigla_orgao_superior_programa}}{Sigla do órgão superior (texto).}
-#'   \item{\code{cnpj_orgao_superior_programa}}{CNPJ do órgão superior (texto).}
-#'   \item{\code{nome_orgao_superior_programa}}{Nome do órgão superior (texto).}
-#'   \item{\code{id_fundo_programa}}{Identificador do fundo do programa (numérico).}
-#'   \item{\code{cnpj_fundo_programa}}{CNPJ do fundo (texto).}
-#'   \item{\code{nome_fundo_programa}}{Nome do fundo (texto).}
-#'   \item{\code{uf_fundo_programa}}{Unidade Federativa do fundo (texto).}
-#'   \item{\code{municipio_fundo_programa}}{Município do fundo (texto).}
-#'   \item{\code{codigo_ibge_fundo_programa}}{Código IBGE do fundo (texto ou numérico).}
-#'   \item{\code{grupo_natureza_despesa_programa}}{Grupo de natureza de despesa do programa (texto).}
-#'   \item{\code{codigo_descricao_orcamentaria_programa}}{Código ou descrição orçamentária do programa (texto).}
-#'   \item{\code{descricao_acao_orcamentaria_programa}}{Descrição da ação orçamentária (texto).}
-#'   \item{\code{valor_acao_orcamentaria_programa}}{Valor da ação orçamentária (numérico).}
-#'   \item{\code{data_inicio_recebimento_planos_acao_beneficiarios_especificos}}{Data de início do recebimento de planos de ação para beneficiários específicos (formato YYYY-MM-DD).}
-#'   \item{\code{data_fim_recebimento_planos_acao_beneficiarios_especificos}}{Data de fim do recebimento de planos de ação para beneficiários específicos (formato YYYY-MM-DD).}
-#'   \item{\code{data_inicio_recebimento_planos_acao_beneficiarios_emendas}}{Data de início do recebimento de planos de ação para beneficiários de emendas (formato YYYY-MM-DD).}
-#'   \item{\code{data_fim_recebimento_planos_acao_beneficiarios_emendas}}{Data de fim do recebimento de planos de ação para beneficiários de emendas (formato YYYY-MM-DD).}
-#'   \item{\code{data_inicio_recebimento_planos_acao_beneficiarios_voluntarios}}{Data de início do recebimento de planos de ação para beneficiários voluntários (formato YYYY-MM-DD).}
-#'   \item{\code{data_fim_recebimento_planos_acao_beneficiarios_voluntarios}}{Data de fim do recebimento de planos de ação para beneficiários voluntários (formato YYYY-MM-DD).}
-#'   \item{\code{nome_gestao_agil_programa}}{Nome da gestão ágil do programa (texto).}
-#' }
+#' @param id_programa Identificador do programa (numérico).
+#' @param ano_programa Ano de referência do programa (numérico).
+#' @param modalidade_programa Modalidade ou categoria do programa (texto).
+#' @param codigo_programa Código do programa (texto).
+#' @param nome_programa Nome do programa (texto).
+#' @param id_unidade_gestora_programa Identificador da unidade gestora do programa (numérico).
+#' @param nome_institucional_programa Nome institucional do programa (texto).
+#' @param permite_transferencia_sem_fundo_programa Indica se o programa permite transferência sem fundo (booleano ou texto).
+#' @param objetivo_programa Objetivo do programa (texto).
+#' @param descricao_programa Descrição do programa (texto).
+#' @param situacao_programa Situação do programa (texto).
+#' @param valor_global_programa Valor global do programa (numérico).
+#' @param quantidade_parcelas_programa Quantidade de parcelas do programa (numérico).
+#' @param id_orgao_superior_programa Identificador do órgão superior do programa (numérico).
+#' @param sigla_orgao_superior_programa Sigla do órgão superior (texto).
+#' @param cnpj_orgao_superior_programa CNPJ do órgão superior (texto).
+#' @param nome_orgao_superior_programa Nome do órgão superior (texto).
+#' @param id_fundo_programa Identificador do fundo do programa (numérico).
+#' @param cnpj_fundo_programa CNPJ do fundo (texto).
+#' @param nome_fundo_programa Nome do fundo (texto).
+#' @param uf_fundo_programa Unidade Federativa do fundo (texto).
+#' @param municipio_fundo_programa Município do fundo (texto).
+#' @param codigo_ibge_fundo_programa Código IBGE do fundo (texto ou numérico).
+#' @param grupo_natureza_despesa_programa Grupo de natureza de despesa do programa (texto).
+#' @param codigo_descricao_orcamentaria_programa Código ou descrição orçamentária do programa (texto).
+#' @param descricao_acao_orcamentaria_programa Descrição da ação orçamentária (texto).
+#' @param valor_acao_orcamentaria_programa Valor da ação orçamentária (numérico).
+#' @param data_inicio_recebimento_planos_acao_beneficiarios_especificos Data de início do recebimento de planos de ação para beneficiários específicos (formato YYYY-MM-DD).
+#' @param data_fim_recebimento_planos_acao_beneficiarios_especificos Data de fim do recebimento de planos de ação para beneficiários específicos (formato YYYY-MM-DD).
+#' @param data_inicio_recebimento_planos_acao_beneficiarios_emendas Data de início do recebimento de planos de ação para beneficiários de emendas (formato YYYY-MM-DD).
+#' @param data_fim_recebimento_planos_acao_beneficiarios_emendas Data de fim do recebimento de planos de ação para beneficiários de emendas (formato YYYY-MM-DD).
+#' @param data_inicio_recebimento_planos_acao_beneficiarios_voluntarios Data de início do recebimento de planos de ação para beneficiários voluntários (formato YYYY-MM-DD).
+#' @param data_fim_recebimento_planos_acao_beneficiarios_voluntarios Data de fim do recebimento de planos de ação para beneficiários voluntários (formato YYYY-MM-DD).
+#' @param nome_gestao_agil_programa Nome da gestão ágil do programa (texto).
 #'
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
@@ -93,9 +90,6 @@ ler_programas <- function(id_programa = NULL,
                          data_inicio_recebimento_planos_acao_beneficiarios_voluntarios = NULL,
                          data_fim_recebimento_planos_acao_beneficiarios_voluntarios = NULL,
                          nome_gestao_agil_programa = NULL) {
-
-  # URL base corrigida: "fundoafundo" (e não "fundafundo")
-  url <- "https://api.transferegov.gestao.gov.br/fundoafundo"
 
   # Cria um vetor de filtros no formato "nome_parametro=eq.valor"
   filters <- c()
@@ -169,7 +163,6 @@ ler_programas <- function(id_programa = NULL,
   if (!is.null(nome_gestao_agil_programa))
     filters <- c(filters, paste0("nome_gestao_agil_programa=eq.", nome_gestao_agil_programa))
 
-  # Chama a função pg.get passando a URL e o vetor de filtros
-  pg.get(url, table="programa",
-         filter = filters)
+  # Chama a função pg_get passando o endpoint e o vetor de filtros
+  pg_get(table = "programa", filter = filters)
 }

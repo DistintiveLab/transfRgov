@@ -1,60 +1,57 @@
 #' Obter dados do endpoint plano_acao
 #'
 #' Esta função acessa os dados do endpoint **plano_acao** da API FundoaFundo (TransfereGov) utilizando a função
-#' \code{pg.get} do pacote postgrestR. Em vez de inserir o endpoint na URL, utiliza-se o parâmetro \code{table = "plano_acao"}
+#' interna \code{pg_get}. Em vez de inserir o endpoint na URL, utiliza-se o parâmetro \code{table = "plano_acao"}
 #' para especificar a tabela a ser consultada. Os filtros são aplicados por meio do argumento \code{filter} e devem estar
 #' no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 #'
-#' Parâmetros disponíveis:
-#' \describe{
-#'   \item{\code{id_plano_acao}}{Identificador do plano de ação (numérico).}
-#'   \item{\code{codigo_plano_acao}}{Código do plano de ação (texto).}
-#'   \item{\code{data_inicio_vigencia_plano_acao}}{Data de início de vigência do plano de ação (formato YYYY-MM-DD).}
-#'   \item{\code{data_fim_vigencia_plano_acao}}{Data de fim de vigência do plano de ação (formato YYYY-MM-DD).}
-#'   \item{\code{diagnostico_plano_acao}}{Diagnóstico do plano de ação (texto).}
-#'   \item{\code{objetivos_plano_acao}}{Objetivos do plano de ação (texto).}
-#'   \item{\code{situacao_plano_acao}}{Situação do plano de ação (texto).}
-#'   \item{\code{valor_repasse_emenda_plano_acao}}{Valor de repasse por emenda (numérico).}
-#'   \item{\code{valor_repasse_especifico_plano_acao}}{Valor de repasse específico (numérico).}
-#'   \item{\code{valor_repasse_voluntario_plano_acao}}{Valor de repasse voluntário (numérico).}
-#'   \item{\code{valor_total_repasse_plano_acao}}{Valor total de repasse (numérico).}
-#'   \item{\code{valor_recursos_proprios_plano_acao}}{Valor de recursos próprios (numérico).}
-#'   \item{\code{valor_outros_plano_acao}}{Valor de outros repasses (numérico).}
-#'   \item{\code{valor_rendimentos_aplicacao_plano_acao}}{Valor de rendimentos de aplicação (numérico).}
-#'   \item{\code{valor_total_plano_acao}}{Valor total do plano de ação (numérico).}
-#'   \item{\code{valor_total_investimento_plano_acao}}{Valor total de investimento (numérico).}
-#'   \item{\code{valor_total_custeio_plano_acao}}{Valor total de custeio (numérico).}
-#'   \item{\code{valor_saldo_disponivel_plano_acao}}{Valor do saldo disponível (numérico).}
-#'   \item{\code{id_orgao_repassador_plano_acao}}{Identificador do órgão repassador (numérico).}
-#'   \item{\code{sigla_orgao_repassador_plano_acao}}{Sigla do órgão repassador (texto).}
-#'   \item{\code{cnpj_orgao_repassador_plano_acao}}{CNPJ do órgão repassador (texto).}
-#'   \item{\code{nome_orgao_repassador_plano_acao}}{Nome do órgão repassador (texto).}
-#'   \item{\code{id_ente_repassador_plano_acao}}{Identificador do ente repassador (numérico).}
-#'   \item{\code{cnpj_ente_repassador_plano_acao}}{CNPJ do ente repassador (texto).}
-#'   \item{\code{nome_ente_repassador_plano_acao}}{Nome do ente repassador (texto).}
-#'   \item{\code{uf_ente_repassador_plano_acao}}{UF do ente repassador (texto).}
-#'   \item{\code{nome_municipio_ente_repassador_plano_acao}}{Nome do município do ente repassador (texto).}
-#'   \item{\code{codigo_ibge_municipio_ente_repassador_plano_acao}}{Código IBGE do município do ente repassador (texto ou numérico).}
-#'   \item{\code{id_ente_recebedor_plano_acao}}{Identificador do ente recebedor (numérico).}
-#'   \item{\code{cnpj_ente_recebedor_plano_acao}}{CNPJ do ente recebedor (texto).}
-#'   \item{\code{nome_ente_recebedor_plano_acao}}{Nome do ente recebedor (texto).}
-#'   \item{\code{uf_ente_recebedor_plano_acao}}{UF do ente recebedor (texto).}
-#'   \item{\code{nome_municipio_ente_recebedor_plano_acao}}{Nome do município do ente recebedor (texto).}
-#'   \item{\code{codigo_ibge_municipio_ente_recebedor_plano_acao}}{Código IBGE do município do ente recebedor (texto ou numérico).}
-#'   \item{\code{id_fundo_repassador_plano_acao}}{Identificador do fundo repassador (numérico).}
-#'   \item{\code{cnpj_fundo_repassador_plano_acao}}{CNPJ do fundo repassador (texto).}
-#'   \item{\code{nome_fundo_repassador_plano_acao}}{Nome do fundo repassador (texto).}
-#'   \item{\code{uf_fundo_repassador_plano_acao}}{UF do fundo repassador (texto).}
-#'   \item{\code{municipio_fundo_repassador_plano_acao}}{Município do fundo repassador (texto).}
-#'   \item{\code{codigo_ibge_fundo_repassador_plano_acao}}{Código IBGE do fundo repassador (texto ou numérico).}
-#'   \item{\code{id_fundo_recebedor_plano_acao}}{Identificador do fundo recebedor (numérico).}
-#'   \item{\code{cnpj_fundo_recebedor_plano_acao}}{CNPJ do fundo recebedor (texto).}
-#'   \item{\code{nome_fundo_recebedor_plano_acao}}{Nome do fundo recebedor (texto).}
-#'   \item{\code{uf_fundo_recebedor_plano_acao}}{UF do fundo recebedor (texto).}
-#'   \item{\code{municipio_fundo_recebedor_plano_acao}}{Município do fundo recebedor (texto).}
-#'   \item{\code{codigo_ibge_fundo_recebedor_plano_acao}}{Código IBGE do fundo recebedor (texto ou numérico).}
-#'   \item{\code{id_programa}}{Identificador do programa ao qual o plano de ação está vinculado (numérico).}
-#' }
+#' @param id_plano_acao Identificador do plano de ação (numérico).
+#' @param codigo_plano_acao Código do plano de ação (texto).
+#' @param data_inicio_vigencia_plano_acao Data de início de vigência do plano de ação (formato YYYY-MM-DD).
+#' @param data_fim_vigencia_plano_acao Data de fim de vigência do plano de ação (formato YYYY-MM-DD).
+#' @param diagnostico_plano_acao Diagnóstico do plano de ação (texto).
+#' @param objetivos_plano_acao Objetivos do plano de ação (texto).
+#' @param situacao_plano_acao Situação do plano de ação (texto).
+#' @param valor_repasse_emenda_plano_acao Valor de repasse por emenda (numérico).
+#' @param valor_repasse_especifico_plano_acao Valor de repasse específico (numérico).
+#' @param valor_repasse_voluntario_plano_acao Valor de repasse voluntário (numérico).
+#' @param valor_total_repasse_plano_acao Valor total de repasse (numérico).
+#' @param valor_recursos_proprios_plano_acao Valor de recursos próprios (numérico).
+#' @param valor_outros_plano_acao Valor de outros repasses (numérico).
+#' @param valor_rendimentos_aplicacao_plano_acao Valor de rendimentos de aplicação (numérico).
+#' @param valor_total_plano_acao Valor total do plano de ação (numérico).
+#' @param valor_total_investimento_plano_acao Valor total de investimento (numérico).
+#' @param valor_total_custeio_plano_acao Valor total de custeio (numérico).
+#' @param valor_saldo_disponivel_plano_acao Valor do saldo disponível (numérico).
+#' @param id_orgao_repassador_plano_acao Identificador do órgão repassador (numérico).
+#' @param sigla_orgao_repassador_plano_acao Sigla do órgão repassador (texto).
+#' @param cnpj_orgao_repassador_plano_acao CNPJ do órgão repassador (texto).
+#' @param nome_orgao_repassador_plano_acao Nome do órgão repassador (texto).
+#' @param id_ente_repassador_plano_acao Identificador do ente repassador (numérico).
+#' @param cnpj_ente_repassador_plano_acao CNPJ do ente repassador (texto).
+#' @param nome_ente_repassador_plano_acao Nome do ente repassador (texto).
+#' @param uf_ente_repassador_plano_acao UF do ente repassador (texto).
+#' @param nome_municipio_ente_repassador_plano_acao Nome do município do ente repassador (texto).
+#' @param codigo_ibge_municipio_ente_repassador_plano_acao Código IBGE do município do ente repassador (texto ou numérico).
+#' @param id_ente_recebedor_plano_acao Identificador do ente recebedor (numérico).
+#' @param cnpj_ente_recebedor_plano_acao CNPJ do ente recebedor (texto).
+#' @param nome_ente_recebedor_plano_acao Nome do ente recebedor (texto).
+#' @param uf_ente_recebedor_plano_acao UF do ente recebedor (texto).
+#' @param nome_municipio_ente_recebedor_plano_acao Nome do município do ente recebedor (texto).
+#' @param codigo_ibge_municipio_ente_recebedor_plano_acao Código IBGE do município do ente recebedor (texto ou numérico).
+#' @param id_fundo_repassador_plano_acao Identificador do fundo repassador (numérico).
+#' @param cnpj_fundo_repassador_plano_acao CNPJ do fundo repassador (texto).
+#' @param nome_fundo_repassador_plano_acao Nome do fundo repassador (texto).
+#' @param uf_fundo_repassador_plano_acao UF do fundo repassador (texto).
+#' @param municipio_fundo_repassador_plano_acao Município do fundo repassador (texto).
+#' @param codigo_ibge_fundo_repassador_plano_acao Código IBGE do fundo repassador (texto ou numérico).
+#' @param id_fundo_recebedor_plano_acao Identificador do fundo recebedor (numérico).
+#' @param cnpj_fundo_recebedor_plano_acao CNPJ do fundo recebedor (texto).
+#' @param nome_fundo_recebedor_plano_acao Nome do fundo recebedor (texto).
+#' @param uf_fundo_recebedor_plano_acao UF do fundo recebedor (texto).
+#' @param municipio_fundo_recebedor_plano_acao Município do fundo recebedor (texto).
+#' @param codigo_ibge_fundo_recebedor_plano_acao Código IBGE do fundo recebedor (texto ou numérico).
+#' @param id_programa Identificador do programa ao qual o plano de ação está vinculado (numérico).
 #'
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
@@ -212,5 +209,5 @@ get_plano_acao <- function(id_plano_acao = NULL,
   if (!is.null(id_programa))
     filters <- c(filters, paste0("id_programa=eq.", id_programa))
 
-  pg.get(table = table, filter = filters)
+  pg_get(table = table, filter = filters)
 }

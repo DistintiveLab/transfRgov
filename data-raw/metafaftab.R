@@ -1,10 +1,12 @@
 ## code to prepare `metafaftab` dataset goes here
 
-library(postgrestR)
-
+resposta <-
+  httr::GET("https://api.transferegov.gestao.gov.br/fundoafundo/")
 
 metafaftab <-
-  postgrestR::pg.get(domain = "https://api.transferegov.gestao.gov.br/fundoafundo/")
+  jsonlite::fromJSON(
+    httr::content(resposta, "text", encoding = "UTF-8")
+  )
 
 caminhos <-
   names(metafaftab$paths)

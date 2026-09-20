@@ -40,7 +40,7 @@ Um objeto contendo os dados retornados pela API (geralmente um data.frame).
 }
 \description{
 Esta função acessa os dados do endpoint **programa_especial** da API
-TransfereGov utilizando a função \code{pg.get} do pacote postgrestR.
+TransfereGov utilizando a função interna \code{pg_get}.
 Os filtros são aplicados por meio do argumento \code{filter} e devem estar no formato
 "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 }

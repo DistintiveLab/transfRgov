@@ -1,10 +1,6 @@
-# Certifique-se de que o pacote postgrestR está instalado e carregado.
-# Se ainda não estiver, instale-o: install.packages("postgrestR")
-# library(postgrestR) # Certifique-se de que está no DESCRIPTION do seu pacote (Imports: postgrestR)
-
 #' @title Ler dados de Programa Especial da API TransfereGov
 #' @description Esta função acessa os dados do endpoint **programa_especial** da API
-#' TransfereGov utilizando a função \code{pg.get} do pacote postgrestR.
+#' TransfereGov utilizando a função interna \code{pg_get}.
 #' Os filtros são aplicados por meio do argumento \code{filter} e devem estar no formato
 #' "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 #'
@@ -31,7 +27,6 @@
 #'   head(programa_especifico)
 #' }
 #'
-#' @importFrom postgrestR pg.get
 #' @export
 ler_programa_especial <- function(id_programa = NULL,
                                   ano_programa = NULL,
@@ -65,6 +60,6 @@ ler_programa_especial <- function(id_programa = NULL,
   if (!is.null(orgao_executor))
     filters <- c(filters, paste0("orgao_executor=eq.", orgao_executor))
 
-  pg.get(table = table, filter = filters)
+  pg_get(table = table, filter = filters)
 }
 

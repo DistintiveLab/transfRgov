@@ -2,7 +2,7 @@
 % Please edit documentation in R/ler_relatorio_gestao.R
 \name{ler_relatorio_gestao}
 \alias{ler_relatorio_gestao}
-\title{Ler dados do endpoint relatorio_gestao}
+\title{Ler dados de Relatório de Gestão da API TransfereGov}
 \usage{
 ler_relatorio_gestao(
   id_relatorio_gestao = NULL,
@@ -20,6 +20,47 @@ ler_relatorio_gestao(
   id_plano_acao = NULL
 )
 }
+\arguments{
+\item{id_relatorio_gestao}{Identificador único do relatório de gestão (numérico).}
+
+\item{data_relatorio_gestao}{Data do relatório de gestão (formato YYYY-MM-DD).}
+
+\item{data_e_hora_relatorio_gestao}{Data e hora do relatório de gestão (texto).}
+
+\item{tipo_relatorio_gestao}{Tipo do relatório de gestão (texto).}
+
+\item{situacao_relatorio_gestao}{Situação do relatório de gestão (texto).}
+
+\item{valor_executado_relatorio_gestao}{Valor executado informado no relatório de gestão (numérico).}
+
+\item{valor_pendente_relatorio_gestao}{Valor pendente informado no relatório de gestão (numérico).}
+
+\item{resultados_alcancados_metas_relatorio_gestao}{Resultados alcançados em relação às metas (texto).}
+
+\item{descritivo_relatorio_gestao}{Texto descritivo do relatório de gestão (texto).}
+
+\item{contrapartida_relatorio_gestao}{Contrapartida informada no relatório de gestão (texto).}
+
+\item{endereco_eletronico_publicidade_acoes_relatorio_gestao}{Endereço eletrônico de publicidade das ações (texto).}
+
+\item{declaracao_conformidade_relatorio_gestao}{Declaração de conformidade do relatório de gestão (texto).}
+
+\item{id_plano_acao}{Identificador do plano de ação associado (numérico).}
+}
+\value{
+Um objeto contendo os dados retornados pela API (geralmente um data.frame).
+}
 \description{
-Ler dados do endpoint relatorio_gestao
+Esta função acessa os dados do endpoint **relatorio_gestao** da API FundoaFundo
+(TransfereGov) utilizando a função interna \code{pg_get}.
+Os filtros são aplicados por meio do argumento \code{filter} e devem estar no formato
+"nome_parametro=eq.valor". Todos os parâmetros são opcionais.
+}
+\examples{
+\dontrun{
+  # Exemplo: ler relatórios de gestão vinculados a um plano de ação
+  relatorios <- ler_relatorio_gestao(id_plano_acao = 12345)
+  head(relatorios)
+}
+
 }

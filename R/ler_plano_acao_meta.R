@@ -1,23 +1,20 @@
 #' Obter dados do endpoint plano_acao_meta
 #'
 #' Esta função acessa os dados do endpoint **plano_acao_meta** da API FundoaFundo (TransfereGov)
-#' utilizando a função \code{pg.get} do pacote postgrestR. Em vez de incorporar o endpoint na URL,
+#' utilizando a função interna \code{pg_get}. Em vez de incorporar o endpoint na URL,
 #' utiliza-se o parâmetro \code{table = "plano_acao_meta"} para especificar a tabela a ser consultada.
 #'
-#' Os filtros são aplicados por meio do argumento \code{filter} da \code{pg.get}. Para cada parâmetro informado,
+#' Os filtros são aplicados por meio do argumento \code{filter} da função \code{pg_get}. Para cada parâmetro informado,
 #' é criada uma condição no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
 #'
-#' Parâmetros disponíveis:
-#' \describe{
-#'   \item{\code{id_meta_plano_acao}}{Identificador da meta do plano de ação (numérico).}
-#'   \item{\code{numero_meta_plano_acao}}{Número da meta do plano de ação (texto ou numérico).}
-#'   \item{\code{nome_meta_plano_acao}}{Nome da meta do plano de ação (texto).}
-#'   \item{\code{descricao_meta_plano_acao}}{Descrição da meta do plano de ação (texto).}
-#'   \item{\code{valor_meta_plano_acao}}{Valor da meta do plano de ação (numérico).}
-#'   \item{\code{versao_meta_plano_acao}}{Versão da meta do plano de ação (texto ou numérico).}
-#'   \item{\code{sequencial_meta_plano_acao}}{Sequencial da meta do plano de ação (numérico).}
-#'   \item{\code{id_plano_acao}}{Identificador do plano de ação ao qual a meta está vinculada (numérico).}
-#' }
+#' @param id_meta_plano_acao Identificador da meta do plano de ação (numérico).
+#' @param numero_meta_plano_acao Número da meta do plano de ação (texto ou numérico).
+#' @param nome_meta_plano_acao Nome da meta do plano de ação (texto).
+#' @param descricao_meta_plano_acao Descrição da meta do plano de ação (texto).
+#' @param valor_meta_plano_acao Valor da meta do plano de ação (numérico).
+#' @param versao_meta_plano_acao Versão da meta do plano de ação (texto ou numérico).
+#' @param sequencial_meta_plano_acao Sequencial da meta do plano de ação (numérico).
+#' @param id_plano_acao Identificador do plano de ação ao qual a meta está vinculada (numérico).
 #'
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
@@ -58,5 +55,5 @@ ler_plano_acao_meta <- function(id_meta_plano_acao = NULL,
   if (!is.null(id_plano_acao))
     filters <- c(filters, paste0("id_plano_acao=eq.", id_plano_acao))
 
-  pg.get(table = table, filter = filters)
+  pg_get(table = table, filter = filters)
 }

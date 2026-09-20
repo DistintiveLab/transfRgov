@@ -37,49 +37,75 @@ ler_empenho(
   id_plano_acao = NULL
 )
 }
+\arguments{
+\item{id_empenho}{Identificador do empenho (numérico).}
+
+\item{numero_empenho}{Número do empenho (texto ou numérico).}
+
+\item{ano_empenho}{Ano do empenho (numérico).}
+
+\item{gestao_emitente_empenho}{Gestão emitente do empenho (texto).}
+
+\item{ug_emitente_empenho}{Unidade gestora emitente do empenho (texto).}
+
+\item{data_emissao_empenho}{Data de emissão do empenho (formato YYYY-MM-DD).}
+
+\item{fonte_recurso_empenho}{Fonte de recurso do empenho (texto).}
+
+\item{esfera_orcamentaria_empenho}{Esfera orçamentária do empenho (texto).}
+
+\item{descricao_esfera_orcamentaria_empenho}{Descrição da esfera orçamentária (texto).}
+
+\item{plano_interno_empenho}{Plano interno do empenho (texto).}
+
+\item{unidade_gestora_responsavel_empenho}{Unidade gestora responsável pelo empenho (texto).}
+
+\item{observacao_empenho}{Observação sobre o empenho (texto).}
+
+\item{cnpj_favorecido_empenho}{CNPJ do favorecido do empenho (texto).}
+
+\item{numero_lista_empenho}{Número da lista do empenho (texto ou numérico).}
+
+\item{unidade_gestora_referencia_empenho}{Unidade gestora de referência do empenho (texto).}
+
+\item{gestao_referencia_empenho}{Gestão de referência do empenho (texto).}
+
+\item{numero_interno_empenho}{Número interno do empenho (texto ou numérico).}
+
+\item{objeto_empenho}{Objeto do empenho (texto).}
+
+\item{numero_sistema_empenho}{Número do sistema do empenho (texto ou numérico).}
+
+\item{natureza_despesa_empenho}{Natureza da despesa do empenho (texto).}
+
+\item{natureza_despesa_sub_item_empenho}{Subitem da natureza de despesa do empenho (texto).}
+
+\item{tipo_empenho}{Tipo do empenho (texto).}
+
+\item{descricao_tipo_empenho}{Descrição do tipo de empenho (texto).}
+
+\item{codigo_tipo_nota_empenho}{Código do tipo de nota do empenho (texto ou numérico).}
+
+\item{descricao_tipo_nota_empenho}{Descrição do tipo de nota do empenho (texto).}
+
+\item{situacao_empenho}{Situação do empenho (texto).}
+
+\item{descricao_situacao_empenho}{Descrição da situação do empenho (texto).}
+
+\item{valor_empenho}{Valor do empenho (numérico).}
+
+\item{versao_empenho}{Versão do empenho (texto ou numérico).}
+
+\item{id_plano_acao}{Identificador do plano de ação ao qual o empenho está vinculado (numérico).}
+}
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 }
 \description{
 Esta função acessa os dados do endpoint **empenho** da API FundoaFundo (TransfereGov) utilizando a função
-\code{pg.get} do pacote postgrestR. Em vez de incorporar o endpoint na URL, utiliza-se o parâmetro
+interna \code{pg_get}. Em vez de incorporar o endpoint na URL, utiliza-se o parâmetro
 \code{table = "empenho"} para especificar a tabela a ser consultada. Os filtros são aplicados por meio do
 argumento \code{filter} e devem estar no formato "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
-}
-\details{
-Parâmetros disponíveis:
-\describe{
-  \item{\code{id_empenho}}{Identificador do empenho (numérico).}
-  \item{\code{numero_empenho}}{Número do empenho (texto ou numérico).}
-  \item{\code{ano_empenho}}{Ano do empenho (numérico).}
-  \item{\code{gestao_emitente_empenho}}{Gestão emitente do empenho (texto).}
-  \item{\code{ug_emitente_empenho}}{Unidade gestora emitente do empenho (texto).}
-  \item{\code{data_emissao_empenho}}{Data de emissão do empenho (formato YYYY-MM-DD).}
-  \item{\code{fonte_recurso_empenho}}{Fonte de recurso do empenho (texto).}
-  \item{\code{esfera_orcamentaria_empenho}}{Esfera orçamentária do empenho (texto).}
-  \item{\code{descricao_esfera_orcamentaria_empenho}}{Descrição da esfera orçamentária (texto).}
-  \item{\code{plano_interno_empenho}}{Plano interno do empenho (texto).}
-  \item{\code{unidade_gestora_responsavel_empenho}}{Unidade gestora responsável pelo empenho (texto).}
-  \item{\code{observacao_empenho}}{Observação sobre o empenho (texto).}
-  \item{\code{cnpj_favorecido_empenho}}{CNPJ do favorecido do empenho (texto).}
-  \item{\code{numero_lista_empenho}}{Número da lista do empenho (texto ou numérico).}
-  \item{\code{unidade_gestora_referencia_empenho}}{Unidade gestora de referência do empenho (texto).}
-  \item{\code{gestao_referencia_empenho}}{Gestão de referência do empenho (texto).}
-  \item{\code{numero_interno_empenho}}{Número interno do empenho (texto ou numérico).}
-  \item{\code{objeto_empenho}}{Objeto do empenho (texto).}
-  \item{\code{numero_sistema_empenho}}{Número do sistema do empenho (texto ou numérico).}
-  \item{\code{natureza_despesa_empenho}}{Natureza da despesa do empenho (texto).}
-  \item{\code{natureza_despesa_sub_item_empenho}}{Subitem da natureza de despesa do empenho (texto).}
-  \item{\code{tipo_empenho}}{Tipo do empenho (texto).}
-  \item{\code{descricao_tipo_empenho}}{Descrição do tipo de empenho (texto).}
-  \item{\code{codigo_tipo_nota_empenho}}{Código do tipo de nota do empenho (texto ou numérico).}
-  \item{\code{descricao_tipo_nota_empenho}}{Descrição do tipo de nota do empenho (texto).}
-  \item{\code{situacao_empenho}}{Situação do empenho (texto).}
-  \item{\code{descricao_situacao_empenho}}{Descrição da situação do empenho (texto).}
-  \item{\code{valor_empenho}}{Valor do empenho (numérico).}
-  \item{\code{versao_empenho}}{Versão do empenho (texto ou numérico).}
-  \item{\code{id_plano_acao}}{Identificador do plano de ação ao qual o empenho está vinculado (numérico).}
-}
 }
 \examples{
 \dontrun{

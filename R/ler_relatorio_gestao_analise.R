@@ -1,4 +1,27 @@
-#' Ler dados do endpoint relatorio_gestao_analise
+#' @title Ler dados de Análise do Relatório de Gestão da API TransfereGov
+#'
+#' @description Esta função acessa os dados do endpoint **relatorio_gestao_analise** da API FundoaFundo
+#' (TransfereGov) utilizando a função interna \code{pg_get}.
+#' Os filtros são aplicados por meio do argumento \code{filter} e devem estar no formato
+#' "nome_parametro=eq.valor". Todos os parâmetros são opcionais.
+#'
+#' @param id_relatorio_gestao_analise Identificador único da análise do relatório de gestão (numérico).
+#' @param tipo_analise_relatorio_gestao_analise Tipo da análise do relatório de gestão (texto).
+#' @param resultado_analise_relatorio_gestao_analise Resultado da análise do relatório de gestão (texto).
+#' @param parecer_analise_relatorio_gestao_analise Parecer da análise do relatório de gestão (texto).
+#' @param origem_analise_relatorio_gestao_analise Origem da análise do relatório de gestão (texto).
+#' @param data_analise_relatorio_gestao_analise Data da análise do relatório de gestão (formato YYYY-MM-DD).
+#' @param versao_analise_relatorio_gestao_analise Versão da análise do relatório de gestão (numérico).
+#' @param id_relatorio_gestao Identificador do relatório de gestão associado (numérico).
+#'
+#' @return Um objeto contendo os dados retornados pela API (geralmente um data.frame).
+#'
+#' @examples
+#' \dontrun{
+#'   # Exemplo: ler análises vinculadas a um relatório de gestão
+#'   analises <- ler_relatorio_gestao_analise(id_relatorio_gestao = 12345)
+#'   head(analises)
+#' }
 #'
 #' @export
 ler_relatorio_gestao_analise <- function(id_relatorio_gestao_analise = NULL,
@@ -30,5 +53,5 @@ ler_relatorio_gestao_analise <- function(id_relatorio_gestao_analise = NULL,
   if (!is.null(id_relatorio_gestao))
     filters <- c(filters, paste0("id_relatorio_gestao=eq.", id_relatorio_gestao))
 
-  pg.get(table = table, filter = filters)
+  pg_get(table = table, filter = filters)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ler_relatorio_gestao_acoes.R
 \name{ler_relatorio_gestao_acoes}
 \alias{ler_relatorio_gestao_acoes}
-\title{Ler dados do endpoint relatorio_gestao_acoes}
+\title{Ler dados de Ações do Relatório de Gestão da API TransfereGov}
 \usage{
 ler_relatorio_gestao_acoes(
   id_acao_relatorio_gestao = NULL,
@@ -12,6 +12,31 @@ ler_relatorio_gestao_acoes(
   id_acao_meta_plano_acao = NULL
 )
 }
+\arguments{
+\item{id_acao_relatorio_gestao}{Identificador único da ação do relatório de gestão (numérico).}
+
+\item{percentual_execucao_fisica_acao_relatorio_gestao_acao}{Percentual de execução física da ação (numérico).}
+
+\item{observacoes_justificativas_relatorio_gestao_acao}{Observações e justificativas da ação (texto).}
+
+\item{id_relatorio_gestao}{Identificador do relatório de gestão associado (numérico).}
+
+\item{id_acao_meta_plano_acao}{Identificador da ação/meta do plano de ação associado (numérico).}
+}
+\value{
+Um objeto contendo os dados retornados pela API (geralmente um data.frame).
+}
 \description{
-Ler dados do endpoint relatorio_gestao_acoes
+Esta função acessa os dados do endpoint **relatorio_gestao_acoes** da API FundoaFundo
+(TransfereGov) utilizando a função interna \code{pg_get}.
+Os filtros são aplicados por meio do argumento \code{filter} e devem estar no formato
+"nome_parametro=eq.valor". Todos os parâmetros são opcionais.
+}
+\examples{
+\dontrun{
+  # Exemplo: ler ações vinculadas a um relatório de gestão
+  acoes <- ler_relatorio_gestao_acoes(id_relatorio_gestao = 12345)
+  head(acoes)
+}
+
 }
