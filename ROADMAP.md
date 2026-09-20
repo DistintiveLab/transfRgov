@@ -18,6 +18,7 @@ está ancorado em medições feitas diretamente na API e em auditoria do código
 | Filtro com acento sem espaço, sem codificação | HTTP 400 |
 | Filtro com `utils::URLencode(valor, reserved = TRUE)` | HTTP 200 |
 | Endpoints do `metafaftab` com leitor | 21 de 21 |
+| Tabelas `empenho_especial` e `programa_especial` | HTTP 404 — os leitores `ler_empenho_especial()` e `ler_programa_especial()` apontam para tabelas inexistentes |
 | Bases irmãs no mesmo host | `parcerias`, `emendas`, `convenios`, `transferencias`, `propostas` respondem 404 |
 
 ## Fase 1 — Correções de correção em `pg_get` (concluída)
@@ -80,9 +81,10 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
 
 ## Fase 3 — Novas inclusões
 
-12. **Nenhum endpoint novo na API Fundo a Fundo**: os 21 endpoints do
-    `metafaftab` já possuem leitor (verificado). Registrar isso para evitar
-    trabalho duplicado.
+12. **(concluída) Nenhum endpoint novo na API Fundo a Fundo**: os 21 endpoints
+    do `metafaftab` já possuem leitor (verificado). O fato está registrado em
+    `AGENTS.md`, inclusive o motivo de um `grep` ingênuo por `table = "`
+    encontrar apenas 17 endpoints.
 13. **Outros provedores**, já que a API do TransfereGov não expõe bases irmãs
     (todas respondem 404):
     - **Portal da Transparência**: hoje só `renuncias-valor`
@@ -95,10 +97,45 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
 
 ## Fase 4 — Testes
 
-14. **23 leitores sem teste.** `tests/testthat/` tem dois arquivos e 108
-    asserções. Seguir o padrão de `tests/testthat/test-pg_get.R`:
-    `httr2::local_mocked_responses()` com respostas sintéticas montadas por
-    `httr2::response()`, e `skip_on_cran()` nos testes que dependem de rede.
+14. **(concluída) 23 leitores sem teste.** Antes: `tests/testthat/` tinha dois
+    arquivos e 108 asserções. Agora tem três arquivos de teste e um auxiliar, com
+    **385 asserções**, todas passando (`FAIL 0 | WARN 0 | SKIP 0`).
+
+    - `tests/testthat/test-leitores.R` (novo) cobre os 23 leitores de endpoint
+      com 70 blocos `test_that` e 277 asserções, gerados em laço a partir de uma
+      lista `leitores` que associa cada função à tabela que ela consulta. Para
+      cada leitor verifica três coisas: a URL aponta para a tabela certa e
+      carrega todos os parâmetros como filtro `campo=eq.valor`; `select` e
+      `order` são repassados; e o resultado tem as colunas do endpoint. Um
+      primeiro bloco compara `names(leitores)` com os exports que casam
+      `^(ler_|get_)`, de modo que um leitor novo sem teste quebra a suíte.
+    - `tests/testthat/helper-httr2.R` (novo) guarda os auxiliares comuns:
+      `resposta_simulada()`, `mock_capturando_urls()` e `sem_avisos()`. O
+      `resposta_simulada()` que vivia dentro de `test-pg_get.R` foi movido para
+      cá; o testthat carrega `helper-*.R` automaticamente.
+    - Duas decisões divergem do texto original do item, ambas deliberadas:
+      1. **Sem `skip_on_cran()`.** O texto condicionava o `skip` aos "testes que
+         dependem de rede", mas estes não tocam a rede: o mock de
+         `httr2::with_mocked_responses()` desvia `req_perform()` antes de abrir
+         qualquer socket. Marcar `skip_on_cran()` só esconderia a cobertura das
+         verificações do CRAN.
+      2. **`httr2::with_mocked_responses()` em vez de
+         `httr2::local_mocked_responses()`.** As duas formas funcionam; a
+         primeira permite que o auxiliar devolva, na mesma chamada, o resultado
+         *e* as URLs efetivamente requisitadas, que é o que viabiliza as
+         asserções por leitor.
+    - Uma resposta `[]`, ou com uma única linha, encerra a paginação na primeira
+      página, então `expect_length(urls, 1)` é seguro e o mock é sempre
+      limitado.
+    - **Defeito encontrado, ainda não corrigido:** `ler_empenho_especial()`
+      (`R/ler_empenho_especial.R:54`) e `ler_programa_especial()`
+      (`R/ler_programas_especiais.R:49`) consultam as tabelas `empenho_especial`
+      e `programa_especial`, e ambas respondem **404** na API no ar. Nenhuma das
+      duas está no `metafaftab`. A hipótese é que "especial" seja um *valor de
+      filtro* das tabelas `programa`/`empenho`, não uma tabela separada. Os
+      testes novos verificam apenas o contrato de transporte (que o leitor monta
+      `/<tabela>?...`), de modo que passam hoje e continuam corretos se o nome da
+      tabela for corrigido depois. Aguarda decisão do mantenedor.
 15. **`vcr` ou `httptest` com cassettes gravadas**, o que permitiria exercitar
     no CRAN os testes HTTP hoje marcados com `skip_on_cran()`.
 16. **Cobertura ausente:** `consultar_renuncias_fiscais()` e
@@ -136,9 +173,18 @@ normalizado sem consulta. O mesmo vale para a URL em `R/metafaftab.R:31-34`, que
 hoje aparece em `\code{}` de propósito: como o servidor responde 403 a `HEAD`,
 promovê-la a `\url{}` reintroduz o aviso de verificação de URLs do CRAN.
 
+Também exige decisão, e por isso ainda não foi corrigido, o defeito descrito no
+item 14: `ler_empenho_especial()` e `ler_programa_especial()` consultam as
+tabelas `empenho_especial` e `programa_especial`, que respondem 404. Corrigir
+exige escolher entre apontar para outra tabela, tratar "especial" como valor de
+filtro de `empenho`/`programa` (hipótese mais provável) ou retirar as duas
+funções — nenhuma dessas alternativas deve ser tomada sem aval do mantenedor.
+
 ## Ordem sugerida de versões
 
 - **0.2.0** — Fase 1 (itens 1 a 5) e Fase 2 (itens 6 a 10). Sem quebra de
-  assinatura; lançamento de correção.
-- **0.3.0** — Fase 3 (item 13) e Fase 4 (itens 14 a 16).
+  assinatura; lançamento de correção. Já concluídos e ainda não lançados, o
+  item 12 (documentação) e o item 14 (testes) viajam junto, pois nenhum dos dois
+  altera assinatura de função.
+- **0.3.0** — Fase 3 (item 13) e Fase 4 (itens 15 e 16).
 - **0.4.0** — Fases 5 e 6.

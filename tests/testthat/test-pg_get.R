@@ -4,16 +4,7 @@
 # `pg_parse_response()` são puras e podem ser testadas sem acesso à rede. Os
 # testes de `pg_get()` substituem as respostas do pacote `httr2` por
 # `httr2::local_mocked_responses()`, portanto também não acessam a internet.
-
-# Cria uma resposta simulada do httr2 em resposta a uma requisição.
-resposta_simulada <- function(req, corpo, tipo = "application/json", status = 200L) {
-  httr2::response(
-    status,
-    url = req$url,
-    headers = list("content-type" = tipo),
-    body = charToRaw(corpo)
-  )
-}
+# Os auxiliares usados aqui ficam em `helper-httr2.R`.
 
 test_that("pg_encode_filter codifica apenas o valor do filtro", {
   expect_equal(
