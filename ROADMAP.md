@@ -461,7 +461,8 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       se `docs/AGENTS.html`, `docs/ROADMAP.html` ou `docs/cran-comments.html`
       existirem. Depois da reconstrução limpa,
       `ls docs/AGENTS.html docs/ROADMAP.html` não encontra nada e
-      `grep -c "AGENTS\|ROADMAP" docs/search.json docs/sitemap.xml` devolve zero.
+      `grep -c "AGENTS\|ROADMAP" docs/search.json docs/sitemap.xml` devolve zero
+      (o arquivo gerado é `sitemap.xml`, sem o prefixo `docs/` dentro da pasta).
     - **O workflow `.github/workflows/pkgdown.yaml` foi derivado do exemplo
       canônico do `r-lib/actions` v2** e se afasta dele em exatamente dois
       pontos: o emoji do nome do passo de publicação foi removido (regra do
@@ -469,11 +470,30 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       desenvolvimento foram acrescentados. A publicação usa
       `JamesIves/github-pages-deploy-action` fixada por SHA, no ramo `gh-pages`.
     - **A publicação segue a opção (a)**: Actions publicando no ramo `gh-pages`.
-      O ramo ainda não existe (nasce no primeiro disparo do workflow) e o Pages
-      ainda não está habilitado no repositório. Falta também ampliar o escopo do
-      `gh` para `workflow`, porque o token atual (`admin:public_key`, `gist`,
-      `read:org`, `repo`) não permite enviar arquivo dentro de
-      `.github/workflows/`. Resolver esse escopo destrava de quebra o item 21.
+      O mecanismo foi executado no mesmo dia e está no ar. O primeiro push do
+      workflow disparou a execução `35539527146`, que fechou `completed success`
+      na primeira tentativa, e criou o ramo `gh-pages` no commit `fd816e6`. O
+      Pages foi habilitado pela linha de comando com
+      `gh api -X POST repos/DistintiveLab/transfRgov/pages -f 'source[branch]=gh-pages' -f 'source[path]=/'`,
+      cuja resposta traz `build_type: legacy`, `public: true` e
+      `https_enforced: true`; o build `1228272698` fechou `built`.
+    - **O escopo `workflow` já estava no token do `gh`.** A suposição de que
+      seria preciso `gh auth refresh -s workflow` estava errada: `gh auth status`
+      mostra `admin:public_key`, `gist`, `read:org`, `repo` e `workflow`, e o
+      workflow foi enviado sem nenhum passo adicional. Isso já destrava o item 21.
+    - **O site responde em `https://distintivelab.github.io/transfRgov/`**: a raiz
+      devolve 200 com o `README` em português e o rodapé do `pkgdown`, o índice de
+      referência mostra os nove grupos na ordem prevista, e
+      `articles/transfRgov.html` está publicado. O mesmo teste confirma o
+      vazamento selado em produção: `AGENTS.html` e `ROADMAP.html` respondem
+      404 e um `grep -o "AGENTS\|ROADMAP"` sobre `search.json` e `sitemap.xml` do
+      ramo publicado não devolve nada. A homepage do repositório passou a apontar
+      para o site com `gh repo edit DistintiveLab/transfRgov --homepage`.
+    - **O CI resolveu `pkgdown` 2.2.1**, mais novo que o 2.1.1 instalado aqui, e
+      o site publicado não é byte-idêntico ao `docs/` local: a versão nova publica
+      um `llms.txt` na raiz e copia o próprio `pkgdown.yml` para dentro do site.
+      Nada disso quebra o build, mas quem comparar as duas saídas precisa saber da
+      diferença de versão.
     - **Build local limpo**: `pkgdown::build_site()` com `EXIT:0` e as cinco
       linhas do relatório final em `✔` (URLs, favicons, metadados de open graph,
       metadados de artigos e metadados de referência). O `docs/` gerado tem 81
