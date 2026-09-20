@@ -351,9 +351,71 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
 
 ## Fase 5 — Documentação e usabilidade
 
-17. **Vignette** (não existe `vignettes/`): fluxo "baixar, tratar e consolidar
-    por município e função", hoje restrito ao script
+17. **(concluída) Vignette**: fluxo "baixar, tratar e consolidar
+    por município e função", antes restrito ao script
     `data-raw/consolida_transferencias_p_funcao_municipio.R`.
+
+    **Implementação — entrega de 2026-09-20.**
+    - **`vignettes/transfRgov.Rmd` criado** (394 linhas) sob o título "Baixar,
+      tratar e consolidar transferências por município e função"; é a primeira
+      vignette do pacote e o diretório `vignettes/` não existia.
+    - **`VignetteBuilder: knitr`** adicionado ao `DESCRIPTION` e cinco entradas
+      novas em `Suggests:`: `data.table`, `dplyr`, `knitr`, `rmarkdown` e
+      `tidyr`. São exatamente as usadas pelo texto e pelos chunks executáveis; a
+      versão do pacote não foi tocada.
+    - **Todo chunk de rede é `eval = FALSE`.** O CRAN não tem rede durante o
+      build e o servidor da CGU limita rajadas (a investigação do item 13 viu 15
+      requisições seguidas voltarem `HTTP 405` e as mesmas URLs voltarem 200
+      depois de uma pausa). A vignette explica o padrão de URL e mostra a
+      chamada, mas não a executa.
+    - **A consolidação é demonstrada de fato sobre um `data.frame` sintético**
+      montado dentro do documento, com os nomes de coluna que o
+      `janitor::clean_names()` produz em tempo de execução e com os valores
+      categóricos reais do arquivo da CGU (`Constitucionais e Royalties`,
+      `Legais, Voluntárias e Específicas`, `Transferências a Instituições
+      Privadas sem Fins Lucrativos`, as três funções do exemplo). Como esses
+      chunks rodam no build, o leitor vê saída real e o `R CMD check` exercita o
+      encadeamento inteiro sem rede e sem chave de API.
+    - **O encadeamento é parametrizado no baixador** (`consolida_tr_funcao(ano,
+      baixar = download_transferencias_uniao)`), de modo que o mesmo código é
+      mostrado uma vez para uso real e outra contra o quadro sintético. É o
+      ponto de projeto que evita duplicar o pipeline.
+    - **A divergência de nomes em relação ao script de origem é deliberada.** O
+      script faz `select(-privadas)` e `values_from = governo_e_publico`, mas o
+      `pivot_wider` anterior nunca produz essas colunas: o nome é dinâmico, no
+      formato `{tipo_transferencia}_{privadopub}`. A verificação empírica
+      mostrou que o script **não roda de ponta a ponta**; a vignette seleciona
+      por padrão (`ends_with("_publico")` com
+      `rename_with(janitor::make_clean_names, ...)`) e documenta a
+      dinamicidade dos nomes. O script em `data-raw/` foi deixado como está: seus
+      defeitos são a justificativa da vignette.
+    - **Os demais defeitos do script foram corrigidos no texto, não copiados**:
+      sai o `transfRgov:::` sobre função exportada, entra `.groups = "drop"` no
+      `summarise`, e o total passa a somar
+      `dplyr::across(dplyr::where(is.numeric) & -c(ano, codigo_ibge))` para que a
+      coluna `uf`, que é caractere, não quebre o `rowSums`. O laço multianual
+      ganha guarda `if (is.null(mes_dados)) return(NULL)`, porque
+      `download_transferencias_uniao()` avisa e devolve `NULL` em vez de parar.
+    - **O bloco de `readxl`/"cebas" foi excluído**: é material de análise do
+      script, não faz parte do fluxo do pacote, e `readxl` não está instalado nem
+      declarado.
+    - **Limitações registradas na própria vignette**: não existe quadro
+      pré-consolidado, os valores são nominais e o `match()` entre código SIAFI e
+      código IBGE devolve `NA` silenciosamente quando o código não está no
+      mapeamento (a vignette ensina a conferir com
+      `sum(is.na(dados$codigo_ibge))`).
+    - **Verificação**: `rmarkdown::render()` com saída `EXIT:0` e 29 chunks;
+      tabelas renderizadas conferidas contra o `data.frame` sintético (o total
+      real é 330001 e uma afirmação da prosa dizia 330002 — corrigida); os cinco
+      gates passaram: `devtools::document()` sem diferença, `devtools::test()`
+      com `FAIL 0 | WARN 0 | SKIP 0 | PASS 476` (inalterado), gate ASCII com 0
+      ofensas em 30 arquivos `R`, auditoria dos `\arguments` com 26 de 26, e
+      `devtools::check(args = "--as-cran")` com `Status: OK` e, no modo
+      `_R_CHECK_CRAN_INCOMING_ = "true"`, `Status: 1 NOTE` idêntico ao da linha
+      de base. O `check` mostra `creating vignettes ... OK`,
+      `checking files in 'vignettes' ... OK` e
+      `checking re-building of vignette outputs ... OK`. O HTML gerado pelo
+      render foi apagado; só o `.Rmd` entra no commit.
 18. **`_pkgdown.yml` com publicação no GitHub Pages**.
 19. **`\dontrun{}` para `\donttest{}`** nos exemplos que dependem de rede,
     conforme preferência do CRAN.

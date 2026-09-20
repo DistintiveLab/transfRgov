@@ -34,8 +34,14 @@ Imports:
     readr,
     utils
 Suggests:
+    data.table,
+    dplyr,
+    knitr,
     mockery,
+    rmarkdown,
     testthat (>= 3.0.0),
+    tidyr,
     vcr,
     webmockr
+VignetteBuilder: knitr
 Config/testthat/edition: 3
