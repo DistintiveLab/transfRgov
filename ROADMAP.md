@@ -91,11 +91,12 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
     do `metafaftab` já possuem leitor (verificado). O fato está registrado em
     `AGENTS.md`, inclusive o motivo de um `grep` ingênuo por `table = "`
     encontrar apenas 17 endpoints.
-13. **Outros provedores**, já que a API do TransfereGov não expõe bases irmãs
-    (todas respondem 404). **Provedor escolhido: CGU / dados abertos.** A
-    implementação ainda não começou; ela acrescenta leitor novo, ajuste da
-    `Description:` do `DESCRIPTION`, testes e documentação, e por isso entra como
-    entrega própria.
+13. **(concluída) Outros provedores**, já que a API do TransfereGov não expõe
+    bases irmãs (todas respondem 404). **Provedor escolhido: CGU / dados
+    abertos.** O conjunto escolhido é **`despesas` do Portal da Transparência**
+    (decidido em 2026-09-20). O leitor novo é
+    `download_despesas_ptransp()` (`R/download_despesas_ptransp.R`), com testes
+    próprios e `Description:` atualizada.
     - **Portal da Transparência**: hoje só `renuncias-valor`
       (`R/ler_renuncias_ptransp.R:34`). Candidatos: despesas, favorecidos,
       contratos, servidores.
@@ -104,6 +105,95 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
     - **CGU / dados abertos** (escolhido): `download_transferencias_uniao()` cobre
       os ZIPs mensais; avaliar séries anteriores a 2019 e os demais conjuntos do
       portal de dados abertos da CGU.
+
+    **Conjunto `despesas` — fatos medidos em 2026-09-20 (somente leitura).**
+
+    - Cadência **diária**; arquivo `{AAAAMMDD}_Despesas.zip` em
+      `https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/despesas/`.
+      Um dia comum pesa ~12,7 MB; um dia vazio (2024-01-01) cabe em 22 KB.
+    - O ZIP **não** traz um CSV único: são **onze** arquivos nomeados
+      (`_Despesas_Empenho`, `_Despesas_ItemEmpenho`,
+      `_Despesas_ItemEmpenhoHistorico`, `_Despesas_Liquidacao`,
+      `_Despesas_Liquidacao_EmpenhosImpactados`, `_Despesas_Pagamento`,
+      `_Despesas_Pagamento_EmpenhosImpactados`,
+      `_Despesas_Pagamento_FavorecidosFinais`, `_Despesas_Pagamento_ListaBancos`,
+      `_Despesas_Pagamento_ListaFaturas`, `_Despesas_Pagamento_ListaPrecatorios`).
+      O nome real do membro é **`ListaFaturas`** (plural); a documentação do portal
+      escreve `ListaFatura` no singular. Vale o medido.
+      Logo, o atalho `extracted_files[grep("\\.csv$", ...)][1]` de
+      `R/ler_transferencias_ptransp.R:77` **não** pode ser reaproveitado: o
+      leitor novo precisa selecionar o CSV pelo nome.
+    - Os CSVs do portal são Windows-1252 com separador `;` — exatamente o que o
+      caminho de leitura já existente em `download_transferencias_uniao()`
+      atende (`locale(encoding = "ISO-8859-1", decimal_mark = ",")`).
+    - **Séries anteriores a 2019 já funcionam sem qualquer alteração de código.**
+      A série de transferências publicada começa em `201401` (2009-01 a 2013-01
+      respondem 403: nunca foram publicadas). O smoke test ao vivo de 2015-01
+      devolveu 100.908 linhas com o mesmo esquema de colunas. A dúvida do item
+      está, portanto, encerrada.
+    - O host `dadosabertos-download.cgu.gov.br` responde bem, mas **limita
+      rajadas de requisições**: uma sequência de sondagens devolveu `HTTP 405`
+      para URLs que, espaçadas, respondem 200/206. Sempre intercalar `Sys.sleep`
+      e reconferir antes de acreditar em 403/405. O mesmo vale para testes.
+    - O host CKAN `dadosabertos.cgu.gov.br` **não resolve** deste ambiente;
+      `portaldatransparencia.gov.br/download-de-dados` responde 405 ao `fetch`
+      simples (usar `agentic_fetch`).
+
+    **Chegar ao beneficiário final exige encadear dois CSVs.** Medido em
+    2024-01-15 (ZIP de 3,78 MB; `Pagamento` com 14.949 linhas e 34 colunas):
+
+    - `Pagamento` traz o **total por ordem bancária** (`codigo_pagamento` +
+      `valor_do_pagamento_convertido_pra_r`); `Pagamento_FavorecidosFinais` traz
+      os **beneficiários** (`codigo_pagamento` + `codigo_favorecido` +
+      `valor_do_pagamento_em_r`). A junção por `codigo_pagamento` fecha
+      exatamente: 162 ordens com detalhe, `max |total - soma|` de `3,6e-12` e
+      **99 das 162 com mais de um favorecido** (relação 1:N, não 1:1).
+    - O mesmo par total/detalhe existe em `Liquidacao` ×
+      `Liquidacao_EmpenhosImpactados`, `Pagamento` ×
+      `Pagamento_EmpenhosImpactados` e `Empenho` × `ItemEmpenho` (por
+      `id_empenho`: 2.512 dos 2.516 empenhos casaram, 421 com mais de um item).
+    - O detalhamento é **parcial**: em 2024-01-15 só 162 das 14.949 ordens
+      (1,1%) tinham linha em `Pagamento_FavorecidosFinais`.
+      `Pagamento_ListaBancos` (102 bytes) e `Pagamento_ListaPrecatorios`
+      (92 bytes) vieram só com cabeçalho. Um dia válido pode gerar data frame de
+      **zero linhas** — o leitor deve devolver o data frame vazio, não `NULL`.
+
+    **Implementação — entrega de 2026-09-20.**
+
+    - Assinatura: `download_despesas_ptransp(data, tipo = "empenho")`. `data` é
+      **uma única** data (`Date` ou conversível, como `"2024-01-15"`); `tipo` é um
+      `match.arg` com os onze nomes medidos, cada um mapeado para o sufixo real do
+      membro do ZIP. A seleção do CSV é por sufixo
+      (`endsWith(basename(extraido), "_Despesas_<Sufixo>.csv")`), porque o membro
+      vem prefixado com `{AAAAMMDD}_`.
+    - Piso de data **medido**, não chutado: `20140102` responde 200 (ZIP de
+      2.499.501 bytes), enquanto `20090102` e `20130102` respondem 403. Daí o
+      limite `data >= as.Date("2014-01-01")` e também `data <= Sys.Date()`.
+    - O leitor devolve **data frame vazio, não `NULL`**, em dia sem movimento —
+      confirmado ao vivo em 2024-01-01 (`pagamento`, `pagamento_empenhos_impactados`
+      e `pagamento_favorecidos_finais` com 0 linhas) e fixado por teste.
+    - Fluxo idêntico ao de `download_transferencias_uniao()`: valida, monta a URL,
+      `download.file(mode = "wb")` em `tempfile()` dentro de `tryCatch`, `unzip()`
+      em `tempdir()`, `read_delim(delim = ";", locale(ISO-8859-1, decimal_mark = ","))`
+      com `janitor::clean_names()` e queda para `read.csv`, `unlink()` dos
+      temporários e retorno. Falhas devolvem `invisible(NULL)` com `warning()`;
+      erros de argumento fazem `stop()`.
+    - Sem bloco de mapeamento SIAFI→IBGE: as colunas medidas de `despesas` não
+      trazem `codigo_municipio_siafi`.
+    - O encadeamento total/detalhe **não é feito automaticamente**: o contrato é um
+      artefato por chamada, e a junção (1:N) está descrita no `@details`, junto com
+      a cobertura parcial (~1%) e o alerta do dia sem linhas.
+    - Nome fora de `^(ler_|get_)` de propósito: mantém em **23** a contagem que a
+      asserção de completude de `test-leitores.R` verifica. Exportações passam de
+      26 para **27**.
+    - Testes novos em `tests/testthat/test-download_despesas_ptransp.R`: 12 blocos
+      e 41 asserções, **sem tocar a rede** (`mockery::stub` sobre
+      `download.file`/`unzip`/`read_delim`/`read.csv`, com ZIPs e CSVs gerados em
+      `tempdir()`). Cassette foi descartada de propósito: são ~12,7 MB por dia e o
+      host limita rajadas. A suíte total vai de 397 para **438** asserções.
+    - O smoke ao vivo (2024-01-15) devolveu `empenho` 2.516×63, `liquidacao`
+      13.233×28, `pagamento` 14.949×34 e `pagamento_favorecidos_finais` 3.902×6 —
+      as mesmas contagens da investigação que motivou o item.
 
 ## Fase 4 — Testes
 
@@ -159,6 +249,9 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       `id_programa` (a ligação com planos de ação é por `id_plano_acao`); em
       `programa` faltam `id_proponente`, `data_inicio`, `data_fim`, `esfera` e
       `orgao_executor`. Ou seja, uma correção não é troca de nome de tabela.
+      **Decisão do mantenedor em 2026-09-20: adiar** (alternativa (d) das três
+      apresentadas). A evidência acima fica registrada e nenhum dos dois leitores
+      é alterado por enquanto.
 15. **(concluída) `vcr` com cassettes gravadas.** O objetivo literal era permitir
     que o CRAN exercitasse testes HTTP hoje marcados com `skip_on_cran()`. A
     leitura do código mostrou que as 19 ocorrências de `skip_on_cran()` já estavam
@@ -250,7 +343,9 @@ alternativas são: (a) reapontar para `empenho`/`programa` com um filtro de
 "especial" e retirar os parâmetros inexistentes, o que muda assinatura e exige
 versão 0.x.0; (b) descontinuar ou remover as duas funções; (c) mantê-las
 documentadas como defeituosas. Nenhuma dessas alternativas deve ser tomada sem
-aval do mantenedor.
+aval do mantenedor. **Em 2026-09-20 o mantenedor optou por adiar a decisão
+(alternativa (d)): a evidência fica registrada e as duas funções permanecem
+como estão, sem correção e sem descontinuação.**
 
 ## Ordem sugerida de versões
 
@@ -258,6 +353,7 @@ aval do mantenedor.
   assinatura; lançamento de correção. Já concluídos e ainda não lançados, viajam
   junto o item 12 (documentação), o item 14 (testes) e o item 15 (cassettes do
   `vcr`), pois nenhum dos três altera assinatura de função.
-- **0.3.0** — Fase 3 (item 13, provedor CGU) e Fase 4 (item 16). Se a correção do
-  defeito 404 for a alternativa (a), com mudança de assinatura, ela entra aqui.
+- **0.3.0** — Fase 3 (item 13, provedor CGU, conjunto `despesas`) e Fase 4
+  (item 16). Se a correção do defeito 404 for a alternativa (a), com mudança de
+  assinatura, ela entra aqui. O mantenedor optou por adiar essa decisão.
 - **0.4.0** — Fases 5 e 6.

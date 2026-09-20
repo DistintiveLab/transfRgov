@@ -2,6 +2,7 @@
 
 export(baixa_municipio_siafibge)
 export(consultar_renuncias_fiscais)
+export(download_despesas_ptransp)
 export(download_transferencias_uniao)
 export(get_plano_acao)
 export(get_plano_acao_dado_bancario)

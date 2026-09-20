@@ -15,8 +15,9 @@ Description: Downloads, reads and organizes data on federal fund transfers
     "Fundo a Fundo" API, from the Portal da Transparência open data service
     and from the Tesouro Transparente CKAN catalogue. The package offers one
     reader per API endpoint, helpers that map SIAFI municipality codes to
-    IBGE codes, and routines that fetch the monthly transfer archives and
-    the tax waiver records published as open data.
+    IBGE codes, and routines that fetch the monthly transfer archives, the
+    daily expenditure archives with their beneficiary detail and the tax
+    waiver records published as open data.
 License: MIT + file LICENSE
 URL: https://github.com/DistintiveLab/transfRgov
 BugReports: https://github.com/DistintiveLab/transfRgov/issues
