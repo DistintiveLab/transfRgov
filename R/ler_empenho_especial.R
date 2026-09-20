@@ -17,6 +17,12 @@
 #' @param ug_emitente_empenho Unidade gestora emitente do empenho (texto).
 #' @param objeto_empenho Objeto do empenho (texto).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente um data.frame).
 #'
 #' @examples
@@ -41,7 +47,9 @@ ler_empenho_especial <- function(id_empenho_especial = NULL,
                                  tipo_empenho = NULL,
                                  situacao_empenho = NULL,
                                  ug_emitente_empenho = NULL,
-                                 objeto_empenho = NULL) {
+                                 objeto_empenho = NULL,
+                                 select = NULL,
+                                 order = NULL) {
 
   table <- "empenho_especial" # Nome da tabela para o endpoint de Empenho Especial
   filters <- c()
@@ -69,5 +77,5 @@ ler_empenho_especial <- function(id_empenho_especial = NULL,
   if (!is.null(objeto_empenho))
     filters <- c(filters, paste0("objeto_empenho=eq.", objeto_empenho))
 
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }

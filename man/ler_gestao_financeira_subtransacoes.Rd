@@ -35,7 +35,9 @@ ler_gestao_financeira_subtransacoes(
   dv_conta_favorecido_gestao_financeira = NULL,
   valor_lancamento_gestao_financeira = NULL,
   quantidade_subtransacoes_lancamento_gestao_financeira = NULL,
-  id_agencia_conta = NULL
+  id_agencia_conta = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -100,6 +102,14 @@ ler_gestao_financeira_subtransacoes(
 \item{quantidade_subtransacoes_lancamento_gestao_financeira}{Quantidade de subtransações (numérico).}
 
 \item{id_agencia_conta}{Identificador da agência/conta (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

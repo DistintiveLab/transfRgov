@@ -17,6 +17,12 @@
 #' @param uf_beneficiario_programa Unidade Federativa do beneficiário do programa (texto).
 #' @param id_programa Identificador do programa ao qual o beneficiário está vinculado (numérico).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
@@ -35,7 +41,9 @@ ler_programa_beneficiario <- function(id_beneficiario_programa = NULL,
                                       nome_parlamentar_beneficiario_programa = NULL,
                                       tipo_beneficiario_programa = NULL,
                                       uf_beneficiario_programa = NULL,
-                                      id_programa = NULL) {
+                                      id_programa = NULL,
+                                      select = NULL,
+                                      order = NULL) {
 
   # Vetor para armazenar os filtros no formato "nome_parametro=eq.valor"
   filters <- c()
@@ -60,5 +68,5 @@ ler_programa_beneficiario <- function(id_beneficiario_programa = NULL,
     filters <- c(filters, paste0("id_programa=eq.", id_programa))
 
   # Chama a função pg_get passando o parâmetro table e o vetor de filtros
-  pg_get(table = "programa_beneficiario", filter = filters)
+  pg_get(table = "programa_beneficiario", filter = filters, select = select, order = order)
 }

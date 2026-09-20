@@ -14,6 +14,12 @@
 #' @param versao_analise_relatorio_gestao_analise Versão da análise do relatório de gestão (numérico).
 #' @param id_relatorio_gestao Identificador do relatório de gestão associado (numérico).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente um data.frame).
 #'
 #' @examples
@@ -31,7 +37,9 @@ ler_relatorio_gestao_analise <- function(id_relatorio_gestao_analise = NULL,
                                          origem_analise_relatorio_gestao_analise = NULL,
                                          data_analise_relatorio_gestao_analise = NULL,
                                          versao_analise_relatorio_gestao_analise = NULL,
-                                         id_relatorio_gestao = NULL) {
+                                         id_relatorio_gestao = NULL,
+                                         select = NULL,
+                                         order = NULL) {
 
   table <- "relatorio_gestao_analise"
   filters <- c()
@@ -53,5 +61,5 @@ ler_relatorio_gestao_analise <- function(id_relatorio_gestao_analise = NULL,
   if (!is.null(id_relatorio_gestao))
     filters <- c(filters, paste0("id_relatorio_gestao=eq.", id_relatorio_gestao))
 
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }

@@ -14,6 +14,12 @@
 #' @param esfera Nível da esfera do programa (e.g., "FEDERAL", "ESTADUAL", "MUNICIPAL") (texto).
 #' @param orgao_executor Nome ou código do órgão executor do programa (texto).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente um data.frame).
 #'
 #' @examples
@@ -36,7 +42,9 @@ ler_programa_especial <- function(id_programa = NULL,
                                   data_inicio = NULL,
                                   data_fim = NULL,
                                   esfera = NULL,
-                                  orgao_executor = NULL) {
+                                  orgao_executor = NULL,
+                                  select = NULL,
+                                  order = NULL) {
 
   table <- "programa_especial" # Nome da tabela para o endpoint de Programa Especial
   filters <- c()
@@ -60,6 +68,6 @@ ler_programa_especial <- function(id_programa = NULL,
   if (!is.null(orgao_executor))
     filters <- c(filters, paste0("orgao_executor=eq.", orgao_executor))
 
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }
 

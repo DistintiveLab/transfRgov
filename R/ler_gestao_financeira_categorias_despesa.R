@@ -14,6 +14,12 @@
 #' @param codigo_programa_agil Código do programa ágil associado (texto ou numérico).
 #' @param nome_programa_agil Nome do programa ágil associado (texto).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
@@ -34,7 +40,9 @@ ler_gestao_financeira_categorias_despesa <- function(
     nivel_atual_categoria_despesa_gestao_financeira = NULL,
     nome_completo_niveis_categoria_despesa_gestao_financeira = NULL,
     codigo_programa_agil = NULL,
-    nome_programa_agil = NULL
+    nome_programa_agil = NULL,
+    select = NULL,
+    order = NULL
 ) {
   table <- "gestao_financeira_categorias_despesa"
   filters <- c()
@@ -54,5 +62,5 @@ ler_gestao_financeira_categorias_despesa <- function(
   if (!is.null(nome_programa_agil))
     filters <- c(filters, paste0("nome_programa_agil=eq.", nome_programa_agil))
 
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }

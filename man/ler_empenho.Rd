@@ -34,7 +34,9 @@ ler_empenho(
   descricao_situacao_empenho = NULL,
   valor_empenho = NULL,
   versao_empenho = NULL,
-  id_plano_acao = NULL
+  id_plano_acao = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -97,6 +99,14 @@ ler_empenho(
 \item{versao_empenho}{Versão do empenho (texto ou numérico).}
 
 \item{id_plano_acao}{Identificador do plano de ação ao qual o empenho está vinculado (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

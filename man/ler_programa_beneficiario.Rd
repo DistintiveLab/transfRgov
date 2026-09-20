@@ -13,7 +13,9 @@ ler_programa_beneficiario(
   nome_parlamentar_beneficiario_programa = NULL,
   tipo_beneficiario_programa = NULL,
   uf_beneficiario_programa = NULL,
-  id_programa = NULL
+  id_programa = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -34,6 +36,14 @@ ler_programa_beneficiario(
 \item{uf_beneficiario_programa}{Unidade Federativa do beneficiário do programa (texto).}
 
 \item{id_programa}{Identificador do programa ao qual o beneficiário está vinculado (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

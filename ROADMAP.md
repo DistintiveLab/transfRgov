@@ -48,26 +48,42 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
    retornava uma lista de comprimento zero em vez do `data.frame` documentado.
    Resolvido normalizando para `data.frame()` dentro de `pg_parse_response()`.
 
-## Fase 2 — Robustez de transporte
+## Fase 2 — Robustez de transporte (concluída)
 
-5. **Retry, timeout e backoff** (`R/utils-pg_get.R:76`). Hoje é um
-   `httr::GET()` seco, sem timeout e sem repetição. Avaliar migração para
-   `httr2` (`req_retry()`, `req_timeout()`), o que exige alterar `Imports:` em
-   `DESCRIPTION`.
-6. **Classe de condição estruturada** no lugar do `warning()` cru de
-   `R/utils-pg_get.R:85`, permitindo `tryCatch()` por classe no chamador.
-7. **User-Agent identificando o pacote**.
-8. **Passagem de `select` e `order`** aos leitores, ambos comprovadamente
-   suportados, o que reduz tráfego em endpoints com mais de 30 colunas.
-9. **Cache em disco opcional**, formalizando o diretório `cache/` já usado nas
-   análises.
+6. **Retry, timeout e backoff**. O `httr::GET()` seco virou
+   `httr2::req_retry()`, `httr2::req_timeout()` e `httr2::req_user_agent()`
+   dentro de `pg_get()`, com os parâmetros novos `tempo_limite = 30` e
+   `tentativas = 3L`; por padrão o `httr2` repete apenas falhas de rede e os
+   status 429/503, e erros definitivos (como um 400 de filtro inválido)
+   continuam interrompendo de imediato. `httr2` entrou em `Imports:`; `httr`
+   permanece, pois `R/ler_renuncias_ptransp.R` ainda o usa.
+7. **Classe de condição estruturada**. Os dois `warning()` crus viraram
+   `pg_warning()` (`R/utils-pg_get.R:293` e `R/utils-pg_get.R:335`), que monta a
+   condição `c("transfRgov_<classe>", "warning", "condition")` só com R base, sem
+   `rlang`. As classes emitidas são `transfRgov_unsupported_type` e
+   `transfRgov_partial_result`, permitindo `tryCatch()` por classe no chamador.
+8. **User-Agent identificando o pacote**. `pg_user_agent()` monta
+   `"transfRgov/<versão> (https://github.com/DistintiveLab/transfRgov)"` a partir
+   de `utils::packageVersion()`.
+9. **Passagem de `select` e `order`** aos 23 leitores. Os dois parâmetros foram
+   acrescentados a `pg_get()` e a `pg_build_url()`, com `pg_encode_lista()`
+   juntando os valores por vírgula e codificando cada um; os 23 leitores
+   repassam `select` e `order` a cada página. Como isso acrescentou 46 `@param`
+   novos em funções exportadas, 23 arquivos de `man/` foram regerados.
+10. **Resultado vazio com corpo vazio** (achado no teste de fumaça).
+    `jsonlite::fromJSON("")` abortava com `premature EOF`, então uma consulta sem
+    linhas que devolvesse corpo vazio quebrava em vez de retornar o `data.frame`
+    vazio documentado. Resolvido com retorno antecipado em
+    `pg_parse_response()`.
+11. **Cache em disco opcional**: adiado. Fica para uma entrega própria, junto da
+    formalização do diretório `cache/` já usado nas análises.
 
 ## Fase 3 — Novas inclusões
 
-10. **Nenhum endpoint novo na API Fundo a Fundo**: os 21 endpoints do
+12. **Nenhum endpoint novo na API Fundo a Fundo**: os 21 endpoints do
     `metafaftab` já possuem leitor (verificado). Registrar isso para evitar
     trabalho duplicado.
-11. **Outros provedores**, já que a API do TransfereGov não expõe bases irmãs
+13. **Outros provedores**, já que a API do TransfereGov não expõe bases irmãs
     (todas respondem 404):
     - **Portal da Transparência**: hoje só `renuncias-valor`
       (`R/ler_renuncias_ptransp.R:34`). Candidatos: despesas, favorecidos,
@@ -79,33 +95,33 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
 
 ## Fase 4 — Testes
 
-12. **23 leitores sem teste.** `tests/testthat/` tem dois arquivos e 44
-    asserções. Seguir o padrão de `tests/testthat/test-pg_get.R`: chamada nua
-    (o `mockery` não intercepta chamadas com `:::`), stub com função simples e
-    `cycle = TRUE`.
-13. **`vcr` ou `httptest` com cassettes gravadas**, o que permitiria exercitar
-    no CRAN os dois testes HTTP hoje marcados com `skip_on_cran()`.
-14. **Cobertura ausente:** `consultar_renuncias_fiscais()` e
+14. **23 leitores sem teste.** `tests/testthat/` tem dois arquivos e 108
+    asserções. Seguir o padrão de `tests/testthat/test-pg_get.R`:
+    `httr2::local_mocked_responses()` com respostas sintéticas montadas por
+    `httr2::response()`, e `skip_on_cran()` nos testes que dependem de rede.
+15. **`vcr` ou `httptest` com cassettes gravadas**, o que permitiria exercitar
+    no CRAN os testes HTTP hoje marcados com `skip_on_cran()`.
+16. **Cobertura ausente:** `consultar_renuncias_fiscais()` e
     `baixa_municipio_siafibge()` não têm nenhum teste.
 
 ## Fase 5 — Documentação e usabilidade
 
-15. **Vignette** (não existe `vignettes/`): fluxo "baixar, tratar e consolidar
+17. **Vignette** (não existe `vignettes/`): fluxo "baixar, tratar e consolidar
     por município e função", hoje restrito ao script
     `data-raw/consolida_transferencias_p_funcao_municipio.R`.
-16. **`_pkgdown.yml` com publicação no GitHub Pages**.
-17. **`\dontrun{}` para `\donttest{}`** nos exemplos que dependem de rede,
+18. **`_pkgdown.yml` com publicação no GitHub Pages**.
+19. **`\dontrun{}` para `\donttest{}`** nos exemplos que dependem de rede,
     conforme preferência do CRAN.
-18. **Tornar o `metafaftab` mais útil**: hoje é uma lista crua de caminhos para
+20. **Tornar o `metafaftab` mais útil**: hoje é uma lista crua de caminhos para
     parâmetros; um acessor que liste endpoints e campos legíveis melhora a
     descoberta.
 
 ## Fase 6 — Infraestrutura e limpeza
 
-19. **Integração contínua**: criar `.github/workflows/R-CMD-check.yaml`
+21. **Integração contínua**: criar `.github/workflows/R-CMD-check.yaml`
     (`.github/` não existe) rodando `devtools::check(args = "--as-cran")`.
-20. **`lintr` e `styler`**, hoje sem nenhuma configuração.
-21. **Lastro local**: `data/` guarda cerca de 176 MB que não são dados do pacote
+22. **`lintr` e `styler`**, hoje sem nenhuma configuração.
+23. **Lastro local**: `data/` guarda cerca de 176 MB que não são dados do pacote
     e há um `201901_Transferencias.csv` de cerca de 46 MB na raiz. Ambos já estão
     excluídos do build, mas seguem dentro do diretório do pacote; decidir se
     saem para um diretório de análise fora do repositório.
@@ -122,7 +138,7 @@ promovê-la a `\url{}` reintroduz o aviso de verificação de URLs do CRAN.
 
 ## Ordem sugerida de versões
 
-- **0.2.0** — Fase 1 (itens 1 a 4) e Fase 2 (itens 5 a 7). Sem quebra de
+- **0.2.0** — Fase 1 (itens 1 a 5) e Fase 2 (itens 6 a 10). Sem quebra de
   assinatura; lançamento de correção.
-- **0.3.0** — Fase 3 (item 11) e Fase 4 (itens 12 a 14).
+- **0.3.0** — Fase 3 (item 13) e Fase 4 (itens 14 a 16).
 - **0.4.0** — Fases 5 e 6.

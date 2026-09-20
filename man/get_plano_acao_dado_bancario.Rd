@@ -17,7 +17,9 @@ get_plano_acao_dado_bancario(
   data_abertura_conta_plano_acao_dado_bancario = NULL,
   nome_programa_agil_conta_plano_acao_dado_bancario = NULL,
   saldo_final_conta_plano_acao_dado_bancario = NULL,
-  id_plano_acao = NULL
+  id_plano_acao = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -46,6 +48,14 @@ get_plano_acao_dado_bancario(
 \item{saldo_final_conta_plano_acao_dado_bancario}{Saldo final da conta (numérico).}
 
 \item{id_plano_acao}{Identificador do plano de ação ao qual o dado bancário está vinculado (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

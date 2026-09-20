@@ -11,6 +11,12 @@
 #' @param data_historico_termo_adesao Data do histórico do termo de adesão (formato YYYY-MM-DD).
 #' @param id_termo_adesao Identificador do termo de adesão ao qual o histórico está vinculado (numérico).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
@@ -24,7 +30,9 @@
 ler_termo_adesao_historico <- function(id_historico_termo_adesao = NULL,
                                        situacao_historico_termo_adesao = NULL,
                                        data_historico_termo_adesao = NULL,
-                                       id_termo_adesao = NULL) {
+                                       id_termo_adesao = NULL,
+                                       select = NULL,
+                                       order = NULL) {
 
   table <- "termo_adesao_historico"
   filters <- c()
@@ -38,5 +46,5 @@ ler_termo_adesao_historico <- function(id_historico_termo_adesao = NULL,
   if (!is.null(id_termo_adesao))
     filters <- c(filters, paste0("id_termo_adesao=eq.", id_termo_adesao))
 
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }

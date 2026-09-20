@@ -17,7 +17,9 @@ ler_relatorio_gestao(
   contrapartida_relatorio_gestao = NULL,
   endereco_eletronico_publicidade_acoes_relatorio_gestao = NULL,
   declaracao_conformidade_relatorio_gestao = NULL,
-  id_plano_acao = NULL
+  id_plano_acao = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -46,6 +48,14 @@ ler_relatorio_gestao(
 \item{declaracao_conformidade_relatorio_gestao}{Declaração de conformidade do relatório de gestão (texto).}
 
 \item{id_plano_acao}{Identificador do plano de ação associado (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente um data.frame).

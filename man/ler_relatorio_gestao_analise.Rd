@@ -12,7 +12,9 @@ ler_relatorio_gestao_analise(
   origem_analise_relatorio_gestao_analise = NULL,
   data_analise_relatorio_gestao_analise = NULL,
   versao_analise_relatorio_gestao_analise = NULL,
-  id_relatorio_gestao = NULL
+  id_relatorio_gestao = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -31,6 +33,14 @@ ler_relatorio_gestao_analise(
 \item{versao_analise_relatorio_gestao_analise}{Versão da análise do relatório de gestão (numérico).}
 
 \item{id_relatorio_gestao}{Identificador do relatório de gestão associado (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente um data.frame).

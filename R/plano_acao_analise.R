@@ -15,6 +15,12 @@
 #' @param id_plano_acao Identificador do plano de ação ao qual a análise está vinculada (numérico).
 #' @param id_historico_plano_acao Identificador do histórico do plano de ação (numérico).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
@@ -32,7 +38,9 @@ ler_plano_acao_analise <- function(id_analise_plano_acao = NULL,
                                    parecer_analise_plano_acao = NULL,
                                    tipo_origem_analise_plano_acao = NULL,
                                    id_plano_acao = NULL,
-                                   id_historico_plano_acao = NULL) {
+                                   id_historico_plano_acao = NULL,
+                                   select = NULL,
+                                   order = NULL) {
 
   table <- "plano_acao_analise"
   filters <- c()
@@ -54,5 +62,5 @@ ler_plano_acao_analise <- function(id_analise_plano_acao = NULL,
   if (!is.null(id_historico_plano_acao))
     filters <- c(filters, paste0("id_historico_plano_acao=eq.", id_historico_plano_acao))
 
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }

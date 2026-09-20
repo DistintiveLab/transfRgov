@@ -1,9 +1,19 @@
 # Testes das funções internas de consulta à API (helpers PostgREST).
 #
-# As funções `pg_encode_filter()`, `pg_build_url()` e `pg_parse_response()` são
-# puras e podem ser testadas sem acesso à rede. Os testes de `pg_get()`
-# substituem as chamadas do pacote `httr` por stubs do `mockery`, portanto
-# também não acessam a internet.
+# As funções `pg_encode_filter()`, `pg_encode_lista()`, `pg_build_url()` e
+# `pg_parse_response()` são puras e podem ser testadas sem acesso à rede. Os
+# testes de `pg_get()` substituem as respostas do pacote `httr2` por
+# `httr2::local_mocked_responses()`, portanto também não acessam a internet.
+
+# Cria uma resposta simulada do httr2 em resposta a uma requisição.
+resposta_simulada <- function(req, corpo, tipo = "application/json", status = 200L) {
+  httr2::response(
+    status,
+    url = req$url,
+    headers = list("content-type" = tipo),
+    body = charToRaw(corpo)
+  )
+}
 
 test_that("pg_encode_filter codifica apenas o valor do filtro", {
   expect_equal(
@@ -22,6 +32,20 @@ test_that("pg_encode_filter codifica apenas o valor do filtro", {
   )
 
   expect_equal(transfRgov:::pg_encode_filter(character()), character())
+})
+
+test_that("pg_encode_lista reune as colunas codificadas em uma unica string", {
+  expect_equal(
+    transfRgov:::pg_encode_lista(c("id_programa", "nome_programa")),
+    "id_programa,nome_programa"
+  )
+
+  expect_equal(transfRgov:::pg_encode_lista("ano_programa.desc"), "ano_programa.desc")
+
+  expect_equal(transfRgov:::pg_encode_lista("nome do municipio"), "nome%20do%20municipio")
+
+  expect_null(transfRgov:::pg_encode_lista(NULL))
+  expect_null(transfRgov:::pg_encode_lista(character()))
 })
 
 test_that("pg_build_url monta a URL com e sem filtros", {
@@ -53,6 +77,26 @@ test_that("pg_build_url acrescenta os parâmetros de paginação", {
   )
 })
 
+test_that("pg_build_url acrescenta as cláusulas select e order", {
+  expect_equal(
+    transfRgov:::pg_build_url("programa", character(), "https://x", select = "id_programa"),
+    "https://x/programa?select=id_programa"
+  )
+
+  expect_equal(
+    transfRgov:::pg_build_url(
+      "programa", character(), "https://x",
+      select = c("id_programa", "nome_programa"), order = "ano_programa.desc"
+    ),
+    "https://x/programa?select=id_programa,nome_programa&order=ano_programa.desc"
+  )
+
+  expect_equal(
+    transfRgov:::pg_build_url("programa", character(), "https://x", order = NULL),
+    "https://x/programa?"
+  )
+})
+
 test_that("pg_parse_response interpreta respostas JSON", {
   skip_if_not_installed("jsonlite")
 
@@ -72,6 +116,18 @@ test_that("pg_parse_response normaliza uma resposta JSON sem linhas em data.fram
   expect_true(vazio$suportado)
   expect_s3_class(vazio$dados, "data.frame")
   expect_equal(nrow(vazio$dados), 0)
+})
+
+test_that("pg_parse_response trata corpo vazio como ausencia de linhas", {
+  skip_if_not_installed("jsonlite")
+
+  vazio <- transfRgov:::pg_parse_response("application/json", "")
+
+  expect_true(vazio$suportado)
+  expect_s3_class(vazio$dados, "data.frame")
+  expect_equal(nrow(vazio$dados), 0)
+
+  expect_equal(nrow(transfRgov:::pg_parse_response("application/json", "   \n")$dados), 0)
 })
 
 test_that("pg_parse_response interpreta respostas CSV", {
@@ -114,22 +170,51 @@ test_that("pg_parse_response sinaliza tipos nao suportados ou ausentes", {
   expect_null(vazio$dados)
 })
 
+test_that("pg_warning cria condicoes com classe propria", {
+  condicao <- NULL
+
+  withCallingHandlers(
+    transfRgov:::pg_warning("mensagem de teste", "minha_classe"),
+    warning = function(w) {
+      condicao <<- w
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  expect_s3_class(condicao, "transfRgov_minha_classe")
+  expect_s3_class(condicao, "warning")
+  expect_s3_class(condicao, "condition")
+  expect_equal(conditionMessage(condicao), "mensagem de teste")
+  expect_null(conditionCall(condicao))
+
+  # A classe permite o tratamento seletivo no chamador.
+  capturada <- tryCatch(
+    transfRgov:::pg_warning("outra mensagem", "minha_classe"),
+    transfRgov_minha_classe = function(w) "capturada"
+  )
+
+  expect_equal(capturada, "capturada")
+})
+
+test_that("pg_user_agent identifica o pacote", {
+  agente <- transfRgov:::pg_user_agent()
+
+  expect_type(agente, "character")
+  expect_length(agente, 1)
+  expect_match(agente, "^transfRgov/")
+  expect_match(agente, "DistintiveLab/transfRgov", fixed = TRUE)
+})
+
 test_that("pg_get monta a URL, le o conteudo e converte a resposta (mocked)", {
   skip_on_cran()
-  skip_if_not_installed("mockery")
-  skip_if_not_installed("httr")
+  skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
   urls_consultadas <- character()
 
-  mockery::stub(pg_get, "httr::GET", function(url) {
-    urls_consultadas <<- c(urls_consultadas, url)
-    structure(list(), class = "resposta_simulada")
-  })
-  mockery::stub(pg_get, "httr::stop_for_status", function(resposta) resposta)
-  mockery::stub(pg_get, "httr::content", function(resposta, tipo, encoding) '{"a":1}')
-  mockery::stub(pg_get, "httr::headers", function(resposta) {
-    list("content-type" = "application/json")
+  httr2::local_mocked_responses(function(req) {
+    urls_consultadas <<- c(urls_consultadas, req$url)
+    resposta_simulada(req, '{"a":1}')
   })
 
   resultado <- pg_get("programa", c("ano_programa=eq.2020"), "https://x")
@@ -141,57 +226,134 @@ test_that("pg_get monta a URL, le o conteudo e converte a resposta (mocked)", {
   )
 })
 
+test_that("pg_get envia User-Agent, tempo limite e repeticoes na requisicao", {
+  skip_on_cran()
+  skip_if_not_installed("httr2")
+  skip_if_not_installed("jsonlite")
+
+  capturada <- NULL
+
+  httr2::local_mocked_responses(function(req) {
+    capturada <<- req
+    resposta_simulada(req, '{"a":1}')
+  })
+
+  pg_get("programa", character(), "https://x", tempo_limite = 12, tentativas = 4L)
+
+  expect_equal(capturada$options$useragent, transfRgov:::pg_user_agent())
+  expect_equal(capturada$options$timeout_ms, 12000)
+  expect_equal(capturada$policies$retry_max_tries, 4L)
+})
+
+test_that("pg_get nao engole falha transitoria (mocked)", {
+  skip_on_cran()
+  skip_if_not_installed("httr2")
+
+  # As respostas simuladas curto-circuitam o laco de repeticoes do proprio
+  # `httr2::req_perform()`, entao a repeticao em si e responsabilidade do
+  # httr2 (a politica e verificada no teste do User-Agent). O contrato
+  # testado aqui e que o `pg_get` propaga o erro em vez de mascara-lo.
+  chamadas <- 0L
+
+  httr2::local_mocked_responses(function(req) {
+    chamadas <<- chamadas + 1L
+    resposta_simulada(req, "indisponivel", tipo = "text/plain", status = 503L)
+  })
+
+  expect_error(
+    pg_get("programa", character(), "https://x", limite = 100, tentativas = 2L),
+    class = "httr2_http_503"
+  )
+
+  expect_equal(chamadas, 1L)
+})
+
+test_that("pg_get nao repete erros HTTP definitivos (mocked)", {
+  skip_on_cran()
+  skip_if_not_installed("httr2")
+
+  chamadas <- 0L
+
+  httr2::local_mocked_responses(function(req) {
+    chamadas <<- chamadas + 1L
+    resposta_simulada(req, "erro de filtro", tipo = "text/plain", status = 400L)
+  })
+
+  expect_error(
+    pg_get("programa", c("ano_programa=eq.abc"), "https://x", tentativas = 3L),
+    class = "httr2_http_400"
+  )
+
+  # Um 400 e definitivo: as tres tentativas configuradas nao sao consumidas.
+  expect_equal(chamadas, 1L)
+})
+
 test_that("pg_get percorre todas as paginas ate a ultima incompleta (mocked)", {
   skip_on_cran()
-  skip_if_not_installed("mockery")
-  skip_if_not_installed("httr")
+  skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
   urls_consultadas <- character()
-  chamadas <- 0L
-  corpo_pagina_cheia <- jsonlite::toJSON(data.frame(id = 1:1000))
-  corpo_ultima_pagina <- jsonlite::toJSON(data.frame(id = 1001:1005))
 
-  mockery::stub(pg_get, "httr::GET", function(url) {
-    urls_consultadas <<- c(urls_consultadas, url)
-    chamadas <<- chamadas + 1L
-    structure(list(), class = "resposta_simulada")
-  })
-  mockery::stub(pg_get, "httr::stop_for_status", function(resposta) resposta)
-  mockery::stub(pg_get, "httr::content", function(resposta, tipo, encoding) {
-    if (chamadas == 1L) corpo_pagina_cheia else corpo_ultima_pagina
-  })
-  mockery::stub(pg_get, "httr::headers", function(resposta) {
-    list("content-type" = "application/json")
+  httr2::local_mocked_responses(function(req) {
+    urls_consultadas <<- c(urls_consultadas, req$url)
+    corpo <- if (length(urls_consultadas) == 1L) {
+      jsonlite::toJSON(data.frame(id = 1:1000))
+    } else {
+      jsonlite::toJSON(data.frame(id = 1001:1005))
+    }
+    resposta_simulada(req, corpo)
   })
 
   resultado <- pg_get("programa", "ano_programa=eq.2020", "https://x")
 
   expect_equal(nrow(resultado), 1005)
-  expect_equal(chamadas, 2L)
   expect_equal(length(urls_consultadas), 2L)
   expect_true(grepl("offset=0&?$", urls_consultadas[[1]]))
   expect_true(grepl("offset=1000&?$", urls_consultadas[[2]]))
 })
 
+test_that("pg_get repassa select e order em todas as paginas (mocked)", {
+  skip_on_cran()
+  skip_if_not_installed("httr2")
+  skip_if_not_installed("jsonlite")
+
+  urls_consultadas <- character()
+
+  httr2::local_mocked_responses(function(req) {
+    urls_consultadas <<- c(urls_consultadas, req$url)
+    corpo <- if (length(urls_consultadas) == 1L) {
+      jsonlite::toJSON(data.frame(id = 1:1000))
+    } else {
+      jsonlite::toJSON(data.frame(id = 1001:1002))
+    }
+    resposta_simulada(req, corpo)
+  })
+
+  resultado <- pg_get(
+    "programa", character(), "https://x",
+    select = c("id_programa", "ano_programa"), order = "ano_programa.desc"
+  )
+
+  expect_equal(nrow(resultado), 1002)
+  expect_equal(length(urls_consultadas), 2L)
+
+  for (url in urls_consultadas) {
+    expect_match(url, "select=id_programa,ano_programa", fixed = TRUE)
+    expect_match(url, "order=ano_programa.desc", fixed = TRUE)
+  }
+})
+
 test_that("pg_get nao pagina quando paginar = FALSE (mocked)", {
   skip_on_cran()
-  skip_if_not_installed("mockery")
-  skip_if_not_installed("httr")
+  skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
   chamadas <- 0L
 
-  mockery::stub(pg_get, "httr::GET", function(url) {
+  httr2::local_mocked_responses(function(req) {
     chamadas <<- chamadas + 1L
-    structure(list(), class = "resposta_simulada")
-  })
-  mockery::stub(pg_get, "httr::stop_for_status", function(resposta) resposta)
-  mockery::stub(pg_get, "httr::content", function(resposta, tipo, encoding) {
-    jsonlite::toJSON(data.frame(id = 1:10))
-  })
-  mockery::stub(pg_get, "httr::headers", function(resposta) {
-    list("content-type" = "application/json")
+    resposta_simulada(req, jsonlite::toJSON(data.frame(id = 1:10)))
   })
 
   resultado <- pg_get("programa", character(), "https://x", paginar = FALSE)
@@ -202,38 +364,50 @@ test_that("pg_get nao pagina quando paginar = FALSE (mocked)", {
 
 test_that("pg_get trunca e avisa quando atinge max_linhas (mocked)", {
   skip_on_cran()
-  skip_if_not_installed("mockery")
-  skip_if_not_installed("httr")
+  skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
   corpo <- jsonlite::toJSON(data.frame(id = 1:10))
 
-  mockery::stub(pg_get, "httr::GET", function(url) structure(list(), class = "resposta_simulada"))
-  mockery::stub(pg_get, "httr::stop_for_status", function(resposta) resposta)
-  mockery::stub(pg_get, "httr::content", function(resposta, tipo, encoding) corpo)
-  mockery::stub(pg_get, "httr::headers", function(resposta) {
-    list("content-type" = "application/json")
+  httr2::local_mocked_responses(function(req) {
+    resposta_simulada(req, corpo)
   })
 
-  avisos <- capture_warnings(
-    resultado <- pg_get("programa", character(), "https://x", limite = 10, max_linhas = 25)
+  expect_warning(
+    resultado <- pg_get("programa", character(), "https://x", limite = 10, max_linhas = 25),
+    class = "transfRgov_partial_result"
   )
 
   expect_equal(nrow(resultado), 25)
-  expect_true(any(grepl("Resultado parcial", avisos)))
 })
 
 test_that("pg_get devolve data.frame vazio quando nao ha linhas (mocked)", {
   skip_on_cran()
-  skip_if_not_installed("mockery")
-  skip_if_not_installed("httr")
+  skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
-  mockery::stub(pg_get, "httr::GET", function(url) structure(list(), class = "resposta_simulada"))
-  mockery::stub(pg_get, "httr::stop_for_status", function(resposta) resposta)
-  mockery::stub(pg_get, "httr::content", function(resposta, tipo, encoding) "[]")
-  mockery::stub(pg_get, "httr::headers", function(resposta) {
-    list("content-type" = "application/json")
+  httr2::local_mocked_responses(function(req) {
+    resposta_simulada(req, "[]")
+  })
+
+  resultado <- suppressWarnings(pg_get("programa", character(), "https://x"))
+
+  expect_s3_class(resultado, "data.frame")
+  expect_equal(nrow(resultado), 0)
+})
+
+test_that("pg_get trata corpo vazio como data.frame vazio (mocked)", {
+  skip_on_cran()
+  skip_if_not_installed("httr2")
+  skip_if_not_installed("jsonlite")
+
+  httr2::local_mocked_responses(function(req) {
+    httr2::response(
+      200L,
+      url = req$url,
+      headers = list("content-type" = "application/json"),
+      body = raw()
+    )
   })
 
   resultado <- suppressWarnings(pg_get("programa", character(), "https://x"))
@@ -244,24 +418,15 @@ test_that("pg_get devolve data.frame vazio quando nao ha linhas (mocked)", {
 
 test_that("pg_get aceita respostas HTTP 206 (Prefer: count=exact)", {
   skip_on_cran()
-  skip_if_not_installed("mockery")
-  skip_if_not_installed("httr")
+  skip_if_not_installed("httr2")
   skip_if_not_installed("jsonlite")
 
-  resposta_206 <- structure(
-    list(
-      url = "https://x/programa?limit=1000&offset=0",
-      status_code = 206L,
-      headers = list("content-type" = "application/json"),
-      content = charToRaw('[{"a":1}]')
-    ),
-    class = "response"
-  )
+  httr2::local_mocked_responses(function(req) {
+    resposta_simulada(req, '[{"a":1}]', status = 206L)
+  })
 
-  mockery::stub(pg_get, "httr::GET", function(url) resposta_206)
-
-  # `httr::stop_for_status()` não é substituído: o teste comprova que o 206
-  # passa pela verificação real de status sem erro.
+  # Nenhum tratamento de erro e substituido: o teste comprova que o 206 passa
+  # pela verificacao real de status do httr2 sem levantar erro.
   resultado <- pg_get("programa", character(), "https://x")
 
   expect_s3_class(resultado, "data.frame")
@@ -271,22 +436,17 @@ test_that("pg_get aceita respostas HTTP 206 (Prefer: count=exact)", {
 
 test_that("pg_get avisa e devolve a resposta quando o tipo nao e suportado (mocked)", {
   skip_on_cran()
-  skip_if_not_installed("mockery")
-  skip_if_not_installed("httr")
+  skip_if_not_installed("httr2")
 
-  resposta_simulada <- structure(list(), class = "resposta_simulada")
-
-  mockery::stub(pg_get, "httr::GET", function(url) resposta_simulada)
-  mockery::stub(pg_get, "httr::stop_for_status", function(resposta) resposta)
-  mockery::stub(pg_get, "httr::content", function(resposta, tipo, encoding) "<html></html>")
-  mockery::stub(pg_get, "httr::headers", function(resposta) {
-    list("content-type" = "text/html")
+  httr2::local_mocked_responses(function(req) {
+    resposta_simulada(req, "<html></html>", tipo = "text/html")
   })
 
-  avisos <- capture_warnings(
-    resultado <- suppressMessages(pg_get("programa"))
+  expect_warning(
+    resultado <- suppressMessages(pg_get("programa")),
+    class = "transfRgov_unsupported_type"
   )
 
-  expect_identical(resultado, resposta_simulada)
-  expect_true(any(grepl("não é suportado", avisos)))
+  expect_s3_class(resultado, "httr2_response")
+  expect_equal(httr2::resp_status(resultado), 200L)
 })

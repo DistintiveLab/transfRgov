@@ -9,6 +9,12 @@
 #' @param nome_responsavel_analise_relatorio_gestao_analise Nome do responsável pela análise do relatório de gestão (texto).
 #' @param cargo_responsavel_analise_relatorio_gestao_analise Cargo do responsável pela análise do relatório de gestão (texto).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente um data.frame).
 #'
 #' @examples
@@ -21,7 +27,9 @@
 #' @export
 ler_relatorio_gestao_analise_responsavel <- function(relatorio_gestao_analise_fk = NULL,
                                                      nome_responsavel_analise_relatorio_gestao_analise = NULL,
-                                                     cargo_responsavel_analise_relatorio_gestao_analise = NULL) {
+                                                     cargo_responsavel_analise_relatorio_gestao_analise = NULL,
+                                                     select = NULL,
+                                                     order = NULL) {
   table <- "relatorio_gestao_analise_responsavel"
   filters <- c()
 
@@ -32,5 +40,5 @@ ler_relatorio_gestao_analise_responsavel <- function(relatorio_gestao_analise_fk
   if (!is.null(cargo_responsavel_analise_relatorio_gestao_analise))
     filters <- c(filters, paste0("cargo_responsavel_analise_relatorio_gestao_analise=eq.", cargo_responsavel_analise_relatorio_gestao_analise))
 
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }

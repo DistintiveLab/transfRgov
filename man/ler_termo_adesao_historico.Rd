@@ -8,7 +8,9 @@ ler_termo_adesao_historico(
   id_historico_termo_adesao = NULL,
   situacao_historico_termo_adesao = NULL,
   data_historico_termo_adesao = NULL,
-  id_termo_adesao = NULL
+  id_termo_adesao = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -19,6 +21,14 @@ ler_termo_adesao_historico(
 \item{data_historico_termo_adesao}{Data do histórico do termo de adesão (formato YYYY-MM-DD).}
 
 \item{id_termo_adesao}{Identificador do termo de adesão ao qual o histórico está vinculado (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

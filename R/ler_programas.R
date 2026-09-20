@@ -41,6 +41,12 @@
 #' @param data_fim_recebimento_planos_acao_beneficiarios_voluntarios Data de fim do recebimento de planos de ação para beneficiários voluntários (formato YYYY-MM-DD).
 #' @param nome_gestao_agil_programa Nome da gestão ágil do programa (texto).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
@@ -89,7 +95,9 @@ ler_programas <- function(id_programa = NULL,
                          data_fim_recebimento_planos_acao_beneficiarios_emendas = NULL,
                          data_inicio_recebimento_planos_acao_beneficiarios_voluntarios = NULL,
                          data_fim_recebimento_planos_acao_beneficiarios_voluntarios = NULL,
-                         nome_gestao_agil_programa = NULL) {
+                         nome_gestao_agil_programa = NULL,
+                         select = NULL,
+                         order = NULL) {
 
   # Cria um vetor de filtros no formato "nome_parametro=eq.valor"
   filters <- c()
@@ -164,5 +172,5 @@ ler_programas <- function(id_programa = NULL,
     filters <- c(filters, paste0("nome_gestao_agil_programa=eq.", nome_gestao_agil_programa))
 
   # Chama a função pg_get passando o endpoint e o vetor de filtros
-  pg_get(table = "programa", filter = filters)
+  pg_get(table = "programa", filter = filters, select = select, order = order)
 }

@@ -12,7 +12,9 @@ ler_plano_acao_meta_acao(
   valor_acao_meta_plano_acao = NULL,
   versao_acao_meta_plano_acao = NULL,
   sequencial_acao_meta_plano_acao = NULL,
-  id_meta_plano_acao = NULL
+  id_meta_plano_acao = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -31,6 +33,14 @@ ler_plano_acao_meta_acao(
 \item{sequencial_acao_meta_plano_acao}{Sequencial da ação da meta do plano de ação (numérico).}
 
 \item{id_meta_plano_acao}{Identificador da meta do plano de ação à qual a ação está vinculada (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

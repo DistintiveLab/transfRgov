@@ -11,7 +11,9 @@ ler_gestao_financeira_categorias_despesa(
   nivel_atual_categoria_despesa_gestao_financeira = NULL,
   nome_completo_niveis_categoria_despesa_gestao_financeira = NULL,
   codigo_programa_agil = NULL,
-  nome_programa_agil = NULL
+  nome_programa_agil = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -28,6 +30,14 @@ ler_gestao_financeira_categorias_despesa(
 \item{codigo_programa_agil}{Código do programa ágil associado (texto ou numérico).}
 
 \item{nome_programa_agil}{Nome do programa ágil associado (texto).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

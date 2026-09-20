@@ -27,6 +27,7 @@ Depends:
     R (>= 4.1)
 Imports:
     httr,
+    httr2,
     janitor,
     jsonlite,
     readr,

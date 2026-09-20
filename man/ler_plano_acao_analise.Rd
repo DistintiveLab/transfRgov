@@ -12,7 +12,9 @@ ler_plano_acao_analise(
   parecer_analise_plano_acao = NULL,
   tipo_origem_analise_plano_acao = NULL,
   id_plano_acao = NULL,
-  id_historico_plano_acao = NULL
+  id_historico_plano_acao = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -31,6 +33,14 @@ ler_plano_acao_analise(
 \item{id_plano_acao}{Identificador do plano de ação ao qual a análise está vinculada (numérico).}
 
 \item{id_historico_plano_acao}{Identificador do histórico do plano de ação (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

@@ -11,6 +11,12 @@
 #' @param id_relatorio_gestao Identificador do relatório de gestão associado (numérico).
 #' @param id_acao_meta_plano_acao Identificador da ação/meta do plano de ação associado (numérico).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente um data.frame).
 #'
 #' @examples
@@ -25,7 +31,9 @@ ler_relatorio_gestao_acoes <- function(id_acao_relatorio_gestao = NULL,
                                        percentual_execucao_fisica_acao_relatorio_gestao_acao = NULL,
                                        observacoes_justificativas_relatorio_gestao_acao = NULL,
                                        id_relatorio_gestao = NULL,
-                                       id_acao_meta_plano_acao = NULL) {
+                                       id_acao_meta_plano_acao = NULL,
+                                       select = NULL,
+                                       order = NULL) {
   table <- "relatorio_gestao_acoes"
   filters <- c()
 
@@ -40,5 +48,5 @@ ler_relatorio_gestao_acoes <- function(id_acao_relatorio_gestao = NULL,
   if (!is.null(id_acao_meta_plano_acao))
     filters <- c(filters, paste0("id_acao_meta_plano_acao=eq.", id_acao_meta_plano_acao))
 
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }

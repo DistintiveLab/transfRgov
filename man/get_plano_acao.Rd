@@ -51,7 +51,9 @@ get_plano_acao(
   uf_fundo_recebedor_plano_acao = NULL,
   municipio_fundo_recebedor_plano_acao = NULL,
   codigo_ibge_fundo_recebedor_plano_acao = NULL,
-  id_programa = NULL
+  id_programa = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -148,6 +150,14 @@ get_plano_acao(
 \item{codigo_ibge_fundo_recebedor_plano_acao}{Código IBGE do fundo recebedor (texto ou numérico).}
 
 \item{id_programa}{Identificador do programa ao qual o plano de ação está vinculado (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

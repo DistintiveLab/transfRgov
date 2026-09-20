@@ -19,6 +19,12 @@
 #' @param declaracao_conformidade_relatorio_gestao Declaração de conformidade do relatório de gestão (texto).
 #' @param id_plano_acao Identificador do plano de ação associado (numérico).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente um data.frame).
 #'
 #' @examples
@@ -41,7 +47,9 @@ ler_relatorio_gestao <- function(id_relatorio_gestao = NULL,
                                  contrapartida_relatorio_gestao = NULL,
                                  endereco_eletronico_publicidade_acoes_relatorio_gestao = NULL,
                                  declaracao_conformidade_relatorio_gestao = NULL,
-                                 id_plano_acao = NULL) {
+                                 id_plano_acao = NULL,
+                                 select = NULL,
+                                 order = NULL) {
 
   table <- "relatorio_gestao"
   filters <- c()
@@ -73,5 +81,5 @@ ler_relatorio_gestao <- function(id_relatorio_gestao = NULL,
   if (!is.null(id_plano_acao))
     filters <- c(filters, paste0("id_plano_acao=eq.", id_plano_acao))
 
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }

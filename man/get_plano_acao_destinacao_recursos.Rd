@@ -10,7 +10,9 @@ get_plano_acao_destinacao_recursos(
   descricao_natureza_despesa_destinacao_recursos_plano_acao = NULL,
   tipo_despesa_destinacao_recursos_plano_acao = NULL,
   valor_destinacao_recursos_plano_acao = NULL,
-  id_plano_acao = NULL
+  id_plano_acao = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -25,6 +27,14 @@ get_plano_acao_destinacao_recursos(
 \item{valor_destinacao_recursos_plano_acao}{Valor destinado (numérico).}
 
 \item{id_plano_acao}{Identificador do plano de ação ao qual a destinacão de recursos está vinculada (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

@@ -17,6 +17,12 @@
 #' @param nome_orgao_programa_agil Nome do órgão do programa ágil (texto).
 #' @param id_programa Identificador do programa ao qual o registro está vinculado (numérico).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
@@ -35,7 +41,9 @@ ler_programa_gestao_agil <- function(id_programa_agil = NULL,
                                      sigla_orgao_programa_agil = NULL,
                                      cnpj_orgao_programa_agil = NULL,
                                      nome_orgao_programa_agil = NULL,
-                                     id_programa = NULL) {
+                                     id_programa = NULL,
+                                     select = NULL,
+                                     order = NULL) {
 
   # Define o parâmetro table para acessar a tabela correta na API
   table <- "programa_gestao_agil"
@@ -63,5 +71,5 @@ ler_programa_gestao_agil <- function(id_programa_agil = NULL,
     filters <- c(filters, paste0("id_programa=eq.", id_programa))
 
   # Chama a função pg_get passando o parâmetro table e o vetor de filtros
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }

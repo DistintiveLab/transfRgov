@@ -15,7 +15,9 @@ ler_empenho_especial(
   tipo_empenho = NULL,
   situacao_empenho = NULL,
   ug_emitente_empenho = NULL,
-  objeto_empenho = NULL
+  objeto_empenho = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -40,6 +42,14 @@ ler_empenho_especial(
 \item{ug_emitente_empenho}{Unidade gestora emitente do empenho (texto).}
 
 \item{objeto_empenho}{Objeto do empenho (texto).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente um data.frame).

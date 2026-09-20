@@ -38,7 +38,9 @@ ler_programas(
   data_fim_recebimento_planos_acao_beneficiarios_emendas = NULL,
   data_inicio_recebimento_planos_acao_beneficiarios_voluntarios = NULL,
   data_fim_recebimento_planos_acao_beneficiarios_voluntarios = NULL,
-  nome_gestao_agil_programa = NULL
+  nome_gestao_agil_programa = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -109,6 +111,14 @@ ler_programas(
 \item{data_fim_recebimento_planos_acao_beneficiarios_voluntarios}{Data de fim do recebimento de planos de ação para beneficiários voluntários (formato YYYY-MM-DD).}
 
 \item{nome_gestao_agil_programa}{Nome da gestão ágil do programa (texto).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).

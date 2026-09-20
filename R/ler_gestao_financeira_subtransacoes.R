@@ -37,6 +37,12 @@
 #' @param quantidade_subtransacoes_lancamento_gestao_financeira Quantidade de subtransações (numérico).
 #' @param id_agencia_conta Identificador da agência/conta (numérico).
 #'
+#' @param select Vetor de caracteres com os nomes das colunas a serem
+#'   retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+#'   são retornadas.
+#' @param order Vetor de caracteres com os critérios de ordenação, no formato
+#'   \code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+#'   (padrão), a ordem definida pela API é mantida.
 #' @return Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
 #'
 #' @examples
@@ -78,7 +84,9 @@ ler_gestao_financeira_subtransacoes <- function(
     dv_conta_favorecido_gestao_financeira = NULL,
     valor_lancamento_gestao_financeira = NULL,
     quantidade_subtransacoes_lancamento_gestao_financeira = NULL,
-    id_agencia_conta = NULL
+    id_agencia_conta = NULL,
+    select = NULL,
+    order = NULL
 ) {
   table <- "gestao_financeira_subtransacoes"
   filters <- c()
@@ -146,5 +154,5 @@ ler_gestao_financeira_subtransacoes <- function(
   if (!is.null(id_agencia_conta))
     filters <- c(filters, paste0("id_agencia_conta=eq.", id_agencia_conta))
 
-  pg_get(table = table, filter = filters)
+  pg_get(table = table, filter = filters, select = select, order = order)
 }

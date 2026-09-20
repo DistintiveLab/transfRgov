@@ -14,7 +14,9 @@ get_termo_adesao(
   secao_publicacao_dou_termo_adesao = NULL,
   pagina_publicacao_dou_termo_adesao = NULL,
   data_publicacao_dou_termo_adesao = NULL,
-  id_plano_acao = NULL
+  id_plano_acao = NULL,
+  select = NULL,
+  order = NULL
 )
 }
 \arguments{
@@ -37,6 +39,14 @@ get_termo_adesao(
 \item{data_publicacao_dou_termo_adesao}{Data da publicação no DOU do termo de adesão (formato YYYY-MM-DD).}
 
 \item{id_plano_acao}{Identificador do plano de ação ao qual o termo de adesão está vinculado (numérico).}
+
+\item{select}{Vetor de caracteres com os nomes das colunas a serem
+retornadas. Quando \code{NULL} (padrão), todas as colunas do endpoint
+são retornadas.}
+
+\item{order}{Vetor de caracteres com os critérios de ordenação, no formato
+\code{"coluna.asc"} ou \code{"coluna.desc"}. Quando \code{NULL}
+(padrão), a ordem definida pela API é mantida.}
 }
 \value{
 Um objeto contendo os dados retornados pela API (geralmente uma lista ou data.frame).
