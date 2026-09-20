@@ -1,0 +1,310 @@
+# transfRgov - Pacote de Acesso a APIs do TransfereGov
+
+Rodrigo E. S. Borges 2026-09-20
+
+# transfRgov
+
+[![codecov](https://codecov.io/gh/DistintiveLab/transfRgov/graph/badge.svg)](https://app.codecov.io/gh/DistintiveLab/transfRgov)
+
+# Introdução
+
+O **transfRgov** é um pacote em R que facilita o acesso aos dados
+disponíveis na API Fundo a Fundo (TransfereGov). O pacote monta as
+consultas aos diferentes endpoints da API no padrão PostgREST por meio
+de um helper interno, sem depender de pacotes externos de acesso ao
+PostgREST. Cada endpoint é acessado por uma função cujo nome inicia com
+`ler_` ou `get_`, permitindo filtrar os resultados pelos próprios nomes
+das colunas da API no formato `nome_parametro = valor` (traduzido para
+`nome_parametro=eq.valor` na requisição HTTP interna).
+
+O pacote também baixa dados abertos do Portal da Transparência e do
+Tesouro Transparente, como os arquivos mensais de transferências para
+municípios, a tabela de correspondência entre códigos SIAFI e IBGE e os
+registros de renúncias fiscais.
+
+# Instalação
+
+A versão de desenvolvimento pode ser instalada pelo GitHub:
+
+``` r
+
+# Instale o transfRgov a partir do GitHub
+devtools::install_github("DistintiveLab/transfRgov")
+```
+
+Após a publicação no CRAN, o pacote poderá ser instalado com:
+
+``` r
+
+install.packages("transfRgov")
+```
+
+# Uso
+
+Carregue o pacote e utilize as funções para acessar os dados dos
+diversos endpoints da API.
+
+## Exemplos
+
+### Ler dados do endpoint programa
+
+``` r
+
+library(transfRgov)
+
+# Exemplo: Ler dados de programas filtrando pelo ano 2020 e modalidade "Ordinário"
+dados_programa <- ler_programas(ano_programa = 2020, modalidade_programa = "Ordinário")
+head(dados_programa)
+```
+
+### Ler dados do endpoint empenho
+
+``` r
+
+# Exemplo: Ler empenhos do ano de 2020 para um determinado plano de ação
+dados_empenho <- ler_empenho(ano_empenho = 2020, id_plano_acao = 1234)
+head(dados_empenho)
+```
+
+### Ler dados do endpoint relatorio_gestao
+
+``` r
+
+# Exemplo: Ler relatórios de gestão para um plano de ação específico
+dados_relatorio <- ler_relatorio_gestao(id_plano_acao = 1234)
+head(dados_relatorio)
+```
+
+### Baixar transferências mensais da União
+
+``` r
+
+# Exemplo: Baixar as transferências de janeiro de 2023 e acrescentar o código IBGE
+transferencias <- download_transferencias_uniao(ano = 2023, mes = 1)
+head(transferencias)
+```
+
+## Endpoints Disponíveis
+
+As funções de leitura da API Fundo a Fundo são:
+
+- `ler_programas`: retorna informações sobre os programas.
+
+- `ler_programa_beneficiario`: retorna dados dos beneficiários dos
+  programas.
+
+- `ler_programa_gestao_agil`: retorna informações da gestão ágil dos
+  programas.
+
+- `ler_programa_especial`: retorna os dados dos programas especiais.
+
+- `get_plano_acao`: retorna os dados dos planos de ação.
+
+- `get_plano_acao_dado_bancario`: retorna os dados bancários dos planos
+  de ação.
+
+- `get_plano_acao_destinacao_recursos`: retorna os dados de destinação
+  de recursos dos planos de ação.
+
+- `get_plano_acao_historico`: retorna o histórico dos planos de ação.
+
+- `ler_plano_acao_meta`: retorna as metas dos planos de ação.
+
+- `ler_plano_acao_meta_acao`: retorna as ações associadas às metas dos
+  planos de ação.
+
+- `ler_plano_acao_analise`: retorna os dados das análises dos planos de
+  ação.
+
+- `ler_plano_acao_analise_responsavel`: retorna os responsáveis pelas
+  análises dos planos de ação.
+
+- `get_termo_adesao`: retorna os dados dos termos de adesão.
+
+- `ler_termo_adesao_historico`: retorna o histórico dos termos de
+  adesão.
+
+- `ler_gestao_financeira_lancamentos`: retorna os lançamentos da gestão
+  financeira.
+
+- `ler_gestao_financeira_subtransacoes`: retorna as subtransações dos
+  lançamentos de gestão financeira.
+
+- `ler_gestao_financeira_categorias_despesa`: retorna as categorias de
+  despesa da gestão financeira.
+
+- `ler_empenho`: retorna os dados dos empenhos.
+
+- `ler_empenho_especial`: retorna os dados dos empenhos especiais.
+
+- `ler_relatorio_gestao`: retorna os relatórios de gestão.
+
+- `ler_relatorio_gestao_acoes`: retorna as ações dos relatórios de
+  gestão.
+
+- `ler_relatorio_gestao_analise`: retorna as análises dos relatórios de
+  gestão.
+
+- `ler_relatorio_gestao_analise_responsavel`: retorna os responsáveis
+  pelas análises dos relatórios de gestão.
+
+## Dados e utilitários
+
+- `download_transferencias_uniao`: baixa e lê os arquivos mensais de
+  transferências da União publicados pelo Portal da Transparência,
+  opcionalmente acrescentando o código IBGE do município.
+
+- `baixa_municipio_siafibge`: baixa a tabela de correspondência entre
+  códigos de município SIAFI e IBGE publicada pelo Tesouro Transparente.
+
+- `consultar_renuncias_fiscais`: consulta os registros de renúncias
+  fiscais na API do Portal da Transparência. Requer uma chave de API na
+  variável de ambiente `PORTAL_TRANSPARENCIA_API_KEY`.
+
+- `municipios_siafi_ibge`: dataset com o mapeamento entre códigos SIAFI
+  e IBGE.
+
+- `metafaftab`: dataset com os parâmetros aceitos por cada endpoint da
+  API Fundo a Fundo.
+
+# Dados de Resposta
+
+Cada função retorna os dados da API Fundo a Fundo como uma lista ou data
+frame, contendo as colunas especificadas pela documentação da API. Estes
+dados podem ser manipulados e analisados diretamente no R.
+
+# Contribuição
+
+Contribuições são bem-vindas! Envie issues e pull requests para melhorar
+o pacote.
+
+# Licença
+
+Este pacote é distribuído sob a Licença MIT.
+
+# Disclaimer - Nota de isenção de responsabilidade:
+
+Este pacote não é uma ferramenta oficial do Ministério da Gestão ou de
+qualquer órgão do governo federal. Ele foi desenvolvido de forma
+voluntária e independente, sem qualquer vínculo, afiliação ou endosso
+por parte de autoridades governamentais. Os desenvolvedores não assumem
+responsabilidade por alterações na API Fundo a Fundo, eventuais
+inconsistências ou interrupções na disponibilidade dos dados.
+
+# Package index
+
+## Transferências mensais para municípios
+
+Baixa os arquivos mensais de transferências da União publicados pelo
+Portal da Transparência e associa cada código SIAFI de município ao
+código IBGE correspondente.
+
+- [`download_transferencias_uniao()`](https://distintivelab.github.io/transfRgov/reference/download_transferencias_uniao.md)
+  : Baixar Dados de Transferências da União
+- [`municipios_siafi_ibge`](https://distintivelab.github.io/transfRgov/reference/municipios_siafi_ibge.md)
+  : IBGE e SIAFI Lista de IDs
+
+## Despesas e renúncias fiscais
+
+Arquivos diários de despesas com o detalhamento dos beneficiários,
+consulta de renúncias fiscais e a tabela de correspondência entre
+códigos SIAFI e IBGE do Tesouro Transparente.
+
+- [`download_despesas_ptransp()`](https://distintivelab.github.io/transfRgov/reference/download_despesas_ptransp.md)
+  : Baixar Dados de Despesas do Portal da Transparência
+- [`consultar_renuncias_fiscais()`](https://distintivelab.github.io/transfRgov/reference/consultar_renuncias_fiscais.md)
+  : Consultar Valores de Renúncia Fiscal
+- [`baixa_municipio_siafibge()`](https://distintivelab.github.io/transfRgov/reference/baixa_municipio_siafibge.md)
+  : Obter Mapeamento SIAFI-IBGE de Municípios
+
+## Programas
+
+Programas federais, seus beneficiários e as modalidades especiais.
+
+- [`ler_programas()`](https://distintivelab.github.io/transfRgov/reference/ler_programas.md)
+  : Obter dados do endpoint /programa
+- [`ler_programa_beneficiario()`](https://distintivelab.github.io/transfRgov/reference/ler_programa_beneficiario.md)
+  : Obter dados do endpoint programa_beneficiario
+- [`ler_programa_gestao_agil()`](https://distintivelab.github.io/transfRgov/reference/ler_programa_gestao_agil.md)
+  : Obter dados do endpoint programa_gestao_agil
+- [`ler_programa_especial()`](https://distintivelab.github.io/transfRgov/reference/ler_programa_especial.md)
+  : Ler dados de Programa Especial da API TransfereGov
+
+## Empenhos
+
+Empenhos registrados nos planos de ação.
+
+- [`ler_empenho()`](https://distintivelab.github.io/transfRgov/reference/ler_empenho.md)
+  : Ler dados do endpoint empenho
+- [`ler_empenho_especial()`](https://distintivelab.github.io/transfRgov/reference/ler_empenho_especial.md)
+  : Ler dados de Empenho Especial da API TransfereGov
+
+## Planos de ação
+
+Planos de ação, seus dados bancários, destinação de recursos, histórico,
+análises e metas.
+
+- [`get_plano_acao()`](https://distintivelab.github.io/transfRgov/reference/get_plano_acao.md)
+  : Obter dados do endpoint plano_acao
+- [`get_plano_acao_dado_bancario()`](https://distintivelab.github.io/transfRgov/reference/get_plano_acao_dado_bancario.md)
+  : Obter dados do endpoint plano_acao_dado_bancario
+- [`get_plano_acao_destinacao_recursos()`](https://distintivelab.github.io/transfRgov/reference/get_plano_acao_destinacao_recursos.md)
+  : Obter dados do endpoint plano_acao_destinacao_recursos
+- [`get_plano_acao_historico()`](https://distintivelab.github.io/transfRgov/reference/get_plano_acao_historico.md)
+  : Obter dados do endpoint plano_acao_historico
+- [`ler_plano_acao_analise()`](https://distintivelab.github.io/transfRgov/reference/ler_plano_acao_analise.md)
+  : Obter dados do endpoint plano_acao_analise
+- [`ler_plano_acao_analise_responsavel()`](https://distintivelab.github.io/transfRgov/reference/ler_plano_acao_analise_responsavel.md)
+  : Obter dados do endpoint plano_acao_analise_responsavel
+- [`ler_plano_acao_meta()`](https://distintivelab.github.io/transfRgov/reference/ler_plano_acao_meta.md)
+  : Obter dados do endpoint plano_acao_meta
+- [`ler_plano_acao_meta_acao()`](https://distintivelab.github.io/transfRgov/reference/ler_plano_acao_meta_acao.md)
+  : Obter dados do endpoint plano_acao_meta_acao
+
+## Termos de adesão
+
+Termos de adesão e seu histórico.
+
+- [`get_termo_adesao()`](https://distintivelab.github.io/transfRgov/reference/get_termo_adesao.md)
+  : Obter dados do endpoint termo_adesao
+- [`ler_termo_adesao_historico()`](https://distintivelab.github.io/transfRgov/reference/ler_termo_adesao_historico.md)
+  : Obter dados do endpoint termo_adesao_historico
+
+## Relatórios de gestão
+
+Relatórios de gestão, ações, análises e responsáveis.
+
+- [`ler_relatorio_gestao()`](https://distintivelab.github.io/transfRgov/reference/ler_relatorio_gestao.md)
+  : Ler dados de Relatório de Gestão da API TransfereGov
+- [`ler_relatorio_gestao_acoes()`](https://distintivelab.github.io/transfRgov/reference/ler_relatorio_gestao_acoes.md)
+  : Ler dados de Ações do Relatório de Gestão da API TransfereGov
+- [`ler_relatorio_gestao_analise()`](https://distintivelab.github.io/transfRgov/reference/ler_relatorio_gestao_analise.md)
+  : Ler dados de Análise do Relatório de Gestão da API TransfereGov
+- [`ler_relatorio_gestao_analise_responsavel()`](https://distintivelab.github.io/transfRgov/reference/ler_relatorio_gestao_analise_responsavel.md)
+  : Ler dados de Responsáveis pela Análise do Relatório de Gestão da API
+  TransfereGov
+
+## Gestão financeira
+
+Categorias de despesa, lançamentos e subtransações da gestão financeira.
+
+- [`ler_gestao_financeira_categorias_despesa()`](https://distintivelab.github.io/transfRgov/reference/ler_gestao_financeira_categorias_despesa.md)
+  : Obter dados do endpoint gestao_financeira_categorias_despesa
+- [`ler_gestao_financeira_lancamentos()`](https://distintivelab.github.io/transfRgov/reference/ler_gestao_financeira_lancamentos.md)
+  : Obter dados do endpoint gestao_financeira_lancamentos
+- [`ler_gestao_financeira_subtransacoes()`](https://distintivelab.github.io/transfRgov/reference/ler_gestao_financeira_subtransacoes.md)
+  : Obter dados do endpoint gestao_financeira_subtransacoes
+
+## Metadados
+
+Descrição dos endpoints da API e dos campos aceitos como filtro.
+
+- [`metafaftab`](https://distintivelab.github.io/transfRgov/reference/metafaftab.md)
+  : Parâmetros aceitos por cada endpoint da API Fundo a Fundo
+
+# Articles
+
+### All vignettes
+
+- [Baixar, tratar e consolidar transferências por município e
+  função](https://distintivelab.github.io/transfRgov/articles/transfRgov.md):

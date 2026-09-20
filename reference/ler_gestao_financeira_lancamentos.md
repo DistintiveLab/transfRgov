@@ -1,0 +1,208 @@
+# Obter dados do endpoint gestao_financeira_lancamentos
+
+Esta função acessa os dados do endpoint
+\*\*gestao_financeira_lancamentos\*\* da API FundoaFundo (TransfereGov)
+utilizando a função interna `pg_get`. Em vez de incorporar o endpoint na
+URL, utiliza-se o parâmetro `table = "gestao_financeira_lancamentos"`
+para especificar a tabela a ser consultada. Os filtros são aplicados por
+meio do argumento `filter` e devem estar no formato
+"nome_parametro=eq.valor". Todos os parâmetros são opcionais.
+
+## Usage
+
+``` r
+ler_gestao_financeira_lancamentos(
+  id_lancamento_gestao_financeira = NULL,
+  origem_solicitacao_gestao_financeira = NULL,
+  descricao_origem_solicitacao_gestao_financeira = NULL,
+  cnpj_ente_solicitante_gestao_financeira = NULL,
+  nome_ente_solicitante_gestao_financeira = NULL,
+  nome_personalizado_ente_solicitante_gestao_financeira = NULL,
+  codigo_programa_agil_ente_solicitante_gestao_financeira = NULL,
+  codigo_banco_gestao_financeira = NULL,
+  codigo_agencia_gestao_financeira = NULL,
+  dv_agencia_gestao_financeira = NULL,
+  codigo_conta_gestao_financeira = NULL,
+  dv_conta_gestao_financeira = NULL,
+  tipo_operacao_gestao_financeira = NULL,
+  descricao_tipo_operacao_gestao_financeira = NULL,
+  descricao_gestao_financeira = NULL,
+  data_lancamento_gestao_financeira = NULL,
+  data_evento_lancamento_gestao_financeira = NULL,
+  numero_ordem_gestao_financeira = NULL,
+  numero_referencia_unica_gestao_financeira = NULL,
+  tipo_favorecido_gestao_financeira = NULL,
+  descricao_tipo_favorecido_gestao_financeira = NULL,
+  doc_favorecido_gestao_financeira_mask = NULL,
+  nome_favorecido_gestao_financeira = NULL,
+  codigo_banco_favorecido_gestao_financeira = NULL,
+  codigo_agencia_favorecido_gestao_financeira = NULL,
+  dv_agencia_favorecido_gestao_financeira = NULL,
+  codigo_conta_favorecido_gestao_financeira = NULL,
+  dv_conta_favorecido_gestao_financeira = NULL,
+  valor_lancamento_gestao_financeira = NULL,
+  id_categoria_despesa_gestao_financeira = NULL,
+  quantidade_subtransacoes_lancamento_gestao_financeira = NULL,
+  id_agencia_conta = NULL,
+  select = NULL,
+  order = NULL
+)
+```
+
+## Arguments
+
+- id_lancamento_gestao_financeira:
+
+  Identificador do lançamento (numérico).
+
+- origem_solicitacao_gestao_financeira:
+
+  Origem da solicitação (texto).
+
+- descricao_origem_solicitacao_gestao_financeira:
+
+  Descrição da origem da solicitação (texto).
+
+- cnpj_ente_solicitante_gestao_financeira:
+
+  CNPJ do ente solicitante (texto).
+
+- nome_ente_solicitante_gestao_financeira:
+
+  Nome do ente solicitante (texto).
+
+- nome_personalizado_ente_solicitante_gestao_financeira:
+
+  Nome personalizado do ente solicitante (texto).
+
+- codigo_programa_agil_ente_solicitante_gestao_financeira:
+
+  Código do programa ágil do ente solicitante (texto).
+
+- codigo_banco_gestao_financeira:
+
+  Código do banco (texto ou numérico).
+
+- codigo_agencia_gestao_financeira:
+
+  Código da agência (texto ou numérico).
+
+- dv_agencia_gestao_financeira:
+
+  Dígito verificador da agência (texto).
+
+- codigo_conta_gestao_financeira:
+
+  Código da conta (texto ou numérico).
+
+- dv_conta_gestao_financeira:
+
+  Dígito verificador da conta (texto).
+
+- tipo_operacao_gestao_financeira:
+
+  Tipo de operação (texto).
+
+- descricao_tipo_operacao_gestao_financeira:
+
+  Descrição do tipo de operação (texto).
+
+- descricao_gestao_financeira:
+
+  Descrição da gestão financeira (texto).
+
+- data_lancamento_gestao_financeira:
+
+  Data do lançamento (formato YYYY-MM-DD).
+
+- data_evento_lancamento_gestao_financeira:
+
+  Data do evento do lançamento (formato YYYY-MM-DD).
+
+- numero_ordem_gestao_financeira:
+
+  Número da ordem (numérico).
+
+- numero_referencia_unica_gestao_financeira:
+
+  Número de referência única (texto ou numérico).
+
+- tipo_favorecido_gestao_financeira:
+
+  Tipo de favorecido (texto).
+
+- descricao_tipo_favorecido_gestao_financeira:
+
+  Descrição do tipo de favorecido (texto).
+
+- doc_favorecido_gestao_financeira_mask:
+
+  Documento do favorecido (texto mascarado).
+
+- nome_favorecido_gestao_financeira:
+
+  Nome do favorecido (texto).
+
+- codigo_banco_favorecido_gestao_financeira:
+
+  Código do banco do favorecido (texto ou numérico).
+
+- codigo_agencia_favorecido_gestao_financeira:
+
+  Código da agência do favorecido (texto ou numérico).
+
+- dv_agencia_favorecido_gestao_financeira:
+
+  Dígito verificador da agência do favorecido (texto).
+
+- codigo_conta_favorecido_gestao_financeira:
+
+  Código da conta do favorecido (texto ou numérico).
+
+- dv_conta_favorecido_gestao_financeira:
+
+  Dígito verificador da conta do favorecido (texto).
+
+- valor_lancamento_gestao_financeira:
+
+  Valor do lançamento (numérico).
+
+- id_categoria_despesa_gestao_financeira:
+
+  Identificador da categoria de despesa (numérico).
+
+- quantidade_subtransacoes_lancamento_gestao_financeira:
+
+  Quantidade de subtransações (numérico).
+
+- id_agencia_conta:
+
+  Identificador da agência/conta (numérico).
+
+- select:
+
+  Vetor de caracteres com os nomes das colunas a serem retornadas.
+  Quando `NULL` (padrão), todas as colunas do endpoint são retornadas.
+
+- order:
+
+  Vetor de caracteres com os critérios de ordenação, no formato
+  `"coluna.asc"` ou `"coluna.desc"`. Quando `NULL` (padrão), a ordem
+  definida pela API é mantida.
+
+## Value
+
+Um objeto contendo os dados retornados pela API (geralmente uma lista ou
+data.frame).
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+  # Exemplo: consultar lançamentos de gestão financeira para um determinado ente solicitante
+  lancamentos <- ler_gestao_financeira_lancamentos(
+    cnpj_ente_solicitante_gestao_financeira = "12.345.678/0001-99"
+  )
+  head(lancamentos)
+} # }
+```

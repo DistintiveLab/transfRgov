@@ -1,0 +1,455 @@
+# Baixar, tratar e consolidar transferências por município e função
+
+## Introdução
+
+O **transfRgov** reúne, em um único pacote, dois blocos de dados sobre
+transferências de recursos da União para municípios brasileiros:
+
+1.  os endpoints da API **Fundo a Fundo** (TransfereGov), acessados
+    pelas funções com prefixo `ler_` e `get_`;
+2.  os arquivos de **dados abertos** publicados pelo Portal da
+    Transparência e pelo Tesouro Transparente, acessados por
+    [`download_transferencias_uniao()`](https://distintivelab.github.io/transfRgov/reference/download_transferencias_uniao.md),
+    [`baixa_municipio_siafibge()`](https://distintivelab.github.io/transfRgov/reference/baixa_municipio_siafibge.md)
+    e
+    [`consultar_renuncias_fiscais()`](https://distintivelab.github.io/transfRgov/reference/consultar_renuncias_fiscais.md).
+
+Esta vignette percorre o segundo bloco de ponta a ponta: como baixar os
+arquivos mensais de transferências, como acrescentar o código IBGE do
+município, como classificar o tipo de destinatário e como consolidar
+tudo em uma tabela anual por **município** e por **função
+orçamentária**. O mesmo fluxo existia apenas como script solto em
+`data-raw/consolida_transferencias_p_funcao_municipio.R`; aqui ele é
+apresentado como documento executável.
+
+``` r
+
+library(transfRgov)
+library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+library(tidyr)
+```
+
+## De onde vêm os dados
+
+O Portal da Transparência publica, para cada mês, um arquivo
+
+    https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/transferencias/AAAA{MM}_Transferencias.zip
+
+com uma linha por combinação de órgão, unidade gestora, município
+recebedor, função, subfunção, programa, ação e elemento de despesa. O
+[`download_transferencias_uniao()`](https://distintivelab.github.io/transfRgov/reference/download_transferencias_uniao.md)
+monta essa URL a partir de `ano` e `mes`, baixa o ZIP para um arquivo
+temporário, descompacta, lê o CSV resultante e apaga os temporários.
+
+O CSV usa `;` como separador, `,` como separador decimal e codificação
+ISO-8859-1. Os nomes das colunas chegam em maiúsculas, com espaços e
+acentos (`ANO / MÊS`, `NOME FUNÇÃO`, `VALOR TRANSFERIDO`); a função
+aplica
+[`janitor::clean_names()`](https://sfirke.github.io/janitor/reference/clean_names.html)
+antes de devolver o `data.frame`, então em R os nomes aparecem como
+`ano_mes`, `nome_funcao` e `valor_transferido`.
+
+``` r
+
+transferencias_201901 <- download_transferencias_uniao(ano = 2019, mes = 1)
+
+names(transferencias_201901)
+#>  [1] "ano_mes"                            "tipo_transferencia"
+#>  [3] "tipo_favorecido"                    "uf"
+#>  [5] "codigo_municipio_siafi"             "nome_municipio"
+#>  ...
+#> [35] "nome_favorecido"                    "valor_transferido"
+```
+
+As colunas relevantes para a consolidação são:
+
+| Coluna | Conteúdo |
+|----|----|
+| `ano_mes` | competência no formato `AAAAMM` (por exemplo, `201901`) |
+| `tipo_transferencia` | `"Constitucionais e Royalties"` ou `"Legais, Voluntárias e Específicas"` |
+| `codigo_municipio_siafi` | código do município no SIAFI, **com zeros à esquerda** |
+| `uf`, `nome_municipio` | unidade da federação e nome do município |
+| `nome_funcao` | função orçamentária (`Educação`, `Saúde`, …) |
+| `nome_modalidade_aplicacao_despesa` | modalidade de aplicação da despesa, que revela o tipo de recebedor |
+| `valor_transferido` | valor transferido no mês |
+
+### Acrescentar o código IBGE
+
+O código SIAFI não é o identificador usual dos municípios em outras
+bases (IBGE, Censo, DATASUS). Passar `codigo_ibge = TRUE` (o padrão) faz
+a função acrescentar a coluna `codigo_ibge` por meio de
+[`match()`](https://rdrr.io/r/base/match.html) contra a tabela de
+correspondência:
+
+``` r
+
+transferencias_201901 <- download_transferencias_uniao(ano = 2019, mes = 1)
+
+# A coluna codigo_ibge é acrescentada casando os códigos SIAFI
+transferencias_201901[1, c("codigo_municipio_siafi", "nome_municipio", "codigo_ibge")]
+#>   codigo_municipio_siafi  nome_municipio codigo_ibge
+#> 1                 4123    Belo Horizonte     3106200
+```
+
+Por padrão a função usa o dataset `municipios_siafi_ibge`, que acompanha
+o pacote e fica disponível assim que
+[`library(transfRgov)`](https://github.com/DistintiveLab/transfRgov) é
+executado:
+
+``` r
+
+head(municipios_siafi_ibge, 3)
+#> # A tibble: 3 × 5
+#>   codigo_municipio_siafi cnpj           nome_municipio         uf    codigo_ibge
+#>   <chr>                  <chr>          <chr>                  <chr>       <dbl>
+#> 1 0001                   05893631000109 GUAJARA-MIRIM          RO        1100106
+#> 2 0002                   84744994000140 ALTO ALEGRE DOS PAREC… RO        1100379
+#> 3 0003                   05903125000145 PORTO VELHO            RO        1100205
+```
+
+Como `codigo_municipio_siafi` é `character`, os zeros à esquerda são
+preservados e o casamento funciona (`"0001"`, e não `1`). Se você tem
+uma tabela de correspondência mais recente, passe-a em
+`municipios_mapping =`; e se não precisar do código IBGE, use
+`codigo_ibge = FALSE` para economizar o casamento. A função
+[`baixa_municipio_siafibge()`](https://distintivelab.github.io/transfRgov/reference/baixa_municipio_siafibge.md)
+baixa a versão publicada hoje pelo Tesouro Transparente.
+
+## Consolidar um ano
+
+O arquivo mensal tem granularidade fina demais para a maior parte das
+análises. O objetivo aqui é responder: **quanto cada município recebeu,
+por função orçamentária, em um ano?** Isso exige quatro passos.
+
+### Passo 1: empilhar os doze meses
+
+Cada mês é um arquivo separado, então o ano é obtido iterando de 1 a 12
+e colando os resultados.
+[`data.table::rbindlist()`](https://rdrr.io/pkg/data.table/man/rbindlist.html)
+faz o empilhamento tolerando diferenças de colunas entre os meses. Nesta
+etapa também derivamos o ano a partir de `ano_mes`, dividindo por 100:
+
+``` r
+
+baixar_ano <- function(ano) {
+  data.table::rbindlist(
+    lapply(1:12, \(mes) {
+      mes_dados <- download_transferencias_uniao(ano, mes)
+      if (is.null(mes_dados)) return(NULL)
+      dplyr::mutate(mes_dados, ano = trunc(ano_mes / 100))
+    }),
+    use.names = TRUE
+  )
+}
+```
+
+[`download_transferencias_uniao()`](https://distintivelab.github.io/transfRgov/reference/download_transferencias_uniao.md)
+nunca lança erro para falhas de rede ou de leitura: ela emite um
+[`warning()`](https://rdrr.io/r/base/warning.html) e devolve `NULL`
+(invisível). Por isso o `if (is.null(mes_dados))` acima: um mês
+indisponível simplesmente não entra na pilha, e `rbindlist()` descarta
+os `NULL`.
+
+### Passo 2: separar destinatário público de instituição privada
+
+A coluna `nome_modalidade_aplicacao_despesa` distingue, entre outras
+possibilidades, `"Transferências a Municípios"` de
+`"Transferências a Instituições Privadas sem Fins Lucrativos"`. Uma
+única expressão regular separa os dois universos:
+
+``` r
+
+dados |>
+  dplyr::mutate(
+    privadopub = ifelse(
+      grepl("Privadas", nome_modalidade_aplicacao_despesa),
+      "inst_privadas", "publico"
+    )
+  )
+```
+
+Tudo o que contém `"Privadas"` vira `inst_privadas`; todo o restante
+(transferências a municípios, a estados, a consórcios públicos, ao
+exterior) vira `publico`.
+
+### Passo 3: somar por município, tipo de transferência e função
+
+Como cada linha do arquivo original é um item de despesa, o próximo
+passo agrega:
+
+``` r
+
+dados |>
+  dplyr::group_by(ano, codigo_ibge, uf, tipo_transferencia, privadopub, nome_funcao) |>
+  dplyr::summarise(valor_transferido = sum(valor_transferido, na.rm = TRUE), .groups = "drop") |>
+  tidyr::pivot_wider(
+    names_from = c(tipo_transferencia, privadopub),
+    values_from = valor_transferido,
+    values_fill = 0
+  )
+```
+
+O
+[`pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html)
+abre `tipo_transferencia` e `privadopub` em colunas, de modo que cada
+município e função aparece com os valores separados por tipo de
+transferência e por tipo de recebedor, no formato
+`"<tipo_transferencia>_<privadopub>"`. Como são dois tipos de
+transferência e dois tipos de recebedor, surgem no máximo quatro
+colunas.
+
+Vale registrar uma armadilha: **os nomes produzidos pelo pivot são
+dinâmicos**. Nada garante que exista uma coluna chamada literalmente
+`privadas`; o nome real é
+`"Legais, Voluntárias e Específicas_inst_privadas"`. Se a sua base não
+tiver nenhuma transferência a instituições privadas em um ano, a coluna
+simplesmente não é criada. Por isso o próximo passo seleciona as colunas
+por padrão
+([`ends_with()`](https://tidyselect.r-lib.org/reference/starts_with.html)),
+e não por nome fixo.
+
+### Passo 4: abrir por função
+
+O `data.frame` anterior é longo: uma linha por município, função e par
+de colunas. Para comparar municípios entre si, some as variantes
+públicas de cada função e abra as funções como colunas:
+
+``` r
+
+transfpubswide <- transfpubs_14_24 |>
+  dplyr::rename_with(janitor::make_clean_names, dplyr::ends_with("_publico")) |>
+  dplyr::select(ano, codigo_ibge, uf, nome_funcao, dplyr::ends_with("_publico")) |>
+  dplyr::mutate(
+    governo_e_publico = rowSums(dplyr::across(dplyr::ends_with("_publico")))
+  ) |>
+  dplyr::select(ano, codigo_ibge, uf, nome_funcao, governo_e_publico) |>
+  tidyr::pivot_wider(
+    names_from = nome_funcao,
+    values_from = governo_e_publico,
+    values_fill = 0
+  ) |>
+  dplyr::mutate(
+    transftotal = rowSums(dplyr::across(dplyr::where(is.numeric) & -c(ano, codigo_ibge)))
+  )
+```
+
+O `rename_with(janitor::make_clean_names, ...)` normaliza nomes como
+`"Legais, Voluntárias e Específicas_publico"` para
+`legais_voluntarias_e_especificas_publico`, o que evita espaços,
+vírgulas e acentos como nomes de coluna.
+
+O resultado tem uma linha por município e ano, uma coluna por função
+orçamentária e a coluna `transftotal` com a soma das funções.
+
+## Um exemplo executável, sem rede
+
+Os blocos acima usam `eval = FALSE` porque dependem de download e não
+podem rodar durante a construção do pacote. Para demonstrar o
+encadeamento completo sem rede, construímos abaixo um `data.frame`
+pequeno com as **mesmas colunas do arquivo real** (já depois de
+[`janitor::clean_names()`](https://sfirke.github.io/janitor/reference/clean_names.html))
+e os mesmos valores categóricos: dois tipos de transferência, duas
+modalidades de aplicação e as funções `Educação`, `Saúde` e
+`Assistência Social` do município de Belo Horizonte (SIAFI `4123`, IBGE
+`3106200`).
+
+``` r
+
+transferencias_exemplo <- data.frame(
+  ano_mes = c(201901L, 201901L, 201901L, 201902L, 201902L, 201902L),
+  tipo_transferencia = c(
+    "Constitucionais e Royalties", "Legais, Voluntárias e Específicas",
+    "Legais, Voluntárias e Específicas", "Constitucionais e Royalties",
+    "Legais, Voluntárias e Específicas", "Legais, Voluntárias e Específicas"
+  ),
+  uf = "MG",
+  codigo_municipio_siafi = "4123",
+  nome_municipio = "Belo Horizonte",
+  codigo_ibge = 3106200,
+  nome_funcao = c(
+    "Educação", "Saúde", "Assistência Social",
+    "Educação", "Saúde", "Assistência Social"
+  ),
+  nome_modalidade_aplicacao_despesa = c(
+    "Transferências a Municípios",
+    "Transferências a Municípios - Fundo a Fundo",
+    "Transferências a Instituições Privadas sem Fins Lucrativos",
+    "Transferências a Municípios",
+    "Transferências a Municípios",
+    "Transferências a Municípios"
+  ),
+  valor_transferido = c(50000, 80000, 40000, 70000, 100001, 30000)
+)
+
+knitr::kable(transferencias_exemplo)
+```
+
+| ano_mes | tipo_transferencia | uf | codigo_municipio_siafi | nome_municipio | codigo_ibge | nome_funcao | nome_modalidade_aplicacao_despesa | valor_transferido |
+|---:|:---|:---|:---|:---|---:|:---|:---|---:|
+| 201901 | Constitucionais e Royalties | MG | 4123 | Belo Horizonte | 3106200 | Educação | Transferências a Municípios | 50000 |
+| 201901 | Legais, Voluntárias e Específicas | MG | 4123 | Belo Horizonte | 3106200 | Saúde | Transferências a Municípios - Fundo a Fundo | 80000 |
+| 201901 | Legais, Voluntárias e Específicas | MG | 4123 | Belo Horizonte | 3106200 | Assistência Social | Transferências a Instituições Privadas sem Fins Lucrativos | 40000 |
+| 201902 | Constitucionais e Royalties | MG | 4123 | Belo Horizonte | 3106200 | Educação | Transferências a Municípios | 70000 |
+| 201902 | Legais, Voluntárias e Específicas | MG | 4123 | Belo Horizonte | 3106200 | Saúde | Transferências a Municípios | 100001 |
+| 201902 | Legais, Voluntárias e Específicas | MG | 4123 | Belo Horizonte | 3106200 | Assistência Social | Transferências a Municípios | 30000 |
+
+Repare que, em fevereiro, `Assistência Social` aparece com a modalidade
+`"Transferências a Municípios"` enquanto em janeiro aparecia como
+`"Transferências a Instituições Privadas sem Fins Lucrativos"`: a mesma
+função recebe recursos dos dois universos, e é justamente essa separação
+que o passo 2 preserva.
+
+O “baixador” abaixo substitui
+[`download_transferencias_uniao()`](https://distintivelab.github.io/transfRgov/reference/download_transferencias_uniao.md)
+apenas filtrando o exemplo pelo mês:
+
+``` r
+
+baixar_mes <- function(ano, mes) {
+  transferencias_exemplo[transferencias_exemplo$ano_mes == ano * 100 + mes, , drop = FALSE]
+}
+```
+
+Com isso, a mesma rotina dos passos 1 a 3 pode ser escrita uma única
+vez, recebendo o baixador como argumento. Em uso real, basta omitir
+`baixar` para cair no
+[`download_transferencias_uniao()`](https://distintivelab.github.io/transfRgov/reference/download_transferencias_uniao.md):
+
+``` r
+
+consolida_tr_funcao <- function(ano, baixar = download_transferencias_uniao) {
+  dados <- data.table::rbindlist(
+    lapply(1:12, \(mes) {
+      mes_dados <- baixar(ano, mes)
+      if (is.null(mes_dados)) return(NULL)
+      dplyr::mutate(mes_dados, ano = trunc(ano_mes / 100))
+    }),
+    use.names = TRUE
+  )
+
+  dados |>
+    dplyr::mutate(
+      privadopub = ifelse(
+        grepl("Privadas", nome_modalidade_aplicacao_despesa),
+        "inst_privadas", "publico"
+      )
+    ) |>
+    dplyr::group_by(ano, codigo_ibge, uf, tipo_transferencia, privadopub, nome_funcao) |>
+    dplyr::summarise(
+      valor_transferido = sum(valor_transferido, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    tidyr::pivot_wider(
+      names_from = c(tipo_transferencia, privadopub),
+      values_from = valor_transferido,
+      values_fill = 0
+    )
+}
+
+transfpubs_2019 <- consolida_tr_funcao(2019, baixar = baixar_mes)
+
+knitr::kable(transfpubs_2019)
+```
+
+| ano | codigo_ibge | uf | nome_funcao | Constitucionais e Royalties_publico | Legais, Voluntárias e Específicas_inst_privadas | Legais, Voluntárias e Específicas_publico |
+|---:|---:|:---|:---|---:|---:|---:|
+| 2019 | 3106200 | MG | Educação | 120000 | 0 | 0 |
+| 2019 | 3106200 | MG | Assistência Social | 0 | 40000 | 30000 |
+| 2019 | 3106200 | MG | Saúde | 0 | 0 | 180001 |
+
+O formato longo mostra exatamente o que o pivot produziu: três colunas
+de valores (`Constitucionais e Royalties_publico`,
+`Legais, Voluntárias e Específicas_publico` e
+`Legais, Voluntárias e Específicas_inst_privadas`), uma linha por
+função. Duas observações aparecem aqui:
+
+- `Assistência Social` tem `0` em `Constitucionais e Royalties_publico`:
+  a função não recebeu transferências constitucionais, e o
+  `values_fill = 0` preencheu a ausência com zero, em vez de deixar
+  `NA`;
+- não existe coluna `Constitucionais e Royalties_inst_privadas`, porque
+  transferências constitucionais não vão para instituições privadas. É o
+  caso de “coluna que não existe” discutido no passo 3.
+
+Por fim, o passo 4 abre as funções em colunas:
+
+``` r
+
+transfpubswide <- transfpubs_2019 |>
+  dplyr::rename_with(janitor::make_clean_names, dplyr::ends_with("_publico")) |>
+  dplyr::select(ano, codigo_ibge, uf, nome_funcao, dplyr::ends_with("_publico")) |>
+  dplyr::mutate(
+    governo_e_publico = rowSums(dplyr::across(dplyr::ends_with("_publico")))
+  ) |>
+  dplyr::select(ano, codigo_ibge, uf, nome_funcao, governo_e_publico) |>
+  tidyr::pivot_wider(
+    names_from = nome_funcao,
+    values_from = governo_e_publico,
+    values_fill = 0
+  ) |>
+  dplyr::mutate(
+    transftotal = rowSums(dplyr::across(dplyr::where(is.numeric) & -c(ano, codigo_ibge)))
+  )
+
+knitr::kable(transfpubswide)
+```
+
+|  ano | codigo_ibge | uf  | Educação | Assistência Social |  Saúde | transftotal |
+|-----:|------------:|:----|---------:|-------------------:|-------:|------------:|
+| 2019 |     3106200 | MG  |   120000 |              30000 | 180001 |      330001 |
+
+`transftotal` é a soma das funções: 120000 + 180001 + 30000 = 330001.
+Note que os 40000 recebidos por instituições privadas em
+`Assistência Social` ficam fora do total, porque o passo 4 soma apenas
+as variantes `_publico`. Se o interesse for o total geral, some também
+as colunas `_inst_privadas`.
+
+## Repetir para vários anos
+
+Consolidar uma série histórica é só repetir a chamada. O `rbindlist()`
+externo cuida de empilhar os anos:
+
+``` r
+
+transfpubs_14_24 <- data.table::rbindlist(
+  lapply(2014:2024, \(ano) consolida_tr_funcao(ano))
+)
+```
+
+Dois cuidados ao ampliar o período:
+
+- **o conjunto de colunas muda ao longo do tempo.**
+  [`pivot_wider()`](https://tidyr.tidyverse.org/reference/pivot_wider.html)
+  cria as colunas conforme os valores presentes em cada ano, e
+  `values_fill = 0` resolve as ausências, mas o formato de `nome_funcao`
+  e de `tipo_transferencia` pode variar entre anos. Prefira começar a
+  partir de 2014, primeiro ano com a estrutura atual dos arquivos
+  mensais;
+- **são 12 downloads por ano.** Cada arquivo tem dezenas de milhares de
+  linhas. Rodar vários anos em sequência é demorado, e o servidor do
+  Portal limita rajadas de requisições: se vários meses falharem
+  seguidos, aguarde alguns minutos antes de repetir, em vez de insistir.
+
+## Limitações
+
+- **Não há um `data.frame` pré-consolidado no pacote.** O pacote entrega
+  a camada de aquisição; a consolidação fica com quem analisa, porque as
+  escolhas de agregação (público versus privado, total versus por
+  função, municipal versus estadual) dependem da pergunta.
+- **Os valores de `valor_transferido` são nominais**, tal como
+  publicados. Para séries históricas, deflate pelo IPCA ou outro índice
+  antes de comparar anos.
+- **O casamento SIAFI-IBGE pode falhar** para códigos que não constam da
+  tabela de correspondência: a coluna `codigo_ibge` recebe `NA` nesses
+  casos, e não há erro. Confira `sum(is.na(dados$codigo_ibge))` depois
+  do download.
+- **O pacote não é uma ferramenta oficial do governo federal.** Veja a
+  nota de isenção de responsabilidade no `README` do projeto.
