@@ -8,7 +8,7 @@ Everything user-facing (docs, comments, messages, column names) is written in **
 
 ## Commands
 
-This is a roxygen2 package; there is no Makefile and no lintr config. The only CI is the site workflow (`.github/workflows/pkgdown.yaml`, roadmap item 18), which builds the pkgdown site and deploys it to the `gh-pages` branch; pushing a file inside `.github/workflows/` requires the `workflow` scope on the `gh` token.
+This is a roxygen2 package; there is no Makefile and no lintr config. CI is two workflows: `.github/workflows/pkgdown.yaml` (roadmap item 18) builds the pkgdown site and deploys it to the `gh-pages` branch, and `.github/workflows/R-CMD-check.yaml` (roadmap item 22) runs `R CMD check --as-cran` through the `r-lib/actions` v2 actions. The check is a single row (`ubuntu-latest`, `r: 'release'`), not the canonical five-row matrix, because the 21 `\donttest{}` examples reach the public TransfereGov API and every extra platform multiplies the exposure to a network failure and to the throttle of the government hosts; the recipe to widen it is in the file's header comment. It passes `error-on: '"warning"'` explicitly and adds its own `concurrency:` group so it does not cancel the site build, since both workflows trigger on `push` to `main`/`master` and on `pull_request`. Both workflows need the `workflow` scope on the `gh` token, which the current token has; watch a run with `gh run list` / `gh run view <id> --log-failed`.
 
 ```r
 devtools::load_all()              # load package code

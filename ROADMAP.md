@@ -673,9 +673,70 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
 
 ## Fase 6 — Infraestrutura e limpeza
 
-22. **Integração contínua**: criar `.github/workflows/R-CMD-check.yaml`
-    rodando `devtools::check(args = "--as-cran")`. O diretório `.github/` já
-    existe desde o item 18, que colocou ali o workflow de publicação do site.
+22. **(concluída) Integração contínua**: criar
+    `.github/workflows/R-CMD-check.yaml` rodando
+    `devtools::check(args = "--as-cran")`. O diretório `.github/` já existe
+    desde o item 18, que colocou ali o workflow de publicação do site.
+
+    **Implementação — entrega de 2026-09-20.**
+
+    - **O arquivo `.github/workflows/R-CMD-check.yaml` foi derivado do exemplo
+      canônico `check-standard.yaml` do `r-lib/actions` v2**, a mesma
+      procedência que o mantenedor já aceitou para o `pkgdown.yaml`, com o
+      comentário de origem preservado no cabeçalho. Os passos são os de sempre:
+      `actions/checkout@v6`, `setup-pandoc@v2`, `setup-r@v2`,
+      `setup-r-dependencies@v2` com `extra-packages: any::rcmdcheck` e
+      `needs: check`, e `check-r-package@v2`. Nada de `rcmdcheck` em `Suggests`:
+      quem instala é a ação.
+    - **Os gatilhos são `push` em `main`/`master` e `pull_request`**, os dois do
+      exemplo. O item **não** responde a `release: [published]` nem a
+      `workflow_dispatch`, ao contrário do `pkgdown.yaml`: a publicação do site
+      precisa ser reprodutível sob demanda e a cada release, enquanto o check
+      é o mesmo em qualquer um dos dois eventos. Se depois fizer falta disparar
+      à mão, é uma linha a mais.
+    - **O desvio deliberado em relação ao exemplo canônico é a matriz de uma
+      linha só** (`ubuntu-latest` com `r: 'release'`, contra as cinco do
+      `check-standard.yaml`). O motivo é a postura de rede registrada no item
+      19: os 21 exemplos em `\donttest{}` vão à API pública do TransfereGov, e
+      cada plataforma a mais multiplica a exposição a uma queda de rede e ao
+      limitador de rajadas dos hosts do governo (as sondagens ao host de
+      arquivos da CGU precisam ficar a pelo menos 20 s uma da outra). A receita
+      para reabrir a cobertura está escrita no próprio cabeçalho do arquivo,
+      com as linhas exatas de `macos-latest`, `windows-latest`, `devel` e
+      `oldrel-1`, para a escolha ser reversível sem pesquisa.
+    - **`error-on: '"warning"'` é passado à mão, embora seja o padrão da ação.**
+      É o mesmo critério que o `devtools::check()` escolhe sozinho quando a
+      sessão não é interativa, e escrevê-lo deixa a postura estrita visível no
+      arquivo em vez de herdada em silêncio: qualquer `WARNING` derruba o job,
+      qualquer `NOTE` não. Nada de `args:` foi sobrescrito, porque o padrão da
+      ação já é `c("--no-manual", "--as-cran")`, exatamente o comando do item
+      mais o `--no-manual` que o ambiente local também usa.
+    - **O job reproduz o gate 5 local, não o 5b.** A ação zera
+      `_R_CHECK_FORCE_SUGGESTS_` e `_R_CHECK_CRAN_INCOMING_` quando eles não
+      vêm definidos, então o `NOTE` de ortografia do incoming não é emitido e o
+      desfecho esperado é `Status: OK`, não `Status: 1 NOTE`. A suposição do
+      item 19 de que `--as-cran` liga o `--run-donttest` continua valendo, e é
+      o que se quer: são justamente os 21 exemplos com rede que dão sentido a
+      rodar o check completo no CI.
+    - **O bloco `concurrency:` foi acrescentado à mão, porque nenhum exemplo do
+      `r-lib/actions` tem um.** Sem ele os dois workflows, que disparam nos
+      mesmos eventos (`push` em `main`/`master` e `pull_request`), entrariam no
+      mesmo grupo e um cancelaria o outro. O grupo é
+      `R-CMD-check-${{ github.event_name != 'pull_request' || github.run_id }}`,
+      o mesmo formato do `pkgdown.yaml` com o nome trocado.
+    - `upload-snapshots: true` e o `build_args` canônico
+      (`c("--no-manual","--compact-vignettes=gs+qpdf")`) foram mantidos do
+      exemplo. O pacote não tem snapshots do `testthat`, então o primeiro é
+      inerte, mas mantém o arquivo colado na referência.
+    - **Nenhuma mudança de build e nenhuma mudança em `DESCRIPTION`**: o
+      `^\.github$` já está no `.Rbuildignore` desde o item 18 e a versão fica em
+      `0.1.1`, já na fila do CRAN.
+    - **Verificação**: o YAML foi lido por um analisador (`yaml.safe_load`) e as
+      chaves de topo, o bloco de `concurrency`, a matriz e a lista de passos
+      bateram com o desenho acima; o gate local
+      `devtools::check(args = "--as-cran", error_on = "never")` fechou
+      `Status: OK` contra o mesmo código do commit anterior, sem tocar em
+      `R/`. O desfecho do primeiro `push` está registrado logo abaixo.
 23. **`lintr` e `styler`**, hoje sem nenhuma configuração.
 24. **Lastro local**: `data/` guarda cerca de 176 MB que não são dados do pacote
     e há um `201901_Transferencias.csv` de cerca de 46 MB na raiz. Ambos já estão

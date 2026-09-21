@@ -1,0 +1,68 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+#
+# Deviation from the upstream check-standard.yaml: the matrix carries a single
+# configuration instead of five. The 21 examples kept in \donttest{} blocks go
+# out to the TransfereGov public API, so every extra platform multiplies the
+# exposure to a network failure and to the throttle of the government hosts.
+# To widen the coverage later, add the canonical rows back to the matrix
+# (macos-latest and windows-latest with r: 'release', ubuntu-latest with
+# r: 'devel' and http-user-agent: 'release', and ubuntu-latest with
+# r: 'oldrel-1'); the devel row also needs
+# http-user-agent: ${{ matrix.config.http-user-agent }} on the setup-r step.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+name: R-CMD-check.yaml
+
+permissions: read-all
+
+jobs:
+  R-CMD-check:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest,   r: 'release'}
+
+    # Only restrict concurrency for non-PR jobs
+    concurrency:
+      group: R-CMD-check-${{ github.event_name != 'pull_request' || github.run_id }}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      # Equivalent to devtools::check(args = "--as-cran"): the action calls
+      # rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"),
+      # error_on = "warning"), which is the same check the local gates run with
+      # error_on = "never", plus the strict error_on that devtools would pick on
+      # its own in a non-interactive session. It also fails the step on any
+      # warning, leaving the single spelling NOTE of the incoming check alone.
+      # The action sets _R_CHECK_FORCE_SUGGESTS_ and _R_CHECK_CRAN_INCOMING_ to
+      # false when they are unset, matching the local environment.
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          error-on: '"warning"'
+          upload-snapshots: true
+          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
