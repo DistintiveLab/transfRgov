@@ -31,6 +31,7 @@ reference:
     códigos SIAFI e IBGE do Tesouro Transparente.
   contents:
   - download_despesas_ptransp
+  - encadeia_despesas_ptransp
   - consultar_renuncias_fiscais
   - baixa_municipio_siafibge
 

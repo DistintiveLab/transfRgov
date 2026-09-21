@@ -22,8 +22,9 @@ controles_postgrest <- function(endpoint) {
 #'
 #' @description
 #' Acessor do conjunto de dados \code{\link{metafaftab}}. Transforma a lista
-#' crua de caminhos e vetores em uma tabela de duas colunas (\code{endpoint} e
-#' \code{campo}) ou devolve apenas o vetor de campos de um endpoint escolhido.
+#' crua de caminhos e vetores em uma tabela de três colunas (\code{endpoint},
+#' \code{campo} e \code{controle}) ou devolve apenas o vetor de campos de um
+#' endpoint escolhido.
 #'
 #' @param endpoint Caminho de um endpoint, em texto. Pode ser informado com ou
 #'   sem a barra inicial (\code{"/programa"} ou \code{"programa"}). Quando

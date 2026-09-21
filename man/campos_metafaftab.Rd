@@ -27,8 +27,9 @@ caracteres com os campos daquele endpoint, na ordem em que aparecem no
 }
 \description{
 Acessor do conjunto de dados \code{\link{metafaftab}}. Transforma a lista
-crua de caminhos e vetores em uma tabela de duas colunas (\code{endpoint} e
-\code{campo}) ou devolve apenas o vetor de campos de um endpoint escolhido.
+crua de caminhos e vetores em uma tabela de três colunas (\code{endpoint},
+\code{campo} e \code{controle}) ou devolve apenas o vetor de campos de um
+endpoint escolhido.
 }
 \details{
 A função é útil para descobrir os nomes válidos dos argumentos das funções

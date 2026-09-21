@@ -480,7 +480,7 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
     - **O escopo `workflow` já estava no token do `gh`.** A suposição de que
       seria preciso `gh auth refresh -s workflow` estava errada: `gh auth status`
       mostra `admin:public_key`, `gist`, `read:org`, `repo` e `workflow`, e o
-      workflow foi enviado sem nenhum passo adicional. Isso já destrava o item 21.
+      workflow foi enviado sem nenhum passo adicional. Isso já destrava o item 22.
     - **O site responde em `https://distintivelab.github.io/transfRgov/`**: a raiz
       devolve 200 com o `README` em português e o rodapé do `pkgdown`, o índice de
       referência mostra os nove grupos na ordem prevista, e
@@ -605,14 +605,79 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       `devtools::check(args = "--as-cran")` com `Status: OK`, com o modo
       `_R_CHECK_CRAN_INCOMING_ = "true"` mantendo `Status: 1 NOTE` e as mesmas
       nove palavras da linha de base.
+21. **(concluída) Encadear total e detalhe no Portal da Transparência.** O
+    mantenedor observou que, na parte de despesas, chegar aos beneficiários
+    exatos exige combinar dois arquivos: um traz o total por ordem bancária e o
+    outro traz, para cada ordem, os beneficiários.
+
+    **Implementação — entrega de 2026-09-20.**
+
+    - **A junção é uma função separada e offline**, `encadeia_despesas_ptransp()`
+      em `R/encadeia_despesas_ptransp.R`: recebe os dois data frames já baixados
+      e devolve o encadeamento. A alternativa de fazer o próprio
+      `download_despesas_ptransp()` baixar os dois membros e juntá-los foi
+      rejeitada porque quebraria o contrato de um artefato por chamada
+      (registrado no item 13), baixaria e descompactaria o mesmo ZIP duas vezes
+      e seria muito mais difícil de testar sem rede.
+    - Assinatura: `encadeia_despesas_ptransp(total, detalhe, chave =
+      "codigo_pagamento", somente_detalhados = FALSE)`. O padrão devolve
+      **todas** as linhas de `total`, porque o detalhamento cobre cerca de 1%
+      das ordens e esconder o resto enganaria; `somente_detalhados = TRUE` é a
+      forma de junção interna. A mesma chamada aceita o par `empenho` ×
+      `item_empenho` passando `chave = "id_empenho"`.
+    - O resultado é `merge(..., by = chave, all.x = !somente_detalhados,
+      sort = FALSE, suffixes = c(".total", ".detalhe"))` mais três toques: uma
+      coluna lógica `detalhado` **inserida logo depois de `chave`** (não no
+      fim), `rownames` zerado e um `warning()` quando os dois lados têm linhas
+      mas nenhuma chave casa. `detalhe` com zero linhas **não é erro**: as
+      colunas de detalhe saem `NA` e `detalhado` sai `FALSE`.
+    - **A validação é toda local, inclusive a do tipo da chave.** Uma sondagem
+      direta mostrou que `merge()` casa `"1"` com `1` em silêncio e que uma
+      chave ausente estoura com a mensagem localizada do R (`'by' deve
+      unicamente especificar coluna válida`). Por isso a função confere presença
+      e classe da chave nos dois data frames antes de chamar `merge()`;
+      `integer` × `double` é aceito, `factor` × `character` é recusado.
+    - As medições que motivaram a junção já estão registradas no item 13
+      (2024-01-15: 14.949 ordens, 162 com detalhe, 99 com mais de um favorecido,
+      `max |total - soma|` de `3,6e-12` e cobertura de 1,1%). A função **não**
+      compara os valores: as colunas de valor não têm o mesmo nome
+      (`valor_do_pagamento_convertido_pra_r` contra `valor_do_pagamento_em_r`).
+    - **A afirmação de 2026-09-20 no item 13 não vale mais.** O texto dizia que
+      o encadeamento total/detalhe "não é feito automaticamente"; ele agora é
+      feito por `encadeia_despesas_ptransp()`, e o `@details` de
+      `download_despesas_ptransp()` aponta para a função nova.
+    - **Nenhuma dependência nova**: só base, então `DESCRIPTION` não mudou — e a
+      versão fica em `0.1.1`, já na fila do CRAN. O nome fica fora de
+      `^(ler_|get_)` pelo mesmo motivo de `download_despesas_ptransp()`:
+      preservar as 23 funções que `test-leitores.R` confere. Exportações passam
+      de 27 para **29**, contando as duas entregas (`campos_metafaftab()`, do
+      item 20, e esta).
+    - **O `@description` de `campos_metafaftab()` foi corrigido no mesmo
+      commit**: ele anunciava "uma tabela de duas colunas", quando o `@return` e
+      a implementação entregam três (`endpoint`, `campo` e `controle`).
+    - O exemplo da função roda **sem guard**, como os de `metafaftab`,
+      `municipios_siafi_ibge` e `campos_metafaftab`, porque só monta data frames
+      em memória. O placar de guards vira **21 `\donttest{}` / 3 `\dontrun{}` /
+      4 sem guard**.
+    - Testes novos em `tests/testthat/test-encadeia_despesas_ptransp.R`: 11
+      blocos e 56 asserções, todos **offline** com data frames feitos à mão (o
+      `cache/` não guarda nada de despesas, justamente porque o host limita
+      rajadas). A suíte vai de 566 para **622** asserções.
+    - **Verificação**: os cinco gates. `devtools::document()` sem diferença,
+      `devtools::test()` com `FAIL 0 | WARN 0 | SKIP 0 | PASS 622`, gate ASCII
+      com 0 ofensas em 32 arquivos `R` (538 literais), auditoria dos `\arguments`
+      com `OK: 28 Rd \arguments sections exactly match formals`, e
+      `devtools::check(args = "--as-cran")` com `Status: OK`, com o modo
+      `_R_CHECK_CRAN_INCOMING_ = "true"` mantendo `Status: 1 NOTE` e as mesmas
+      nove palavras da linha de base.
 
 ## Fase 6 — Infraestrutura e limpeza
 
-21. **Integração contínua**: criar `.github/workflows/R-CMD-check.yaml`
+22. **Integração contínua**: criar `.github/workflows/R-CMD-check.yaml`
     rodando `devtools::check(args = "--as-cran")`. O diretório `.github/` já
     existe desde o item 18, que colocou ali o workflow de publicação do site.
-22. **`lintr` e `styler`**, hoje sem nenhuma configuração.
-23. **Lastro local**: `data/` guarda cerca de 176 MB que não são dados do pacote
+23. **`lintr` e `styler`**, hoje sem nenhuma configuração.
+24. **Lastro local**: `data/` guarda cerca de 176 MB que não são dados do pacote
     e há um `201901_Transferencias.csv` de cerca de 46 MB na raiz. Ambos já estão
     excluídos do build, mas seguem dentro do diretório do pacote; decidir se
     saem para um diretório de análise fora do repositório.
