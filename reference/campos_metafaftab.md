@@ -2,9 +2,9 @@
 
 Acessor do conjunto de dados
 [`metafaftab`](https://distintivelab.github.io/transfRgov/reference/metafaftab.md).
-Transforma a lista crua de caminhos e vetores em uma tabela de duas
-colunas (`endpoint` e `campo`) ou devolve apenas o vetor de campos de um
-endpoint escolhido.
+Transforma a lista crua de caminhos e vetores em uma tabela de três
+colunas (`endpoint`, `campo` e `controle`) ou devolve apenas o vetor de
+campos de um endpoint escolhido.
 
 ## Usage
 

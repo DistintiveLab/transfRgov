@@ -212,6 +212,8 @@ códigos SIAFI e IBGE do Tesouro Transparente.
 
 - [`download_despesas_ptransp()`](https://distintivelab.github.io/transfRgov/reference/download_despesas_ptransp.md)
   : Baixar Dados de Despesas do Portal da Transparência
+- [`encadeia_despesas_ptransp()`](https://distintivelab.github.io/transfRgov/reference/encadeia_despesas_ptransp.md)
+  : Encadear dois arquivos de despesas do Portal da Transparência
 - [`consultar_renuncias_fiscais()`](https://distintivelab.github.io/transfRgov/reference/consultar_renuncias_fiscais.md)
   : Consultar Valores de Renúncia Fiscal
 - [`baixa_municipio_siafibge()`](https://distintivelab.github.io/transfRgov/reference/baixa_municipio_siafibge.md)
