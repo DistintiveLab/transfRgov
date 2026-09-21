@@ -38,9 +38,9 @@ baixa_municipio_siafibge <- function() {
   mapping_data <- tryCatch({
     readr::read_csv2(
       temp_csv,
-      col_names = c('codigo_municipio_siafi','id','nome_municipio','uf','codigo_ibge'),
+      col_names = c("codigo_municipio_siafi", "id", "nome_municipio", "uf", "codigo_ibge"),
       locale = readr::locale(encoding = "UTF-8"), # Tenta UTF-8
-      col_types = cols(.default = col_character(),codigo_ibge = col_number()), # Ler tudo como texto
+      col_types = cols(.default = col_character(), codigo_ibge = col_number()), # Ler tudo como texto
       show_col_types = FALSE
     )
   }, error = function(e) {
@@ -56,7 +56,7 @@ baixa_municipio_siafibge <- function() {
       )
     }, error = function(e2) {
       warning("Falha ao ler arquivo CSV de mapeamento com read.csv (assumindo Latin1): ", e2$message)
-      return(NULL) # Indica falha total
+      NULL # Indica falha total
     })
   })
 
@@ -71,23 +71,5 @@ baixa_municipio_siafibge <- function() {
   message("Dados de mapeamento de munic\u00edpios baixados e lidos com sucesso. ",
           nrow(mapping_data), " linhas, ", ncol(mapping_data), " colunas.")
 
-  # Consulte a estrutura do arquivo baixado para saber os nomes exatos das colunas de código
-  # Ex: Colunas podem ser "COD_MUN_SIAFI", "COD_MUN_IBGE", "NOME_MUNICIPIO", etc.
-  # Renomear para facilitar o join? Ex:
-  # names(mapping_data) <- tolower(names(mapping_data)) # Opcional: tudo minúsculo
-  # if("cod_mun_siafi" %in% names(mapping_data) && "cod_mun_ibge" %in% names(mapping_data)) {
-  #    # OK, colunas esperadas presentes
-  # } else {
-  #     warning("As colunas esperadas ('COD_MUN_SIAFI', 'COD_MUN_IBGE') não foram encontradas no mapeamento.")
-  #     # Pode ser útil parar ou retornar NULL aqui
-  # }
-
-
-  return(mapping_data)
+  mapping_data
 }
-
-# Exemplo de uso:
-# mapeamento_municipios <- baixa_municipio_siafibge()
-# if (!is.null(mapeamento_municipios)) {
-#   print(head(mapeamento_municipios))
-# }

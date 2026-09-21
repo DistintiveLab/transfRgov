@@ -6,6 +6,7 @@
 ^README\.Rmd$
 ^cache$
 ^\.crush$
+^\.lintr$
 ^201901_Transferencias\.csv$
 ^data/.*\.(zip|csv|xlsx|xls|ods|txt)$
 ^data/.*\.old$

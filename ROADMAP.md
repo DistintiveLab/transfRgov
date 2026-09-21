@@ -744,7 +744,119 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       `Status: 1 NOTE`. O `pkgdown.yaml` disparou no mesmo `push` (execução
       35548685452) e fechou `success` em 2m3s, sem que um cancelasse o outro: o
       bloco `concurrency:` cumpriu o papel para o qual foi escrito.
-23. **`lintr` e `styler`**, hoje sem nenhuma configuração.
+23. **(concluída) `lintr` e `styler`**: criar a configuração de lint do
+    repositório e decidir sobre o formatador automático.
+
+    **Implementação — entrega de 2026-09-20.**
+
+    - **Não havia nenhuma configuração de lint no repositório**, e o `lintr`
+      3.2.0 (instalado na biblioteca do sistema, em
+      `/usr/lib/R/site-library/lintr`) rodava a lista padrão inteira sobre o
+      pacote como um todo. A medição inicial, feita com
+      `parse_settings = FALSE` para ignorar qualquer configuração, deu **1271
+      avisos**: `line_length_linter` 815, `object_length_linter` 146,
+      `commas_linter` 131, `infix_spaces_linter` 82, `object_usage_linter` 25,
+      `quotes_linter` 17, `brace_linter` 15, `indentation_linter` 9,
+      `paren_body_linter` 8, `commented_code_linter` 7, `return_linter` 6,
+      `T_and_F_symbol_linter` 4, `object_name_linter` 2,
+      `pipe_continuation_linter` 2, `spaces_left_parentheses_linter` 1 e
+      `trailing_blank_lines_linter` 1. Desse total, **292 estavam em
+      `data-raw/`** e **979 no resto do pacote**.
+    - **O `lintr` resolve o `object_usage_linter` contra o pacote
+      INSTALADO**, não contra a árvore de trabalho. Com a instalação anterior
+      defasada, a primeira leitura marcava 1296 avisos, 50 deles de uso de
+      objeto; depois de `devtools::install()` os mesmos números caíram para
+      1271 e 25. **Toda medição passou a ser precedida de uma reinstalação**, e
+      a linha de base registrada é a de 1271.
+    - **O diretório `data-raw/` foi excluído por inteiro.** É código de
+      preparação de dados, está no `.Rbuildignore` desde antes e nunca roda sob
+      `R CMD check`, de modo que os seus 292 avisos não têm relação com o que o
+      check enxerga. A exclusão é uma string solta na chave `exclusions` do
+      `.lintr`, que é a forma que o próprio `lintr` documenta para excluir um
+      diretório inteiro.
+    - **No resto do pacote o conjunto mecânico era de 31 avisos: 29 corrigidos
+      por edição e 2 dispensados por exclusão de arquivo.** As correções foram
+      indentação em `R/campos_metafaftab.R` (linha 66),
+      `R/encadeia_despesas_ptransp.R` (95),
+      `R/ler_gestao_financeira_categorias_despesa.R` (37),
+      `R/ler_gestao_financeira_subtransacoes.R` (57), `R/ler_programas.R` (66)
+      e `R/ler_transferencias_ptransp.R` (148); `return_linter` em
+      `R/baixa_municipio_siafibge.R` (59 e 86),
+      `R/download_despesas_ptransp.R` (117 e 163) e
+      `R/ler_transferencias_ptransp.R` (66 e 114); aspas e vírgulas em
+      `R/baixa_municipio_siafibge.R` (41 e 43); código comentado morto nas
+      linhas 74 a 83 e 89 a 93 do mesmo arquivo; o espaço de infixo nas linhas
+      99 e 111 de `R/ler_transferencias_ptransp.R`; e a linha em branco final
+      de `R/ler_programas_especiais.R`. **Nada foi renomeado**: os dois avisos
+      de `object_name_linter` são o argumento `stringsAsFactors` dos mocks de
+      `mockery::stub` em `tests/testthat/test-renuncias_e_siafibge.R` (linhas
+      237 e 257), que precisa manter a grafia, e por isso o arquivo inteiro
+      entra em `exclusions`.
+    - **O `object_length_linter` foi elevado do padrão de 30 para 64
+      caracteres.** O limite padrão era o único motivo dos 146 avisos, e
+      reduzi-lo não era opção: os nomes vêm da própria API. Medido de duas
+      formas independentes, `unique(unlist(metafaftab))` sobre o dataset
+      empacotado (264 nomes de campo) e os tokens `SYMBOL` de
+      `utils::getParseData()` sobre os arquivos de `R/` (384 símbolos),
+      **o identificador mais longo tem exatamente 63 caracteres**: 46 passam de
+      40, 22 passam de 50, 4 passam de 60 e nenhum passa de 70. Os dois nomes de
+      63 caracteres são truncados pela própria especificação da API e **não são
+      renomeáveis**. Com o limite em 64 o linter continua ativo e com zero
+      avisos hoje, pronto para pegar um nome longo escrito à mão amanhã.
+    - **O `object_usage_linter` foi zerado com um arquivo novo e uma exclusão de
+      linha.** Dos 25 avisos originais, 11 eram de `data-raw/` e saíram junto
+      com o diretório, deixando 14: 12 nos chunks da vinheta
+      `vignettes/transfRgov.Rmd` e 2 em `tests/testthat/test-leitores.R` (82 e
+      84). O novo `R/zzz.R` declara com um único `utils::globalVariables()` as
+      oito colunas usadas por avaliação não padrão na vinheta e nos scripts de
+      análise, e **os 12 avisos da vinheta sumiram**; os 2 restantes são os
+      ajudantes `mock_capturando_urls` e `sem_avisos`, definidos em
+      `tests/testthat/helper-httr2.R`, que o linter não enxerga ao examinar o
+      arquivo de teste isolado, e por isso são dispensados por
+      `"tests/testthat/test-leitores.R" = list(object_usage_linter = c(82L, 84L))`.
+    - **O único linter que sobra é o `line_length_linter`, com 93 avisos**, do
+      limite de 120 caracteres. São 22 linhas de roxygen e 71 de código, e
+      **todas as 71 são listas de campos `select=` de PostgREST**, isto é,
+      nomes de coluna da API concatenados num argumento só; quebrá-las exigiria
+      inventar apelidos e mudaria o contrato do pacote. A linha mais longa tem
+      198 caracteres (`R/ler_renuncias_ptransp.R:30`), 48 passam de 130, 36
+      passam de 140 e 13 passam de 160. O limite de 120 é o ponto de equilíbrio:
+      em 80 haveria 703 linhas de `R/` marcadas, quase metade delas prosa de
+      roxygen, que nenhum formatador reescreve.
+    - **O `styler` não foi executado.** Ele não está instalado, e uma passagem
+      completa reescreveria centenas de linhas, invalidando a linha de base do
+      gate de check e misturando formatação com a correção de lint num commit
+      só. A decisão fica registrada aqui como não executada, para ser retomada
+      à parte se o mantenedor quiser.
+    - **O arquivo `.lintr` é DCF, não YAML, e por isso não tem comentário
+      nenhum.** O `read.dcf` não entende uma linha começando com `#`: no topo
+      do arquivo ela vira um campo fantasma que engole a linha seguinte, e no
+      meio ela aborta a leitura com "Linha começando com '#' está mal formada!".
+      Toda a justificativa mora aqui e em `AGENTS.md`, e o `.lintr` fica só com
+      as duas chaves, `linters` e `exclusions`. A configuração mantém os 25
+      linters padrão ativos, eleva `line_length_linter` para 120 e
+      `object_length_linter` para 64 e declara as três exclusões.
+    - **O `.lintr` não entra no tarball**: a linha `^\.lintr$` foi acrescentada
+      ao `.Rbuildignore`, ao lado da `^\.crush$`. Sem isso o arquivo iria para
+      dentro do `R CMD check` e poderia mexer no desfecho dos gates 5 e 5b.
+    - **A cláusula sobre lint do `AGENTS.md` foi reescrita** para descrever o
+      `.lintr`, a restrição de não ter comentários, os dois limites elevados e
+      as três exclusões, no lugar da frase que dizia não haver configuração
+      nenhuma.
+    - **Verificação**: os gates rápidos e lentos fecharam como antes, sem
+      nenhum efeito no build. O `devtools::document()` foi um no-op puro
+      (`EXIT:0`, nenhuma linha `Writing`, `man/` com os mesmos 31 `.Rd` e
+      `git status man/` vazio). O `devtools::test()` fechou
+      `FAIL 0 | WARN 0 | SKIP 0 | PASS 622` em 2,7 s, com as 22 expressões
+      adiadas rodadas. O gate de ASCII fechou
+      `OK: 0 offenders across 33 R files (546 string literals scanned)`: o
+      arquivo a mais é o `R/zzz.R` e as oito strings a mais são as suas
+      variáveis globais, todas ASCII, sem regressão. A auditoria de
+      `\arguments` fechou `OK: 28 Rd \arguments sections exactly match
+      formals`. O `devtools::check(args = "--as-cran", error_on = "never")`
+      fechou `Status: OK`, e a variante com `_R_CHECK_CRAN_INCOMING_ = "true"`
+      fechou `Status: 1 NOTE`, com o aviso de ortografia das nove palavras do
+      `DESCRIPTION` exatamente nas mesmas colunas de antes.
 24. **Lastro local**: `data/` guarda cerca de 176 MB que não são dados do pacote
     e há um `201901_Transferencias.csv` de cerca de 46 MB na raiz. Ambos já estão
     excluídos do build, mas seguem dentro do diretório do pacote; decidir se

@@ -63,7 +63,7 @@ controles_postgrest <- function(endpoint) {
 #' @export
 campos_metafaftab <- function(endpoint = NULL, incluir_controle = FALSE) {
   if (!is.logical(incluir_controle) || length(incluir_controle) != 1L ||
-      is.na(incluir_controle)) {
+        is.na(incluir_controle)) {
     stop("O par\u00e2metro 'incluir_controle' deve ser TRUE ou FALSE.")
   }
 

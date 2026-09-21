@@ -70,4 +70,3 @@ ler_programa_especial <- function(id_programa = NULL,
 
   pg_get(table = table, filter = filters, select = select, order = order)
 }
-

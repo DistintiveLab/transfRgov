@@ -63,7 +63,7 @@ download_transferencias_uniao <- function(ano, mes, codigo_ibge = TRUE, municipi
     warning("Erro ao descompactar o arquivo ZIP ", temp_zip, ": ", e$message)
     # Limpa arquivos temporários antes de sair
     if (file.exists(temp_zip)) unlink(temp_zip)
-    return(NULL) # Indica falha
+    NULL # Indica falha
   })
 
   if (is.null(extracted_files) || length(extracted_files) == 0) {
@@ -96,7 +96,7 @@ download_transferencias_uniao <- function(ano, mes, codigo_ibge = TRUE, municipi
       col_names = TRUE, # Assume que a primeira linha é o cabeçalho
       locale = locale(encoding = "ISO-8859-1", decimal_mark = ","),
       show_col_types = FALSE # Não mostrar a mensagem de inferência de tipos do readr
-    )|>janitor::clean_names())
+    ) |> janitor::clean_names())
   }, error = function(e) {
     warning("Erro ao ler arquivo CSV com readr: ", e$message, "\nTentar ler com base R read.csv...")
     # Tenta com a função base read.csv como alternativa
@@ -108,10 +108,10 @@ download_transferencias_uniao <- function(ano, mes, codigo_ibge = TRUE, municipi
         header = TRUE,
         encoding = "Latin1", # Tenta Latin1, pode ser necessário tentar "UTF-8"
         stringsAsFactors = FALSE
-      )|>janitor::clean_names()
+      ) |> janitor::clean_names()
     }, error = function(e2) {
       warning("Falha ao ler arquivo CSV com base R read.csv: ", e2$message)
-      return(NULL) # Indica falha total
+      NULL # Indica falha total
     })
   })
 
@@ -145,7 +145,7 @@ download_transferencias_uniao <- function(ano, mes, codigo_ibge = TRUE, municipi
     colunas_mapeamento <- c("codigo_municipio_siafi", "codigo_ibge")
 
     if (!inherits(municipios_mapping_data, "data.frame") ||
-        !all(colunas_mapeamento %in% names(municipios_mapping_data))) {
+          !all(colunas_mapeamento %in% names(municipios_mapping_data))) {
       warning("O mapeamento SIAFI-IBGE n\u00e3o foi encontrado ou n\u00e3o cont\u00e9m as colunas ",
               "'codigo_municipio_siafi' e 'codigo_ibge'.")
       return(invisible(NULL))

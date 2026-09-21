@@ -34,15 +34,15 @@
 #'
 #' @export
 ler_gestao_financeira_categorias_despesa <- function(
-    id_categoria_despesa_gestao_financeira = NULL,
-    id_nivel_pai_categoria_despesa_gestao_financeira = NULL,
-    nome_nivel_atual_categoria_despesa_gestao_financeira = NULL,
-    nivel_atual_categoria_despesa_gestao_financeira = NULL,
-    nome_completo_niveis_categoria_despesa_gestao_financeira = NULL,
-    codigo_programa_agil = NULL,
-    nome_programa_agil = NULL,
-    select = NULL,
-    order = NULL
+  id_categoria_despesa_gestao_financeira = NULL,
+  id_nivel_pai_categoria_despesa_gestao_financeira = NULL,
+  nome_nivel_atual_categoria_despesa_gestao_financeira = NULL,
+  nivel_atual_categoria_despesa_gestao_financeira = NULL,
+  nome_completo_niveis_categoria_despesa_gestao_financeira = NULL,
+  codigo_programa_agil = NULL,
+  nome_programa_agil = NULL,
+  select = NULL,
+  order = NULL
 ) {
   table <- "gestao_financeira_categorias_despesa"
   filters <- c()

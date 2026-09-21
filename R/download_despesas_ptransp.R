@@ -114,7 +114,7 @@ download_despesas_ptransp <- function(
   }, error = function(e) {
     warning("Erro ao descompactar o arquivo ZIP ", temp_zip, ": ", e$message)
     if (file.exists(temp_zip)) unlink(temp_zip)
-    return(NULL)
+    NULL
   })
 
   if (is.null(extracted_files) || length(extracted_files) == 0) {
@@ -160,7 +160,7 @@ download_despesas_ptransp <- function(
       ) |> janitor::clean_names()
     }, error = function(e2) {
       warning("Falha ao ler arquivo CSV com base R read.csv: ", e2$message)
-      return(NULL)
+      NULL
     })
   })
 

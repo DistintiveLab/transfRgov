@@ -92,8 +92,8 @@ encadeia_despesas_ptransp <- function(
     stop("O par\u00e2metro 'chave' deve ser um texto v\u00e1lido.")
   }
   if (!is.logical(somente_detalhados) ||
-      length(somente_detalhados) != 1L ||
-      is.na(somente_detalhados)) {
+        length(somente_detalhados) != 1L ||
+        is.na(somente_detalhados)) {
     stop("O par\u00e2metro 'somente_detalhados' deve ser TRUE ou FALSE.")
   }
   if (!chave %in% names(total)) {
