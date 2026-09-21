@@ -903,16 +903,95 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       nesta entrada e nas linhas 11 e 12 do `.Rbuildignore`. Se a limpeza voltar
       a interessar, a ordem de ataque é `cache/renuncias/` (1,1 GB, regerável a
       partir dos ZIPs de origem) e depois os dois `.csv` portugueses (135 MB).
+25. **(concluída) Nomes de arquivo**: alinhar o nome de cada arquivo de
+    `R/` ao nome da função que ele exporta, sem renomear função alguma.
+
+    **Implementação — entrega de 2026-09-21.**
+
+    - **A decisão foi renomear os arquivos, não as funções.** É a forma mais
+      segura possível de normalizar: como nenhuma função muda de nome, não há
+      quebra de API, o `NAMESPACE` continua com os mesmos 29 exports e o
+      `DESCRIPTION` fica congelado em `0.1.1`.
+
+    - **Foram dez `git mv`**, um por par arquivo/função desalinhado:
+      `R/ler_plano_acao.R` → `R/get_plano_acao.R`;
+      `R/ler_plano_acao_dado_bancario.R` → `R/get_plano_acao_dado_bancario.R`;
+      `R/ler_plano_acao_historico.R` → `R/get_plano_acao_historico.R`;
+      `R/ler_termo_adesao.R` → `R/get_termo_adesao.R`;
+      `R/plano_acao_destinacao_recursos.R` →
+      `R/get_plano_acao_destinacao_recursos.R`;
+      `R/plano_acao_analise.R` → `R/ler_plano_acao_analise.R`;
+      `R/plano_acao_analise_responsavel.R` →
+      `R/ler_plano_acao_analise_responsavel.R`;
+      `R/ler_programas_especiais.R` → `R/ler_programa_especial.R`;
+      `R/ler_transferencias_ptransp.R` → `R/download_transferencias_uniao.R`;
+      e `R/ler_renuncias_ptransp.R` → `R/consultar_renuncias_fiscais.R`.
+
+    - **O conteúdo do `man/` e o `NAMESPACE` não mudam; só a linha de
+      proveniência do `.Rd` muda.** O roxígeno deriva o nome do `.Rd` do
+      nome da **função**, não do arquivo de origem, e nenhum dos dez
+      arquivos carrega `@name`, `@rdname`, `@aliases`, `@include` ou
+      `@describeIn`: cada um tem exatamente um `@export`. O que o
+      `devtools::document()` rodado depois dos `git mv` produziu foi
+      exatamente isso: nenhum `.Rd` muda de nome ou de corpo (título,
+      descrição, argumentos, valor), o `NAMESPACE` saiu byte a byte
+      idêntico e a única mudança foi o comentário de proveniência
+      `% Please edit documentation in R/...`, a segunda linha de cada um
+      dos dez `.Rd`, que passou a nomear o arquivo novo — uma linha por
+      arquivo, dez inserções e dez deleções no diff.
+
+    - **O `.lintr` não foi tocado.** As três entradas de `exclusions` seguem
+      válidas porque nenhum arquivo de teste foi renomeado; em especial a
+      string `tests/testthat/test-renuncias_e_siafibge.R` continua apontando
+      para um arquivo que existe.
+
+    - **Nada mais foi tocado**: os seis cassettes de `vcr`, os dois nomes de
+      campo de 63 caracteres truncados na própria especificação da API e os
+      formais `stringsAsFactors` dos mocks de `mockery` ficaram como estavam.
+
+    - **O que ficou de fora, de propósito, e por quê.** A grafia
+      `baixa_municipio_siafibge` não foi mexida: é grafia intencional do
+      mantenedor. A grafia `fundoafundo` também não: ela é a grafia da própria
+      API e vive no literal do domínio padrão em `R/utils-pg_get.R`, no
+      roxígeno de `R/metafaftab.R`, em nove linhas `uri:` dos cassettes, que
+      precisam casar byte a byte com a requisição gravada, e na prosa da
+      documentação. Trocar qualquer uma dessas pontas quebraria requisições
+      gravadas e vivas.
+
+    - **Verificação**: `document()` e `install()` com saída 0,
+      `devtools::test()` passando (622 testes, zero falhas), o gate de ASCII
+      com 0 ofensores em 33 arquivos e 546 literais de string, a auditoria de
+      `\arguments` casando os 28 `formals`, e os dois `devtools::check` com
+      `Status: OK` e `Status: 1 NOTE`. O `lintr::lint_package()` continuou
+      marcando **93 avisos**, todos de `line_length_linter`, apenas
+      reindexados para os novos nomes de arquivo.
+
+    - **Achado de ambiente, alheio ao renome.** Na data desta entrega o
+      `httr2` 1.3.0 da biblioteca pessoal do usuário passou a sombrear as
+      versões de sistema, e a combinação dele com o `vcr` 1.6.0 e o
+      `webmockr` 2.0.0 locais quebra os seis testes de cassete com o erro
+      de assinatura de mock (`mock must have the argument req`) — o HEAD
+      anterior ao renome falha do mesmo jeito, o que isola o problema como
+      deriva do ambiente, não do código. Os gates acima foram rodados com o
+      `httr2` de sistema (1.0.3), configuração em que a suíte fecha limpa;
+      o CI, que instala as próprias dependências, segue sendo a referência
+      para deriva de versões.
 
 ## Itens que exigem aprovação explícita
 
-Renomeações esbarram nas convenções registradas em `AGENTS.md`:
-`baixa_municipio_siafibge` (grafia intencional), a grafia `fundoafundo` da API e
-os oito descompassos intencionais entre nome de arquivo e nome de função
-(por exemplo `R/ler_plano_acao.R` define `get_plano_acao`). Nada disso deve ser
-normalizado sem consulta. O mesmo vale para a URL em `R/metafaftab.R:31-34`, que
-hoje aparece em `\code{}` de propósito: como o servidor responde 403 a `HEAD`,
-promovê-la a `\url{}` reintroduz o aviso de verificação de URLs do CRAN.
+**Resolvido em 2026-09-21.** Os dez descompassos entre nome de arquivo e nome
+de função foram normalizados renomeando os arquivos (item 25), com quatro
+decisões registradas na ocasião: renomear os arquivos e não as funções; manter
+`baixa_municipio_siafibge` como está; não mexer na grafia `fundoafundo`; e
+segurar o `Version:` do `DESCRIPTION`. Permanecem sem normalização, por decisão
+explícita, a grafia `fundoafundo` (ela é o literal do domínio padrão da API, em
+`R/utils-pg_get.R`, e aparece em nove linhas `uri:` dos cassettes, que precisam
+casar byte a byte com a requisição gravada) e a grafia
+`baixa_municipio_siafibge` (grafia intencional do mantenedor).
+
+**Ainda depende de aval** a URL em `R/metafaftab.R:31-34`, que hoje aparece em
+`\code{}` de propósito: como o servidor responde 403 a `HEAD`, promovê-la a
+`\url{}` reintroduz o aviso de verificação de URLs do CRAN.
 
 Também exige decisão, e por isso ainda não foi corrigido, o defeito descrito no
 item 14: `ler_empenho_especial()` e `ler_programa_especial()` consultam as
