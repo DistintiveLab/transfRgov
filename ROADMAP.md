@@ -857,10 +857,52 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       fechou `Status: OK`, e a variante com `_R_CHECK_CRAN_INCOMING_ = "true"`
       fechou `Status: 1 NOTE`, com o aviso de ortografia das nove palavras do
       `DESCRIPTION` exatamente nas mesmas colunas de antes.
-24. **Lastro local**: `data/` guarda cerca de 176 MB que não são dados do pacote
-    e há um `201901_Transferencias.csv` de cerca de 46 MB na raiz. Ambos já estão
-    excluídos do build, mas seguem dentro do diretório do pacote; decidir se
-    saem para um diretório de análise fora do repositório.
+24. **(concluída) Lastro local**: decidir o destino dos cerca de 176 MB de
+    `data/` que não são dados do pacote e do `201901_Transferencias.csv` de
+    cerca de 46 MB na raiz.
+
+    **Implementação — entrega de 2026-09-21.**
+
+    - **A decisão foi não mover nada**, e o inventário mostrou que o lastro real
+      é bem maior e de outra natureza do que o texto original do item supunha.
+      Medido com `du -sh` a partir da raiz do pacote, o diretório de trabalho
+      ocupa **1,7 GB** sem contar o `.git`: `cache/` 1,3 GB (dos quais 1,1 GB só
+      em `cache/renuncias/`, mais 241 MB de três ZIPs do SICONV), `.RData`
+      150 MB, `data/` 173 MB, `201901_Transferencias.csv` 45 MB, `.crush/`
+      29 MB e `docs/` 3,9 MB. O item apontava 176 MB onde há 1,7 GB, e apontava
+      `data/` onde o grosso está em `cache/`.
+
+    - **O que de fato embarca no pacote são 88 KB**: `data/metafaftab.rda` (4 KB)
+      e `data/municipios_siafi_ibge.rda` (84 KB). Todo o resto de `data/` é
+      material de análise. A divisão é: os dois arquivos portugueses
+      `transferências_para_municípios.csv` (68 MB) e o seu `.old` (67 MB) somam
+      **135 dos 173 MB**; depois vêm dois `.xlsx` de origem não identificada
+      (13 MB e 8,7 MB), `transf_mun_ptransp.csv` (13 MB) com o seu `.zip`
+      (2,9 MB), `estimativa_dou_2025.xls` (812 KB) e `.ods` (212 KB), e o
+      `link_baixada_transferencia.txt` de 4 KB, que é cache de leitor, não dado.
+
+    - **Nada disso está quebrado.** Todos esses caminhos já são ignorados pelo
+      git (`.gitignore` linhas 3, 7, 9, 10-16 e 18: `.RData`, `cache/`, o CSV da
+      raiz, `docs/` e os curingas `data/*.zip|csv|xlsx|xls|ods|txt|old`) e o
+      grosso também pelo build (`.Rbuildignore` linhas 7, 10, 11 e 12:
+      `cache/`, o CSV da raiz e os mesmos curingas de `data/`). O `R CMD check`
+      e o `pkgdown` nunca viram um byte deles. Mover os arquivos não corrigiria
+      defeito algum; mudaria apenas o endereço de material que, por construção,
+      não faz parte do pacote.
+
+    - **O que desaconselha o movimento.** `data-raw/gastos_tributarios.R:20`
+      fixa `pasta_renuncias <- "cache/renuncias/"` como caminho relativo à raiz
+      do pacote: mover `cache/` quebraria o script de análise que o `AGENTS.md`
+      documenta. O `.RData` de 150 MB é artefato vivo da sessão do RStudio e não
+      pode ser movido enquanto a sessão o mantém aberto. E o `docs/` é o produto
+      do `pkgdown`, regerado no `gh-pages` a cada push: apagá-lo localmente só
+      obrigaria a reconstruí-lo.
+
+    - **O item passa a ser registro, não pendência.** Nenhum arquivo foi movido,
+      e a convenção de que `data/` só embarca os dois `.rda` fica documentada
+      nesta entrada e nas linhas 11 e 12 do `.Rbuildignore`. Se a limpeza voltar
+      a interessar, a ordem de ataque é `cache/renuncias/` (1,1 GB, regerável a
+      partir dos ZIPs de origem) e depois os dois `.csv` portugueses (135 MB).
 
 ## Itens que exigem aprovação explícita
 
