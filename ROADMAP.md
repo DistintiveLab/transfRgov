@@ -736,7 +736,14 @@ Tudo em `R/utils-pg_get.R`. São defeitos de correção, não funcionalidades no
       bateram com o desenho acima; o gate local
       `devtools::check(args = "--as-cran", error_on = "never")` fechou
       `Status: OK` contra o mesmo código do commit anterior, sem tocar em
-      `R/`. O desfecho do primeiro `push` está registrado logo abaixo.
+      `R/`.
+    - **O primeiro `push` disparou a execução 35548685388**, que fechou
+      `completed success` em 2m17s, com `* checking examples with
+      --run-donttest ... OK` e `Status: OK`, isto é, confirmou no CI a previsão
+      de que a ação zera o check de incoming e o desfecho é `OK`, e não
+      `Status: 1 NOTE`. O `pkgdown.yaml` disparou no mesmo `push` (execução
+      35548685452) e fechou `success` em 2m3s, sem que um cancelasse o outro: o
+      bloco `concurrency:` cumpriu o papel para o qual foi escrito.
 23. **`lintr` e `styler`**, hoje sem nenhuma configuração.
 24. **Lastro local**: `data/` guarda cerca de 176 MB que não são dados do pacote
     e há um `201901_Transferencias.csv` de cerca de 46 MB na raiz. Ambos já estão
