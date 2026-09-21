@@ -989,9 +989,13 @@ explícita, a grafia `fundoafundo` (ela é o literal do domínio padrão da API,
 casar byte a byte com a requisição gravada) e a grafia
 `baixa_municipio_siafibge` (grafia intencional do mantenedor).
 
-**Ainda depende de aval** a URL em `R/metafaftab.R:31-34`, que hoje aparece em
-`\code{}` de propósito: como o servidor responde 403 a `HEAD`, promovê-la a
-`\url{}` reintroduz o aviso de verificação de URLs do CRAN.
+**Resolvido em 2026-09-21.** A URL em `R/metafaftab.R:31-34` fica como está,
+em `\code{}`: o mantenedor decidiu que o link clicável é ganho menor do que
+o aviso de verificação de URLs que ele reintroduziria no check do CRAN
+enquanto o servidor responder 403 a `HEAD` e o pacote estiver na fila em
+0.1.1. Nenhum arquivo de código muda — esta entrada é o registro completo da
+decisão, que pode ser revisitada se o servidor passar a responder às
+sondagens de verificação.
 
 Também exige decisão, e por isso ainda não foi corrigido, o defeito descrito no
 item 14: `ler_empenho_especial()` e `ler_programa_especial()` consultam as
